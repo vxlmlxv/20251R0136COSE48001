@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -34,7 +33,7 @@ const NewProjectPage = () => {
   
   // Form validation
   const isStep1Valid = () => title.trim() !== '' && description.trim() !== '';
-  const isStep2Valid = () => audience !== '' && formality !== '';
+  const isStep2Valid = () => true; // Since audience and formality have default values, this step is always valid
   const isStep3Valid = () => selectedFile !== null;
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
