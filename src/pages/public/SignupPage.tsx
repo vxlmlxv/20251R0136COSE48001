@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExclamationTriangleIcon } from 'lucide-react';
 
 const SignupPage = () => {
   const { signup } = useAuth();
@@ -19,6 +21,7 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const validateForm = () => {
     const newErrors: any = {};
@@ -49,6 +52,7 @@ const SignupPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage('');
     
     if (validateForm()) {
       setIsSubmitting(true);
@@ -61,12 +65,8 @@ const SignupPage = () => {
           variant: 'default',
         });
         navigate('/app/dashboard');
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'An error occurred while creating your account. Please try again.',
-          variant: 'destructive',
-        });
+      } catch (error: any) {
+        setErrorMessage(error.message || 'An error occurred while creating your account. Please try again.');
       } finally {
         setIsSubmitting(false);
       }
@@ -84,6 +84,13 @@ const SignupPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {errorMessage && (
+              <Alert variant="destructive" className="mb-4">
+                <ExclamationTriangleIcon className="h-4 w-4 mr-2" />
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
