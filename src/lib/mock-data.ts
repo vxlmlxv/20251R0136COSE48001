@@ -168,7 +168,7 @@ export const mockSuggestions: Suggestion[] = [
     projectId: 'project-1',
     segmentIds: ['segment-1'],
     beforeText: 'Good morning everyone. Today I want to walk you through our sales performance for Q2.',
-    afterText: 'Good morning everyone. I'm excited to share our Q2 sales performance with you today.',
+    afterText: 'Good morning everyone. I am excited to share our Q2 sales performance with you today.',
     rationale: 'Using positive emotional language creates a stronger connection with your audience.'
   },
   {
@@ -176,7 +176,7 @@ export const mockSuggestions: Suggestion[] = [
     projectId: 'project-1',
     segmentIds: ['segment-2'],
     beforeText: 'Did we meet our targets for the quarter?',
-    afterText: 'Let's look at how we performed against our quarterly targets.',
+    afterText: 'Let us look at how we performed against our quarterly targets.',
     rationale: 'Converting rhetorical questions to statements can make your presentation sound more confident.'
   }
 ];
