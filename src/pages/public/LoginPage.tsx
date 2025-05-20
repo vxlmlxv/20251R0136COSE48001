@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ExclamationTriangleIcon } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -78,7 +77,7 @@ const LoginPage = () => {
           <CardContent className="space-y-4">
             {errorMessage && (
               <Alert variant="destructive" className="mb-4">
-                <ExclamationTriangleIcon className="h-4 w-4 mr-2" />
+                <AlertTriangle className="h-4 w-4 mr-2" />
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
             )}
