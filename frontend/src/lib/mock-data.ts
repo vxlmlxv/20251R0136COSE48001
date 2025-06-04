@@ -1,5 +1,5 @@
 
-import { User, Project, Video, ScriptSegment, BehaviorEvent, BadgeScore, Suggestion } from './types';
+import { User, Project, Video, ScriptSegment, ScriptSection, BehaviorEvent, BadgeScore, Suggestion } from './types';
 
 // Mock user data
 export const mockUsers: User[] = [
@@ -99,6 +99,74 @@ export const mockScriptSegments: ScriptSegment[] = [
     end: 35.7,
     text: 'Yes, we exceeded our targets by 15%, which is a significant improvement from last quarter.',
     speechAct: 'emphasis'
+  }
+];
+
+// Mock script sections
+export const mockScriptSections: ScriptSection[] = [
+  {
+    id: 'section-1',
+    projectId: 'project-1',
+    title: 'Opening & Introduction',
+    start: 0,
+    end: 35.7,
+    sentences: [
+      'Good morning everyone. Today I want to walk you through our sales performance for Q2.',
+      'Did we meet our targets for the quarter?',
+      'Yes, we exceeded our targets by 15%, which is a significant improvement from last quarter.'
+    ]
+  },
+  {
+    id: 'section-2',
+    projectId: 'project-1',
+    title: 'Key Metrics Overview',
+    start: 35.7,
+    end: 78.3,
+    sentences: [
+      'Let me share the key metrics that drove this performance.',
+      'Our conversion rate increased by 8% compared to Q1.',
+      'Customer acquisition costs decreased by 12%, showing improved efficiency.',
+      'The average deal size grew by 22%, indicating we are attracting higher-value clients.'
+    ]
+  },
+  {
+    id: 'section-3',
+    projectId: 'project-1',
+    title: 'Regional Performance',
+    start: 78.3,
+    end: 125.8,
+    sentences: [
+      'Breaking down by region, we see interesting patterns.',
+      'The North region led with 28% growth, followed by West with 19%.',
+      'The East region showed steady progress at 14% growth.',
+      'The South region, while showing 8% growth, has room for improvement.'
+    ]
+  },
+  {
+    id: 'section-4',
+    projectId: 'project-1',
+    title: 'Challenges & Solutions',
+    start: 125.8,
+    end: 168.5,
+    sentences: [
+      'Of course, we faced some challenges this quarter.',
+      'Supply chain disruptions affected our delivery times.',
+      'We addressed this by diversifying our supplier base.',
+      'Additionally, we implemented new tracking systems for better visibility.'
+    ]
+  },
+  {
+    id: 'section-5',
+    projectId: 'project-1',
+    title: 'Future Outlook',
+    start: 168.5,
+    end: 210.0,
+    sentences: [
+      'Looking ahead to Q3, we have ambitious but achievable goals.',
+      'We plan to launch two new product lines.',
+      'Our marketing team is preparing campaigns targeting new demographics.',
+      'With these initiatives, we project 25% growth for the next quarter.'
+    ]
   }
 ];
 
@@ -260,17 +328,39 @@ export const mockSuggestions: Suggestion[] = [
   {
     id: 'suggestion-1',
     projectId: 'project-1',
-    segmentIds: ['segment-1'],
-    beforeText: 'Good morning everyone. Today I want to walk you through our sales performance for Q2.',
-    afterText: 'Good morning everyone. I am excited to share our Q2 sales performance with you today.',
-    rationale: 'Using positive emotional language creates a stronger connection with your audience.'
+    sectionId: 'section-1',
+    type: 'modify',
+    suggestedText: 'Good morning, team. I am excited to share our outstanding Q2 sales performance with you today. We not only met our targets but exceeded them by 15%, which represents a significant improvement from last quarter.',
+    rationale: 'Using positive emotional language and combining related statements creates a stronger, more confident opening.'
   },
   {
     id: 'suggestion-2',
     projectId: 'project-1',
-    segmentIds: ['segment-2'],
-    beforeText: 'Did we meet our targets for the quarter?',
-    afterText: 'Let us look at how we performed against our quarterly targets.',
-    rationale: 'Converting rhetorical questions to statements can make your presentation sound more confident.'
+    sectionId: 'section-2',
+    type: 'modify',
+    suggestedText: 'Let me highlight the key metrics that drove this exceptional performance. Our conversion rate increased by 8% compared to Q1, while customer acquisition costs decreased by 12%, demonstrating improved efficiency. Most notably, the average deal size grew by 22%, indicating we are successfully attracting higher-value clients.',
+    rationale: 'Restructuring for better flow and emphasizing the positive outcomes with stronger connecting words.'
+  },
+  {
+    id: 'suggestion-3',
+    projectId: 'project-1',
+    sectionId: 'section-3',
+    type: 'keep',
+    rationale: 'This section effectively presents regional data with clear structure and balanced tone.'
+  },
+  {
+    id: 'suggestion-4',
+    projectId: 'project-1',
+    sectionId: 'section-4',
+    type: 'modify',
+    suggestedText: 'While we achieved great success, we also navigated some challenges effectively. Supply chain disruptions initially affected our delivery times, but we proactively addressed this by diversifying our supplier base and implementing new tracking systems for better visibility.',
+    rationale: 'Reframing challenges as opportunities demonstrates problem-solving capability and maintains positive momentum.'
+  },
+  {
+    id: 'suggestion-5',
+    projectId: 'project-1',
+    sectionId: 'section-5',
+    type: 'delete',
+    rationale: 'The future outlook section, while informative, may be too detailed for this quarterly review. Consider moving these points to a separate strategic planning discussion.'
   }
 ];

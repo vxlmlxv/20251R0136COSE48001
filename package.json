@@ -1,4 +1,9 @@
 {
+  "dependencies": {
+    "@nestjs/mapped-types": "*",
+    "curl": "^0.1.4",
+    "nginx": "^1.1.0"
+  },
   "name": "preffy-video-flow",
   "private": true,
   "version": "0.0.0",

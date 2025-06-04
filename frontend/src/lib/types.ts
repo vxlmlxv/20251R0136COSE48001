@@ -40,6 +40,15 @@ export interface ScriptSegment {
   speechAct: 'statement' | 'question' | 'command' | 'emphasis';
 }
 
+export interface ScriptSection {
+  id: string;
+  projectId: string;
+  title: string;
+  start: number;
+  end: number;
+  sentences: string[];
+}
+
 export interface BehaviorEvent {
   id: string;
   projectId: string;
@@ -60,8 +69,8 @@ export interface BadgeScore {
 export interface Suggestion {
   id: string;
   projectId: string;
-  segmentIds: string[];
-  beforeText: string;
-  afterText: string;
+  sectionId: string;
+  type: 'modify' | 'delete' | 'keep';
+  suggestedText?: string;
   rationale: string;
 }

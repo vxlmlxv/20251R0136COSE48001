@@ -5,15 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { mockProjects, mockVideos, mockScriptSegments, mockSuggestions } from '@/lib/mock-data';
-import { Project, Video, ScriptSegment, Suggestion } from '@/lib/types';
+import { mockProjects, mockVideos, mockScriptSections, mockSuggestions } from '@/lib/mock-data';
+import { Project, Video, ScriptSection, Suggestion } from '@/lib/types';
 import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, FileText, Repeat, BookOpen, Volume2, Target, Zap } from 'lucide-react';
 
 const ScriptFeedbackPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [project, setProject] = useState<Project | null>(null);
   const [video, setVideo] = useState<Video | null>(null);
-  const [scriptSegments, setScriptSegments] = useState<ScriptSegment[]>([]);
+  const [scriptSections, setScriptSections] = useState<ScriptSection[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState<'structure' | 'habits'>('structure');
@@ -28,23 +28,31 @@ const ScriptFeedbackPage = () => {
     actually: { count: 4, timestamp: [62.4, 114.7, 158.3, 217.5] },
   };
 
-  // Helper function to get suggestion icon based on category
-  const getSuggestionIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'structure':
-      case 'content':
-        return <BookOpen className="h-5 w-5 text-blue-600" />;
-      case 'clarity':
-      case 'word-choice':
-        return <MessageCircle className="h-5 w-5 text-green-600" />;
-      case 'speech':
-      case 'pace':
-        return <Volume2 className="h-5 w-5 text-purple-600" />;
-      case 'filler-words':
-        return <Mic2 className="h-5 w-5 text-orange-600" />;
-      case 'flow':
-      case 'transitions':
-        return <Repeat className="h-5 w-5 text-indigo-600" />;
+  // Helper function to get suggestion colors based on type
+  const getSuggestionColor = (type: string, isAccepted: boolean) => {
+    if (isAccepted) return 'border-green-300 bg-green-50';
+    
+    switch (type) {
+      case 'modify':
+        return 'border-yellow-300 bg-yellow-50';
+      case 'delete':
+        return 'border-red-300 bg-red-50';
+      case 'keep':
+        return 'border-green-300 bg-green-50';
+      default:
+        return 'border-gray-300 bg-gray-50';
+    }
+  };
+
+  // Helper function to get suggestion icon based on type
+  const getSuggestionTypeIcon = (type: string) => {
+    switch (type) {
+      case 'modify':
+        return <MessageCircle className="h-5 w-5 text-yellow-600" />;
+      case 'delete':
+        return <X className="h-5 w-5 text-red-600" />;
+      case 'keep':
+        return <Check className="h-5 w-5 text-green-600" />;
       default:
         return <Target className="h-5 w-5 text-gray-600" />;
     }
@@ -69,9 +77,9 @@ const ScriptFeedbackPage = () => {
           setVideo(foundVideo);
         }
         
-        // Get script segments for this project
-        const projectSegments = mockScriptSegments.filter(seg => seg.projectId === projectId);
-        setScriptSegments(projectSegments);
+        // Get script sections for this project
+        const projectSections = mockScriptSections.filter(sec => sec.projectId === projectId);
+        setScriptSections(projectSections);
         
         // Get suggestions for this project
         const projectSuggestions = mockSuggestions.filter(sug => sug.projectId === projectId);
@@ -155,119 +163,129 @@ const ScriptFeedbackPage = () => {
         </div>
         
         <TabsContent value="structure" className="mt-6 space-y-6">
-          {/* Original vs Improved Structure */}
+          {/* Script Sections and Suggestions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Original Structure */}
+            {/* Original Script Sections */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Original Script</CardTitle>
-                <CardDescription>Your presentation transcript</CardDescription>
+                <CardTitle className="text-lg">Original Script Sections</CardTitle>
+                <CardDescription>Your presentation organized by topics</CardDescription>
               </CardHeader>
               <CardContent className="max-h-[500px] overflow-y-auto">
                 <div className="space-y-4">
-                  {scriptSegments.map(segment => (
-                    <div key={segment.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
+                  {scriptSections.map(section => (
+                    <div key={section.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
                         <Badge variant="outline" className="bg-gray-50">
-                          {formatTime(segment.start)} - {formatTime(segment.end)}
+                          {formatTime(section.start)} - {formatTime(section.end)}
                         </Badge>
                         <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                          {segment.speechAct.charAt(0).toUpperCase() + segment.speechAct.slice(1)}
+                          {section.title}
                         </Badge>
                       </div>
-                      <p className="text-gray-800">{segment.text}</p>
+                      <div className="space-y-2">
+                        {section.sentences.map((sentence, index) => (
+                          <p key={index} className="text-gray-800 text-sm leading-relaxed">
+                            {sentence}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
             
-            {/* Improved Structure */}
+            {/* AI Suggestions */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Suggested Improvements</CardTitle>
-                <CardDescription>AI-powered suggestions for clarity and impact</CardDescription>
+                <CardTitle className="text-lg">AI Suggestions</CardTitle>
+                <CardDescription>Section-based recommendations for improvement</CardDescription>
               </CardHeader>
               <CardContent className="max-h-[500px] overflow-y-auto">
                 <div className="space-y-4">
                   {suggestions.length > 0 ? (
-                    suggestions.map(suggestion => (
-                      <div 
-                        key={suggestion.id} 
-                        className={`border rounded-lg p-4 ${
-                          acceptedSuggestions.includes(suggestion.id) ? 'border-green-300 bg-green-50' :
-                          rejectedSuggestions.includes(suggestion.id) ? 'border-red-300 bg-red-50' : ''
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2 mb-3">
-                          <MessageCircle className="h-5 w-5 text-blue-600" />
-                          <span className="text-sm font-medium text-gray-700">
-                            Improvement Suggestion
-                          </span>
-                        </div>
-                        <div className="mb-3">
-                          <p className="text-gray-500 text-sm mb-2">Original:</p>
-                          <p className="text-gray-800 bg-gray-50 p-2 rounded">{suggestion.beforeText}</p>
-                        </div>
-                        <div className="mb-3">
-                          <p className="text-gray-500 text-sm mb-2">Suggestion:</p>
-                          <p className="text-gray-800 bg-mint/10 p-2 rounded">{suggestion.afterText}</p>
-                        </div>
-                        
-                        <Accordion type="single" collapsible>
-                          <AccordionItem value="explanation">
-                            <AccordionTrigger className="text-sm text-gray-600 flex items-center">
-                              <HelpCircle className="h-4 w-4 mr-1" />
-                              Why this matters
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                                {suggestion.rationale}
+                    suggestions.map(suggestion => {
+                      const isAccepted = acceptedSuggestions.includes(suggestion.id);
+                      const isRejected = rejectedSuggestions.includes(suggestion.id);
+                      const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || 'Unknown Section';
+                      
+                      return (
+                        <div 
+                          key={suggestion.id} 
+                          className={`border rounded-lg p-4 ${getSuggestionColor(suggestion.type, isAccepted)}`}
+                        >
+                          <div className="flex items-center space-x-2 mb-3">
+                            {getSuggestionTypeIcon(suggestion.type)}
+                            <span className="text-sm font-medium text-gray-700">
+                              {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)} Suggestion
+                            </span>
+                            <span className="text-xs text-gray-500">• {sectionTitle}</span>
+                          </div>
+                          
+                          {suggestion.suggestedText && (
+                            <div className="mb-3">
+                              <p className="text-gray-500 text-sm mb-2">Suggested content:</p>
+                              <p className="text-gray-800 bg-white p-3 rounded border-l-4 border-l-mint">
+                                {suggestion.suggestedText}
                               </p>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                        
-                        <div className="flex justify-end mt-3 space-x-2">
-                          {!acceptedSuggestions.includes(suggestion.id) && 
-                           !rejectedSuggestions.includes(suggestion.id) && (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600"
-                                onClick={() => rejectSuggestion(suggestion.id)}
-                              >
-                                <X className="h-4 w-4 mr-1" />
-                                Reject
-                              </Button>
-                              <Button
-                                size="sm"
-                                className="text-white"
-                                onClick={() => acceptSuggestion(suggestion.id)}
-                              >
+                            </div>
+                          )}
+                          
+                          <Accordion type="single" collapsible>
+                            <AccordionItem value="explanation">
+                              <AccordionTrigger className="text-sm text-gray-600 flex items-center">
+                                <HelpCircle className="h-4 w-4 mr-1" />
+                                Why this matters
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                                  {suggestion.rationale}
+                                </p>
+                              </AccordionContent>
+                            </AccordionItem>
+                          </Accordion>
+                          
+                          <div className="flex justify-end mt-3 space-x-2">
+                            {!isAccepted && !isRejected && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600"
+                                  onClick={() => rejectSuggestion(suggestion.id)}
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  className="bg-mint hover:bg-mint/90 text-white"
+                                  onClick={() => acceptSuggestion(suggestion.id)}
+                                >
+                                  <Check className="h-4 w-4 mr-1" />
+                                  Accept
+                                </Button>
+                              </>
+                            )}
+                            
+                            {isAccepted && (
+                              <Badge className="bg-green-100 text-green-800">
                                 <Check className="h-4 w-4 mr-1" />
-                                Accept
-                              </Button>
-                            </>
-                          )}
-                          
-                          {acceptedSuggestions.includes(suggestion.id) && (
-                            <Badge className="bg-green-100 text-green-800">
-                              <Check className="h-4 w-4 mr-1" />
-                              Accepted
-                            </Badge>
-                          )}
-                          
-                          {rejectedSuggestions.includes(suggestion.id) && (
-                            <Badge className="bg-red-100 text-red-800">
-                              <X className="h-4 w-4 mr-1" />
-                              Rejected
-                            </Badge>
-                          )}
+                                Accepted
+                              </Badge>
+                            )}
+                            
+                            {isRejected && (
+                              <Badge className="bg-red-100 text-red-800">
+                                <X className="h-4 w-4 mr-1" />
+                                Rejected
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="text-center py-8">
                       <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
