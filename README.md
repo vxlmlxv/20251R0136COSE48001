@@ -15,14 +15,14 @@ preffy-video-flow/
 ```
 
 ### Backend (NestJS)
-- **Port**: 3001
+- **Port**: 3002
 - **Framework**: NestJS with TypeScript
 - **API**: RESTful endpoints for users, projects, feedback data
 - **Validation**: Class-validator for request validation
 - **CORS**: Enabled for frontend integration
 
 ### Frontend (React + Vite)
-- **Port**: 8087 (development)
+- **Port**: 8080 (development)
 - **Framework**: React 18 + TypeScript + Vite
 - **UI**: Tailwind CSS + shadcn/ui components
 - **State**: React Query for API state management
@@ -47,8 +47,8 @@ npm run dev
 ```
 
 This will start:
-- Backend server at `http://localhost:3001`
-- Frontend server at `http://localhost:8087`
+- Backend server at `http://localhost:3002`
+- Frontend server at `http://localhost:8080`
 
 ### Manual Setup
 
@@ -138,7 +138,7 @@ docker-compose up --build
 ```
 
 This will:
-- Build and start the backend on port 3001
+- Build and start the backend on port 3002
 - Build and start the frontend on port 80
 - Set up networking between services
 
@@ -214,11 +214,11 @@ frontend/
 ## 🔒 Environment Variables
 
 ### Backend
-- `PORT` - Server port (default: 3001)
+- `PORT` - Server port (default: 3002)
 - `NODE_ENV` - Environment mode
 
 ### Frontend
-- `VITE_API_URL` - Backend API URL (default: http://localhost:3001/api)
+- `VITE_API_URL` - Backend API URL (default: http://localhost:3002/api)
 
 ## 🧪 Testing
 
