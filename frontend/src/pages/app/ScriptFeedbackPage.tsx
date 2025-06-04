@@ -63,6 +63,12 @@ const ScriptFeedbackPage = () => {
     return <Mic2 className="h-4 w-4 text-orange-600" />;
   };
 
+  // Helper function to get filler word color
+  const getFillerWordColor = (wordIndex: number) => {
+    const colors = ['#09A484', '#EACD10', '#6366F1', '#EC4899']; // mint, yellow, blue, pink
+    return colors[wordIndex % colors.length];
+  };
+
   useEffect(() => {
     // Simulate loading data from API
     setTimeout(() => {
@@ -84,16 +90,27 @@ const ScriptFeedbackPage = () => {
         // Get suggestions for this project
         const projectSuggestions = mockSuggestions.filter(sug => sug.projectId === projectId);
         setSuggestions(projectSuggestions);
+        
+        // Initialize "keep" suggestions as accepted by default
+        const keepSuggestions = projectSuggestions.filter(sug => sug.type === 'keep').map(sug => sug.id);
+        setAcceptedSuggestions(keepSuggestions);
       }
       
       setIsLoading(false);
     }, 800);
   }, [projectId]);
 
-  // Handle accepting a suggestion
+  // Handle accepting a suggestion (make it reselectable)
   const acceptSuggestion = (suggestionId: string) => {
-    setAcceptedSuggestions(prev => [...prev, suggestionId]);
-    setRejectedSuggestions(prev => prev.filter(id => id !== suggestionId));
+    const isAlreadyAccepted = acceptedSuggestions.includes(suggestionId);
+    if (isAlreadyAccepted) {
+      // If already accepted, remove from accepted
+      setAcceptedSuggestions(prev => prev.filter(id => id !== suggestionId));
+    } else {
+      // If not accepted, add to accepted and remove from rejected
+      setAcceptedSuggestions(prev => [...prev, suggestionId]);
+      setRejectedSuggestions(prev => prev.filter(id => id !== suggestionId));
+    }
   };
 
   // Handle rejecting a suggestion
@@ -164,9 +181,9 @@ const ScriptFeedbackPage = () => {
         
         <TabsContent value="structure" className="mt-6 space-y-6">
           {/* Script Sections and Suggestions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Original Script Sections */}
-            <Card>
+            <Card className="lg:col-span-1">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">Original Script Sections</CardTitle>
                 <CardDescription>Your presentation organized by topics</CardDescription>
@@ -176,11 +193,11 @@ const ScriptFeedbackPage = () => {
                   {scriptSections.map(section => (
                     <div key={section.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-3">
-                        <Badge variant="outline" className="bg-gray-50">
-                          {formatTime(section.start)} - {formatTime(section.end)}
-                        </Badge>
                         <Badge variant="outline" className="bg-blue-50 text-blue-700">
                           {section.title}
+                        </Badge>
+                        <Badge variant="outline" className="bg-gray-50">
+                          {formatTime(section.start)} - {formatTime(section.end)}
                         </Badge>
                       </div>
                       <div className="space-y-2">
@@ -197,7 +214,7 @@ const ScriptFeedbackPage = () => {
             </Card>
             
             {/* AI Suggestions */}
-            <Card>
+            <Card className="lg:col-span-2">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">AI Suggestions</CardTitle>
                 <CardDescription>Section-based recommendations for improvement</CardDescription>
@@ -220,13 +237,13 @@ const ScriptFeedbackPage = () => {
                             <span className="text-sm font-medium text-gray-700">
                               {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)} Suggestion
                             </span>
-                            <span className="text-xs text-gray-500">• {sectionTitle}</span>
+                            <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span>
                           </div>
                           
                           {suggestion.suggestedText && (
                             <div className="mb-3">
                               <p className="text-gray-500 text-sm mb-2">Suggested content:</p>
-                              <p className="text-gray-800 bg-white p-3 rounded border-l-4 border-l-mint">
+                              <p className="text-gray-800 text-sm leading-relaxed p-3 rounded border-l-4 border-l-mint w-full">
                                 {suggestion.suggestedText}
                               </p>
                             </div>
@@ -236,7 +253,7 @@ const ScriptFeedbackPage = () => {
                             <AccordionItem value="explanation">
                               <AccordionTrigger className="text-sm text-gray-600 flex items-center">
                                 <HelpCircle className="h-4 w-4 mr-1" />
-                                Why this matters
+                                See why
                               </AccordionTrigger>
                               <AccordionContent>
                                 <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
@@ -247,33 +264,28 @@ const ScriptFeedbackPage = () => {
                           </Accordion>
                           
                           <div className="flex justify-end mt-3 space-x-2">
-                            {!isAccepted && !isRejected && (
+                            {!isRejected && (
                               <>
+                                {!isAccepted && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600"
+                                    onClick={() => rejectSuggestion(suggestion.id)}
+                                  >
+                                    <X className="h-4 w-4 mr-1" />
+                                    Reject
+                                  </Button>
+                                )}
                                 <Button
-                                  variant="outline"
                                   size="sm"
-                                  className="text-red-600"
-                                  onClick={() => rejectSuggestion(suggestion.id)}
-                                >
-                                  <X className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="bg-mint hover:bg-mint/90 text-white"
+                                  className={isAccepted ? "bg-green-600 hover:bg-green-700 text-white" : "bg-mint hover:bg-mint/90 text-white"}
                                   onClick={() => acceptSuggestion(suggestion.id)}
                                 >
                                   <Check className="h-4 w-4 mr-1" />
-                                  Accept
+                                  {isAccepted ? 'Accepted' : 'Accept'}
                                 </Button>
                               </>
-                            )}
-                            
-                            {isAccepted && (
-                              <Badge className="bg-green-100 text-green-800">
-                                <Check className="h-4 w-4 mr-1" />
-                                Accepted
-                              </Badge>
                             )}
                             
                             {isRejected && (
@@ -309,15 +321,53 @@ const ScriptFeedbackPage = () => {
               <div className="space-y-6">
                 {/* Stats Overview */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {Object.entries(fillerWordStats).map(([word, stats]) => (
+                  {Object.entries(fillerWordStats).map(([word, stats], index) => (
                     <div key={word} className="border rounded-lg p-4 text-center">
                       <div className="flex items-center justify-center mb-2">
-                        <Mic2 className="h-5 w-5 text-orange-600" />
+                        <Mic2 className="h-5 w-5" style={{ color: getFillerWordColor(index) }} />
                       </div>
                       <h3 className="font-bold text-xl text-gray-800">{stats.count}</h3>
                       <p className="text-gray-500">"{word}"</p>
                     </div>
                   ))}
+                </div>
+                
+                {/* Timeline of Filler Words */}
+                <div>
+                  <h3 className="font-medium mb-3">Timeline of Filler Words</h3>
+                  <div className="relative h-12 border rounded-lg overflow-hidden">
+                    {video && Object.entries(fillerWordStats).map(([word, stats], wordIndex) => (
+                      <div key={word} className="absolute top-0 w-full h-full">
+                        {stats.timestamp.map((time, i) => (
+                          <div 
+                            key={`${word}-${i}`}
+                            className="absolute h-full w-1.5 cursor-pointer hover:opacity-80"
+                            style={{
+                              left: `${(time / video.duration) * 100}%`,
+                              backgroundColor: getFillerWordColor(wordIndex),
+                              opacity: 0.7
+                            }}
+                            title={`"${word}" at ${formatTime(time)}`}
+                          ></div>
+                        ))}
+                      </div>
+                    ))}
+                    
+                    {/* Legend */}
+                    <div className="absolute -bottom-6 left-0 right-0 flex justify-center space-x-4 text-xs text-gray-500">
+                      {Object.keys(fillerWordStats).map((word, i) => (
+                        <div key={word} className="flex items-center">
+                          <div 
+                            className="w-3 h-3 mr-1 rounded-full flex items-center justify-center" 
+                            style={{ backgroundColor: getFillerWordColor(i) }}
+                          >
+                            <Mic2 className="w-2 h-2 text-white" />
+                          </div>
+                          "{word}"
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 
                 {/* Recommendations */}
@@ -340,44 +390,6 @@ const ScriptFeedbackPage = () => {
                       <p>Slow down your speech pace slightly to give yourself time to think of the next phrase.</p>
                     </li>
                   </ul>
-                </div>
-                
-                {/* Timeline of Filler Words */}
-                <div>
-                  <h3 className="font-medium mb-3">Timeline of Filler Words</h3>
-                  <div className="relative h-12 border rounded-lg overflow-hidden">
-                    {video && Object.entries(fillerWordStats).map(([word, stats], wordIndex) => (
-                      <div key={word} className="absolute top-0 w-full h-full">
-                        {stats.timestamp.map((time, i) => (
-                          <div 
-                            key={`${word}-${i}`}
-                            className="absolute h-full w-1.5 cursor-pointer hover:opacity-80"
-                            style={{
-                              left: `${(time / video.duration) * 100}%`,
-                              backgroundColor: ['#09A484', '#EACD10', '#6366F1', '#EC4899'][wordIndex % 4],
-                              opacity: 0.7
-                            }}
-                            title={`"${word}" at ${formatTime(time)}`}
-                          ></div>
-                        ))}
-                      </div>
-                    ))}
-                    
-                    {/* Legend */}
-                    <div className="absolute -bottom-6 left-0 right-0 flex justify-center space-x-4 text-xs text-gray-500">
-                      {Object.keys(fillerWordStats).map((word, i) => (
-                        <div key={word} className="flex items-center">
-                          <div 
-                            className="w-3 h-3 mr-1 rounded-full flex items-center justify-center" 
-                            style={{ backgroundColor: ['#09A484', '#EACD10', '#6366F1', '#EC4899'][i % 4] }}
-                          >
-                            <Mic2 className="w-2 h-2 text-white" />
-                          </div>
-                          "{word}"
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
                 
                 {/* Quick Fixes */}
