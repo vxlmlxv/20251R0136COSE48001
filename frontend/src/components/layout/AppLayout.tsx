@@ -32,10 +32,15 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <SidebarContent>
             <div className="p-4 flex justify-center group-data-[collapsible=icon]:p-2">
               <Link to="/">
-                <h1 className="preffy-logo text-xl group-data-[collapsible=icon]:text-2xl group-data-[collapsible=icon]:text-center">Preffy</h1>
+                <img 
+                  src="/favicon.ico" 
+                  alt="Preffy" 
+                  className="h-6 w-auto group-data-[collapsible=icon]:h-8 mt-2"
+                />
               </Link>
             </div>
             
+            <div className="px-4 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
             <SidebarGroup>
               <SidebarGroupLabel>Main</SidebarGroupLabel>
               <SidebarGroupContent>
@@ -83,6 +88,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+            </div>
             
             <div className="mt-auto p-4 group-data-[collapsible=icon]:p-2">
               <div className="flex items-center space-x-3 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
