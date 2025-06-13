@@ -7,7 +7,11 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="preffy-logo text-xl">Preffy</h3>
+            <img 
+              src="/title.png" 
+              alt="Preffy" 
+              className="h-6 w-auto mb-2"
+            />
             <p className="mt-2 text-sm text-gray-500">
               Helping you present with confidence
             </p>

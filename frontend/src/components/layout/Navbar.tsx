@@ -15,7 +15,11 @@ export const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="preffy-logo text-2xl">Preffy</span>
+              <img 
+                src="/title.png" 
+                alt="Preffy" 
+                className="h-8 w-auto"
+              />
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link to="/features" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-mint">
