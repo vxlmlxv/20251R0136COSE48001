@@ -1,42 +1,34 @@
-# Preffy Video Feedback Platform
+# Preffy Video Flow
 
-A comprehensive video presentation analysis platform built with NestJS backend and React frontend, providing AI-powered feedback on presentation skills including gestures, facial expressions, speech patterns, and content structure.
+A modern video feedback platform built with **Spring Boot** and **React**, designed to help users analyze and improve their video presentations through AI-powered feedback.
 
 ## 🏗️ Architecture
 
-This project is structured as a monorepo with separate frontend and backend applications:
+### Backend (Spring Boot)
+- **Framework**: Spring Boot 3.5.0 with Java 22
+- **Database**: H2 in-memory database (development) / PostgreSQL (production)
+- **Authentication**: JWT-based authentication with Spring Security
+- **API**: RESTful API with comprehensive endpoints
+- **Build Tool**: Gradle
 
-```
-preffy-video-flow/
-├── backend/          # NestJS API server
-├── frontend/         # React + Vite frontend
-├── docker-compose.yml
-└── package.json      # Root scripts for development
-```
-
-### Backend (NestJS)
-- **Port**: 3002
-- **Framework**: NestJS with TypeScript
-- **API**: RESTful endpoints for users, projects, feedback data
-- **Validation**: Class-validator for request validation
-- **CORS**: Enabled for frontend integration
-
-### Frontend (React + Vite)
-- **Port**: 8080 (development)
-- **Framework**: React 18 + TypeScript + Vite
-- **UI**: Tailwind CSS + shadcn/ui components
-- **State**: React Query for API state management
-- **Routing**: React Router for client-side navigation
+### Frontend (React)
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: Shadcn/ui with Tailwind CSS
+- **State Management**: React Context API
+- **HTTP Client**: Axios
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+- Java 17+
 - Node.js 18+ 
 - npm
+- Firebase CLI (for deployment)
 
 ### Development Setup
 
-1. **Install all dependencies**:
+1. **Install frontend dependencies**:
 ```bash
 npm run install:all
 ```
@@ -47,8 +39,32 @@ npm run dev
 ```
 
 This will start:
-- Backend server at `http://localhost:3002`
-- Frontend server at `http://localhost:8080`
+- Backend server at `http://localhost:8080`
+- Frontend server at `http://localhost:8081`
+
+## 🌐 Live Demo
+
+The application is deployed and accessible at:  
+**🔗 [https://preffy-video-c76b5.web.app](https://preffy-video-c76b5.web.app)**
+
+## 📦 Deployment
+
+### Firebase Hosting
+
+Deploy the frontend to Firebase hosting:
+
+```bash
+# Build and deploy
+npm run deploy
+
+# Deploy hosting only
+npm run deploy:hosting
+
+# Test locally before deployment
+npm run firebase:serve
+```
+
+**Note**: The frontend is configured to connect to a backend API. Update the `VITE_API_URL` in `.env.production` to point to your deployed backend when ready.
 
 ### Manual Setup
 

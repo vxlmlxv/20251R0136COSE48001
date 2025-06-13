@@ -1,8 +1,8 @@
 
 import { toast } from "@/components/ui/use-toast";
 
-// Base API URL - updated to use NestJS backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+// Base API URL - updated to use Spring backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Default request timeout in milliseconds
 const DEFAULT_TIMEOUT = 30000;

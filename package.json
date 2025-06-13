@@ -1,24 +1,24 @@
 {
-  "dependencies": {
-    "@nestjs/mapped-types": "*",
-    "curl": "^0.1.4",
-    "nginx": "^1.1.0"
-  },
   "name": "preffy-video-flow",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run start:dev",
+    "dev:backend": "cd backend && ./gradlew bootRun",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "npm run build:backend && npm run build:frontend",
-    "build:backend": "cd backend && npm run build",
+    "build:backend": "cd backend && ./gradlew build",
     "build:frontend": "cd frontend && npm run build",
-    "start": "cd backend && npm run start:prod",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "start": "cd backend && java -jar build/libs/*.jar",
+    "install:all": "cd frontend && npm install",
     "lint": "cd frontend && npm run lint",
-    "preview": "cd frontend && npm run preview"
+    "preview": "cd frontend && npm run preview",
+    "test:backend": "cd backend && ./gradlew test",
+    "clean": "cd backend && ./gradlew clean",
+    "deploy": "npm run build:frontend && firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "firebase:serve": "npm run build:frontend && firebase serve"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
