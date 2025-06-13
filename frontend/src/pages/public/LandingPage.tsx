@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import Features from './Features';
 
 const LandingPage = () => {
   return (
@@ -12,7 +13,7 @@ const LandingPage = () => {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 items-center">
             <div className="mb-12 lg:mb-0">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-jet tracking-tight mb-6">
-                Present with <span className="text-mint">confidence</span>
+                Present with <span className="text-mint">confidence</span> 
               </h1>
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8">
                 AI-powered feedback for your presentation videos. Improve your body language, facial expressions, and script in minutes.
@@ -20,7 +21,7 @@ const LandingPage = () => {
               <div className="flex flex-wrap gap-4">
                 <Link to="/signup">
                   <Button size="lg" className="bg-mint hover:bg-mint/90 text-white">
-                    Start Free Trial
+                    Start For Free
                   </Button>
                 </Link>
                 <Link to="/features">
@@ -86,6 +87,12 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Features Page */}
+      <Features />
+
+      {/* Call to Action */}
+
 
       {/* Social Proof
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-cloud">
@@ -187,9 +194,9 @@ const LandingPage = () => {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-mint text-white">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to become a better presenter?</h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
+          {/* <p className="text-xl mb-8 max-w-3xl mx-auto opacity-90">
             Join thousands of professionals who are improving their presentation skills with Preffy.
-          </p>
+          </p> */}
           <Link to="/signup">
             <Button size="lg" variant="secondary" className="bg-white text-mint hover:bg-gray-100">
               Start Your Free Trial

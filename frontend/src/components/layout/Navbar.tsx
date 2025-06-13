@@ -21,11 +21,11 @@ export const Navbar = () => {
                 className="h-8 w-auto"
               />
             </Link>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            {/* <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link to="/features" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-mint">
                 Features
               </Link>
-            </div>
+            </div> */}
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {user ? (

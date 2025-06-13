@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
-const FeaturesPage = () => {
+const Features = () => {
   return (
     <div className="w-full">
       {/* Hero */}
@@ -320,7 +320,7 @@ const FeaturesPage = () => {
 */}
 
       {/* CTA */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-mint text-white">
+      {/* <section className="py-16 px-4 sm:px-6 lg:px-8 bg-mint text-white">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Start improving your presentation skills today</h2>
           <Link to="/signup">
@@ -329,9 +329,9 @@ const FeaturesPage = () => {
             </Button>
           </Link>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 };
 
-export default FeaturesPage;
+export default Features;
