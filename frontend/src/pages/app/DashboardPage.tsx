@@ -1,20 +1,37 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { mockProjects } from '@/lib/mock-data';
+import { projectService } from '@/services/project-service';
 import { Project } from '@/lib/types';
 import { PlusCircle, Search, Clock, CheckCircle2, PlayCircle, FileVideo } from 'lucide-react';
 
 const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const projectsData = await projectService.getProjects();
+        setProjects(projectsData);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
   
   // Sort and filter projects
-  let filteredProjects = [...mockProjects];
+  let filteredProjects = [...projects];
   
   if (searchTerm) {
     filteredProjects = filteredProjects.filter(project => 
@@ -34,12 +51,8 @@ const DashboardPage = () => {
     switch (status) {
       case 'created':
         return <Badge variant="outline" className="bg-gray-100 text-gray-800">Created</Badge>;
-      case 'uploading':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800">Uploading</Badge>;
       case 'processing':
         return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Processing</Badge>;
-      case 'analyzed':
-        return <Badge variant="outline" className="bg-purple-100 text-purple-800">Analyzed</Badge>;
       case 'completed':
         return <Badge variant="outline" className="bg-green-100 text-green-800">Completed</Badge>;
       default:
@@ -52,12 +65,8 @@ const DashboardPage = () => {
     switch (status) {
       case 'created':
         return <FileVideo className="h-5 w-5 text-gray-400" />;
-      case 'uploading':
-        return <PlusCircle className="h-5 w-5 text-blue-500" />;
       case 'processing':
         return <Clock className="h-5 w-5 text-yellow-500" />;
-      case 'analyzed':
-        return <PlayCircle className="h-5 w-5 text-purple-500" />;
       case 'completed':
         return <CheckCircle2 className="h-5 w-5 text-green-500" />;
       default:
@@ -108,8 +117,15 @@ const DashboardPage = () => {
         </div>
       </div>
       
-      {/* Projects grid */}
-      {filteredProjects.length === 0 ? (
+      {/* Loading state */}
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Clock className="h-8 w-8 text-gray-400 animate-spin" />
+          </div>
+          <p className="text-gray-500">Loading projects...</p>
+        </div>
+      ) : filteredProjects.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FileVideo className="h-8 w-8 text-gray-400" />

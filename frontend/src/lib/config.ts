@@ -8,7 +8,11 @@ export const API_CONFIG = {
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'authToken',
   USER_DATA: 'prefUser',
+  DEMO_MODE: 'demo-mode',
 };
+
+// Utility function to check if app is in demo mode
+export const isDemoMode = () => localStorage.getItem(STORAGE_KEYS.DEMO_MODE) === 'true';
 
 export const API_ENDPOINTS = {
   AUTH: {

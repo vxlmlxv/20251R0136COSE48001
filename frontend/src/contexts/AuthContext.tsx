@@ -1,15 +1,15 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User } from '@/lib/types';
-import { mockUsers } from '@/lib/mock-data';
+import { User, AuthResponse } from '@/lib/types';
 import { authService } from '@/services/auth-service';
 import { useToast } from '@/components/ui/use-toast';
+import { STORAGE_KEYS } from '@/lib/config';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
 }
 
@@ -21,31 +21,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is logged in from localStorage (mock auth)
-    const storedUser = localStorage.getItem('prefUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    // Check if user is logged in from localStorage
+    const initializeAuth = async () => {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      if (token) {
+        try {
+          const userProfile = await authService.getProfile();
+          setUser(userProfile);
+        } catch (error) {
+          // Token might be expired or invalid
+          localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+          localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
     
     try {
-      // For prototype: Use mock data but simulate API call
-      // In a real app, this would call the actual API endpoint
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const authResponse: AuthResponse = await authService.login(email, password);
       
-      // Find user in mock data
-      const foundUser = mockUsers.find(u => u.email === email);
+      // Store the JWT token
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, authResponse.accessToken);
+      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(authResponse.user));
       
-      if (foundUser) {
-        localStorage.setItem('prefUser', JSON.stringify(foundUser));
-        setUser(foundUser);
-      } else {
-        throw new Error('Invalid email or password');
-      }
+      setUser(authResponse.user);
+      
+      toast({
+        title: 'Login successful',
+        description: 'You have been logged in successfully',
+      });
     } catch (error: any) {
       toast({
         title: 'Login failed',
@@ -58,19 +68,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     try {
-      // For prototype: Just clear localStorage
-      // In a real app, this would also call the API to invalidate the token
-      localStorage.removeItem('prefUser');
+      await authService.logout();
+    } catch (error) {
+      // Even if logout fails on backend, clear local data
+      console.error('Logout error:', error);
+    } finally {
+      // Clear local storage and state
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER_DATA);
       setUser(null);
       
       toast({
         title: 'Logged out',
         description: 'You have been successfully logged out',
       });
-    } catch (error) {
-      console.error('Logout error:', error);
     }
   };
 
@@ -78,20 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     
     try {
-      // For prototype: Use mock data but simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const authResponse: AuthResponse = await authService.register(email, password, name);
       
-      // Create a new user (would be done by a backend in real life)
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        name,
-        email,
-        locale: 'en-US',
-        plan: 'free'
-      };
+      // Store the JWT token
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, authResponse.accessToken);
+      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(authResponse.user));
       
-      localStorage.setItem('prefUser', JSON.stringify(newUser));
-      setUser(newUser);
+      setUser(authResponse.user);
       
       toast({
         title: 'Account created',

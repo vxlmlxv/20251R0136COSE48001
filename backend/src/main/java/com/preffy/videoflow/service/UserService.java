@@ -3,6 +3,7 @@ package com.preffy.videoflow.service;
 import com.preffy.videoflow.model.User;
 import com.preffy.videoflow.repository.UserRepository;
 import com.preffy.videoflow.security.UserPrincipal;
+import com.preffy.videoflow.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -71,5 +72,15 @@ public class UserService implements UserDetailsService {
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+    }
+    
+    public User updateProfile(Long userId, UserResponse updateRequest) {
+        User user = findById(userId);
+        
+        if (updateRequest.getName() != null) {
+            user.setFullName(updateRequest.getName());
+        }
+        
+        return userRepository.save(user);
     }
 }

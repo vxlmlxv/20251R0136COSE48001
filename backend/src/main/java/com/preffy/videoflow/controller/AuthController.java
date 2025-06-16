@@ -3,6 +3,7 @@ package com.preffy.videoflow.controller;
 import com.preffy.videoflow.dto.AuthResponse;
 import com.preffy.videoflow.dto.LoginRequest;
 import com.preffy.videoflow.dto.RegisterRequest;
+import com.preffy.videoflow.dto.UserResponse;
 import com.preffy.videoflow.model.User;
 import com.preffy.videoflow.security.JwtTokenProvider;
 import com.preffy.videoflow.security.UserPrincipal;
@@ -265,6 +266,60 @@ public class AuthController {
         User user = userService.findById(userPrincipal.getId());
         
         return ResponseEntity.ok(new AuthResponse.UserResponse(user));
+    }
+    
+    @PutMapping("/profile")
+    @Operation(
+        summary = "Update User Profile",
+        description = "Update the profile information of the currently authenticated user.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully updated user profile",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UserResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "Unauthorized - Invalid or missing JWT token"
+        )
+    })
+    public ResponseEntity<?> updateProfile(
+        @Parameter(hidden = true) Authentication authentication,
+        @Valid @RequestBody UserResponse updateRequest
+    ) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = userService.updateProfile(userPrincipal.getId(), updateRequest);
+        
+        UserResponse response = new UserResponse(
+            user.getId().toString(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getUsername()
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/logout")
+    @Operation(
+        summary = "User Logout",
+        description = "Logout the current user (token invalidation handled by client).",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully logged out"
+        )
+    })
+    public ResponseEntity<?> logout() {
+        // In a real implementation, you might want to blacklist the token
+        return ResponseEntity.ok(new ErrorResponse(true, "Successfully logged out"));
     }
     
     // Simple response class for error messages

@@ -1,0 +1,709 @@
+# Preffy Frontend API Function Specifications
+
+  
+
+## Overview
+
+This document outlines all the frontend functions and their corresponding backend API requirements for the Preffy video presentation analysis platform.
+
+  
+
+## Table of Contents
+
+1. [Authentication Functions](#authentication-functions)
+
+2. [Project Management Functions](#project-management-functions)
+
+3. [Feedback & Analysis Functions](#feedback--analysis-functions)
+
+4. [User Profile Functions](#user-profile-functions)
+
+5. [File Upload Functions](#file-upload-functions)
+
+  
+
+---
+
+  
+
+## Authentication Functions
+
+  
+
+### 1. User Login
+
+**Feature**: Authenticate user with email and password
+
+**Description**: Validates user credentials and returns user profile with authentication token
+
+**Inputs**:
+
+- `email: string` - User's email address
+
+- `password: string` - User's password
+
+**Outputs**:
+
+- `User` object containing:
+
+- `id: string` - Unique user identifier
+
+- `name: string` - User's full name
+
+- `email: string` - User's email address
+
+- `avatar?: string` - Optional profile picture URL
+
+- `plan: 'free' | 'pro' | 'enterprise'` - Subscription plan
+
+**Dependencies**: None
+
+**API Endpoint**: `POST /api/auth/login`
+
+  
+
+### 2. User Registration
+
+**Feature**: Create new user account
+
+**Description**: Registers a new user with name, email, and password
+
+**Inputs**:
+
+- `name: string` - User's full name
+
+- `email: string` - User's email address
+
+- `password: string` - User's desired password
+
+**Outputs**:
+
+- `User` object (same structure as login)
+
+**Dependencies**: None
+
+**API Endpoint**: `POST /api/auth/signup`
+
+  
+
+### 3. User Logout
+
+**Feature**: Log out current user
+
+**Description**: Invalidates user session and clears authentication token
+
+**Inputs**: None (uses authentication token from headers)
+
+**Outputs**: `void`
+
+**Dependencies**: Valid authentication token
+
+**API Endpoint**: `POST /api/auth/logout`
+
+  
+
+### 4. Get User Profile
+
+**Feature**: Retrieve current user profile
+
+**Description**: Returns complete user profile information
+
+**Inputs**: None (uses authentication token from headers)
+
+**Outputs**:
+
+- `User` object (same structure as login)
+
+**Dependencies**: Valid authentication token
+
+**API Endpoint**: `GET /api/auth/profile`
+
+  
+
+### 5. Update User Profile
+
+**Feature**: Modify user profile information
+
+**Description**: Updates user profile with provided data
+
+**Inputs**:
+
+- `userData: Partial<User>` - Partial user object with fields to update
+
+**Outputs**:
+
+- `User` object (updated user profile)
+
+**Dependencies**: Valid authentication token
+
+**API Endpoint**: `PUT /api/auth/profile`
+
+  
+
+---
+
+  
+
+## Project Functions
+
+  
+
+### 6. Get All Projects
+
+**Feature**: Retrieve all projects for authenticated user
+
+**Description**: Returns list of all projects belonging to the current user
+
+**Inputs**: None (uses authentication token from headers)
+
+**Outputs**:
+
+- `Project[]` array containing:
+
+- `id: string` - Unique project identifier
+
+- `userId: string` - Owner user ID
+
+- `title: string` - Project title
+
+- `description: string` - Project description
+
+- `audience: 'general' | 'technical' | 'executive' | 'academic'` - Target audience
+
+- `formality: 'casual' | 'neutral' | 'formal'` - Presentation formality level
+
+- `domain: string` - Industry/domain context
+
+- `status: 'created' | 'processing' | 'completed'` - Project status
+
+- `createdAt: string` - ISO timestamp of creation
+
+**Dependencies**: Valid authentication token
+
+**API Endpoint**: `GET /api/projects`
+
+  
+
+### 7. Get Project by ID
+
+**Feature**: Retrieve specific project details
+
+**Description**: Returns detailed information for a single project
+
+**Inputs**:
+
+- `projectId: string` - Unique project identifier
+
+**Outputs**:
+
+- `Project` object (same structure as above)
+
+**Dependencies**: Valid authentication token, project ownership
+
+**API Endpoint**: `GET /api/projects/{projectId}`
+
+  
+
+### 8. Create New Project
+
+**Feature**: Create a new project
+
+**Description**: Creates a new project with provided metadata
+
+**Inputs**:
+
+- `projectData: Omit<Project, 'id' | 'userId' | 'status' | 'createdAt'>` containing:
+
+- `title: string` - Project title
+
+- `description: string` - Project description
+
+- `audience: string` - Target audience
+
+- `formality: string` - Formality level
+
+- `domain: string` - Industry/domain
+
+- `video: string` - Video File url
+
+**Outputs**:
+
+- `Project` object (complete project with generated ID and metadata)
+
+**Dependencies**: Valid authentication token
+
+**API Endpoint**: `POST /api/projects`
+
+  
+
+### 9. Update Project
+
+**Feature**: Modify existing project
+
+**Description**: Updates project information with provided data
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+- `projectData: Partial<Project>` - Fields to update
+
+**Outputs**:
+
+- `Project` object (updated project)
+
+**Dependencies**: Valid authentication token, project ownership
+
+**API Endpoint**: `PUT /api/projects/{projectId}`
+
+  
+
+### 10. Delete Project
+
+**Feature**: Remove project permanently
+
+**Description**: Deletes a project and all associated data
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+**Outputs**: `void`
+
+**Dependencies**: Valid authentication token, project ownership
+
+**API Endpoint**: `DELETE /api/projects/{projectId}`
+
+  
+
+### 11. Get Project Status
+
+**Feature**: Check project processing status
+
+**Description**: Returns current status of project analysis
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+**Outputs**:
+
+- `Project` object with current status
+
+**Dependencies**: Valid authentication token, project ownership
+
+**API Endpoint**: `GET /api/projects/{projectId}/status`
+
+  
+
+---
+
+  
+
+## Video upload Functions
+
+  
+
+### 12. Upload Video
+
+**Feature**: Upload video file for project
+
+**Description**: Handles video file upload with progress tracking
+
+**Inputs**:
+
+- `projectId: string` - Target project identifier
+
+- `file: File` - Video file object
+
+
+**Outputs**:
+
+- `Video` object containing:
+
+- `id: string` - Unique video identifier
+
+- `projectId: string` - Associated project ID
+
+- `url: string` - Video file URL
+
+- `duration: number` - Video duration in seconds
+
+- `resolution: { width: number, height: number }` - Video dimensions
+
+**Dependencies**: Valid authentication token, project ownership
+
+**API Endpoint**: `POST /api/projects/{projectId}/video`
+
+  
+
+---
+
+  
+
+## Feedback & Analysis Functions
+
+  
+
+### 13. Get Script Segments
+
+**Feature**: Retrieve script analysis results
+
+**Description**: Returns analyzed speech segments with timing and content
+
+
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+**Outputs**:
+
+- `ScriptSegment[]` array containing:
+
+- `id: string` - Section identifier
+
+- `sectionName: string` - Section name
+
+- `projectId: string` - Associated project ID
+
+- `start: number` - Start time in seconds
+
+- `end: number` - End time in seconds
+
+- `text: string` - Transcribed text
+
+- `speechAct: 'representatives' | 'directives' | 'commissives' | 'expressives' | 'declaratives';` - Speech type
+  
+
+**Dependencies**: Valid authentication token, completed analysis
+
+**API Endpoint**: `GET /api/projects/{projectId}/script-segments`
+
+  
+
+### 14. Get Posture Events
+
+**Feature**: Retrieve posture analysis results
+
+**Description**: Returns detected posture events with timing and categorization
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+
+**Outputs**:
+
+- `PostureEvent` containing:
+
+- `projectId: string` - Project Identifier     
+- 
+- `totalBadPostures: number` - Number of total detected bad postures
+             
+- `totalDurationSeconds: number` - Total detected bad posture duration 
+        
+- `detectedActions[]` array containing:
+  
+	- `actionName: string` - Action name
+                  
+    - `periods[]` containing:
+      
+	    - `startFrame: number` - Start time of the action
+        
+	    - `endFrame: number` - End time of the action
+        
+	    - `durationSeconds: number` - Duration time of the action
+      
+      `summary[]` array containing:
+      
+	    - `totalDurationSeconds: number` - Total duration of the action
+        
+	    - `occurrenceCount: number` - Detected occurrence of the action
+
+**Dependencies**: Valid authentication token, completed analysis
+
+**API Endpoint**: `GET /api/projects/{projectId}/behavior-events[?type={type}]`
+
+  
+
+### 16. Get Improvement Suggestions
+
+**Feature**: Retrieve AI-generated improvement suggestions
+
+**Description**: Returns suggestions for script and delivery improvements
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+**Outputs**:
+
+- `ScriptAnalysis[]` array containing:
+
+- `id: string` - Suggestion identifier
+
+- `projectId: string` - Associated project ID
+
+- `sectionId: string` - Related script section ID
+
+- `type: 'modify' | 'delete' | 'keep'` - Suggestion type
+
+- `originalText: string` - Original text
+
+- `suggestedText?: string` - Suggested replacement text
+
+- `explanation: string` - Explanation for suggestion
+
+
+**Dependencies**: Valid authentication token, completed analysis
+
+**API Endpoint**: `GET /api/projects/{projectId}/suggestions`
+
+  
+
+### 17. Process Suggestion
+
+**Feature**: Accept or reject improvement suggestions
+
+**Description**: Records user decision on AI suggestions
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+- `suggestionId: string` - Suggestion identifier
+
+- `action: 'accept' | 'reject'` - User decision
+
+**Outputs**: `void`
+
+**Dependencies**: Valid authentication token, project ownership
+
+**API Endpoint**: `POST /api/projects/{projectId}/suggestions/{suggestionId}/{action}`
+
+  
+
+### 18. Get Analysis Results
+
+**Feature**: Retrieve complete analysis results
+
+**Description**: Returns comprehensive analysis data for a project
+
+**Inputs**:
+
+- `projectId: string` - Project identifier
+
+**Outputs**:
+
+- `any` - Complete analysis object (aggregated data from multiple analysis endpoints)
+
+**Dependencies**: Valid authentication token, completed analysis
+
+**API Endpoint**: `GET /api/projects/{projectId}/analysis`
+
+  
+
+---
+
+  
+
+## Data Types Reference
+
+  
+
+### Core Types
+
+```typescript
+
+interface User {
+
+id: string;
+
+name: string;
+
+email: string;
+
+avatar?: string;
+
+}
+
+  
+
+interface Project {
+
+id: string;
+
+userId: string;
+
+title: string;
+
+description: string;
+
+audience: 'general' | 'technical' | 'executive' | 'academic';
+
+formality: 'casual' | 'neutral' | 'formal';
+
+domain: string;
+
+status: 'created' | 'processing' | 'completed';
+
+video: string;
+
+createdAt: string;
+
+}
+
+  
+
+interface Video {
+
+id: string;
+
+projectId: string;
+
+url: string;
+
+duration: number;
+
+resolution: {
+
+width: number;
+
+height: number;
+
+};
+
+}
+
+  
+
+interface ScriptSegment {
+
+id: string;
+
+projectId: string;
+
+sectionName: string; 
+
+start: number;
+
+end: number;
+
+text: string;
+
+speechAct: 'representatives' | 'directives' | 'commissives' | 'expressives' | 'declaratives';
+
+}
+  
+
+
+  
+
+interface ScriptAnalysis {
+
+id: string;
+
+projectId: string;
+
+sectionId: string;
+
+type: 'modify' | 'delete' | 'keep';
+
+originalText: string;
+
+suggestedText?: string;
+
+explanation: string;
+
+}
+
+
+
+
+interface PostureEvent {
+
+  projectId: string;     
+                   
+  totalBadPostures: number; 
+             
+  totalDurationSeconds: number;  
+        
+  detectedActions: {
+  
+    {
+    
+      actionName: string;  
+                  
+      periods: {
+      
+        startFrame: number;
+        
+        endFrame: number;
+        
+        durationSeconds: number;
+        
+      }[];
+      
+      summary: {
+      
+        totalDurationSeconds: number;
+        
+        occurrenceCount: number;
+        
+      };
+      
+    };
+    
+  };
+  
+}
+
+```
+
+  
+
+## Authentication & Authorization
+
+  
+
+All API endpoints except authentication endpoints require a valid JWT token in the Authorization header:
+
+```
+
+Authorization: Bearer <jwt-token>
+
+```
+
+  
+
+## Error Handling
+
+  
+
+All API endpoints should return consistent error responses:
+
+```json
+
+{
+
+"message": "Error description",
+
+"code": "ERROR_CODE",
+
+"status": 400
+
+}
+
+```
+
+  
+
+Common HTTP status codes:
+
+- `200`: Success
+
+- `201`: Created
+
+- `400`: Bad Request
+

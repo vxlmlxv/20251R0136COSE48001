@@ -5,9 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockProjects, mockVideos, mockBadgeScores } from '@/lib/mock-data';
+import { projectService } from '@/services/project-service';
+import { feedbackService } from '@/services/feedback-service';
 import { Project, Video, BadgeScore } from '@/lib/types';
 import { Clock, Video as VideoIcon, AlertTriangle, CheckCircle, PlayCircle, Mic2 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const ProjectOverviewPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -17,54 +19,86 @@ const ProjectOverviewPage = () => {
   const [processingProgress, setProcessingProgress] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Simulate loading data from API
-    setTimeout(() => {
-      // Find project by ID
-      const foundProject = mockProjects.find(p => p.id === projectId);
-      if (foundProject) {
-        setProject(foundProject);
+    const loadProjectData = async () => {
+      if (!projectId) return;
+      
+      try {
+        setIsLoading(true);
         
-        // Find video for this project
-        const foundVideo = mockVideos.find(v => v.projectId === projectId);
-        if (foundVideo) {
-          setVideo(foundVideo);
+        // Load project details
+        const projectData = await projectService.getProjectById(projectId);
+        setProject(projectData);
+        
+        // Load video if available
+        if (projectData.videoUrl) {
+          try {
+            const videoData = await projectService.getProjectVideo(projectId);
+            setVideo(videoData);
+          } catch (error) {
+            // Video might not be available yet
+            console.log('Video not available yet');
+          }
         }
         
-        // Get badge scores for this project
-        const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
-        setBadgeScores(projectBadgeScores);
-      }
-      
-      setIsLoading(false);
-    }, 800);
-    
-    // If project is processing, simulate progress updates
-    if (project?.status === 'processing') {
-      const interval = setInterval(() => {
-        setProcessingProgress(prev => {
-          const newProgress = prev + Math.random() * 5;
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            
-            // Update project status to 'analyzed' after processing is complete
-            setProject(project => project ? { ...project, status: 'analyzed' } : null);
-            
-            return 100;
+        // Load badge scores if project is completed
+        if (projectData.status === 'completed') {
+          try {
+            const scores = await feedbackService.getBadgeScores(projectId);
+            setBadgeScores(scores);
+          } catch (error) {
+            console.error('Failed to load badge scores:', error);
           }
-          return newProgress;
-        });
+        }
         
-        // Update estimated remaining time
-        const remainingPercentage = 100 - processingProgress;
-        const remainingSeconds = Math.round(remainingPercentage / 5); // Assuming 5% per second
-        setRemainingTime(`${remainingSeconds} seconds`);
-      }, 1000);
-      
-      return () => clearInterval(interval);
+      } catch (error) {
+        console.error('Failed to load project:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load project data',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProjectData();
+    
+    // Set up polling for processing status
+    let interval: NodeJS.Timeout;
+    if (project?.status === 'processing') {
+      interval = setInterval(async () => {
+        try {
+          const updatedProject = await projectService.getProjectById(projectId!);
+          setProject(updatedProject);
+          
+          // Update progress simulation
+          setProcessingProgress(prev => {
+            const newProgress = Math.min(prev + Math.random() * 5, 95);
+            const remainingPercentage = 100 - newProgress;
+            const remainingSeconds = Math.round(remainingPercentage / 5);
+            setRemainingTime(`${remainingSeconds} seconds`);
+            return newProgress;
+          });
+          
+          // Stop polling if completed
+          if (updatedProject.status === 'completed') {
+            setProcessingProgress(100);
+            clearInterval(interval);
+          }
+        } catch (error) {
+          console.error('Failed to update project status:', error);
+        }
+      }, 2000);
     }
-  }, [projectId, project?.status]);
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [projectId, project?.status, toast]);
 
   // Helper to get average badge score
   const getAverageBadgeScore = () => {
@@ -122,13 +156,11 @@ const ProjectOverviewPage = () => {
           variant="outline"
           className={`
             ${project.status === 'created' ? 'bg-gray-100 text-gray-800' : ''}
-            ${project.status === 'uploading' ? 'bg-blue-100 text-blue-800' : ''}
             ${project.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : ''}
-            ${project.status === 'analyzed' ? 'bg-purple-100 text-purple-800' : ''}
             ${project.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
           `}
         >
-          {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+          {project.status.charAt(0).toUpperCase() + project.status.slice(1).toLowerCase()}
         </Badge>
       </div>
       
@@ -207,13 +239,13 @@ const ProjectOverviewPage = () => {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Target Audience</h3>
                   <p className="mt-1">
-                    {project.audience.charAt(0).toUpperCase() + project.audience.slice(1)}
+                    {project.audience.charAt(0).toUpperCase() + project.audience.slice(1).toLowerCase()}
                   </p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Formality</h3>
                   <p className="mt-1">
-                    {project.formality.charAt(0).toUpperCase() + project.formality.slice(1)}
+                    {project.formality.charAt(0).toUpperCase() + project.formality.slice(1).toLowerCase()}
                   </p>
                 </div>
                 <div>
@@ -231,7 +263,7 @@ const ProjectOverviewPage = () => {
               </div>
               
               {/* Overall Score (visible once analysis is complete) */}
-              {(project.status === 'analyzed' || project.status === 'completed') && (
+              {project.status === 'completed' && (
                 <div className="mt-6 border-t pt-4">
                   <h3 className="text-sm font-medium text-gray-500 mb-2">Overall Assessment</h3>
                   <div className="flex items-center">
@@ -257,7 +289,7 @@ const ProjectOverviewPage = () => {
       </div>
       
       {/* Feedback Sections (visible once processing is complete) */}
-      {(project.status === 'analyzed' || project.status === 'completed') && (
+      {project.status === 'completed' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Body Language Feedback */}
           <Card className="hover:shadow-md transition-shadow">

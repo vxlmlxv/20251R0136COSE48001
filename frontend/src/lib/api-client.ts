@@ -1,11 +1,12 @@
 
 import { toast } from "@/components/ui/use-toast";
+import { API_CONFIG, STORAGE_KEYS } from "./config";
 
-// Base API URL - updated to use Spring backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// Base API URL from configuration
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Default request timeout in milliseconds
-const DEFAULT_TIMEOUT = 30000;
+const DEFAULT_TIMEOUT = API_CONFIG.TIMEOUT;
 
 type RequestOptions = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -37,11 +38,9 @@ export async function apiRequest<T = any>(
     
     // Add auth token from localStorage if the request requires authentication
     if (withAuth) {
-      const userData = localStorage.getItem('prefUser');
-      if (userData) {
-        const user = JSON.parse(userData);
-        // In a real app, this would be a JWT token
-        requestHeaders['Authorization'] = `Bearer ${user.id}`;
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      if (token) {
+        requestHeaders['Authorization'] = `Bearer ${token}`;
       }
     }
     
@@ -65,14 +64,23 @@ export async function apiRequest<T = any>(
     
     // Handle HTTP errors
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorText = await response.text();
+      
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { message: errorText };
+      }
+      
       throw new Error(
         errorData.message || `API request failed with status ${response.status}`
       );
     }
     
     // Parse JSON response
-    return await response.json();
+    const responseData = await response.json();
+    return responseData;
   } catch (error: any) {
     // Clear the timeout in case of error
     clearTimeout(timeoutId);

@@ -9,8 +9,8 @@ yum update -y
 # Install Java 22 (Amazon Corretto)
 yum install -y java-22-amazon-corretto-headless
 
-# Install Git and build tools
-yum install -y git htop curl wget
+# Install Git and build tools (with conflict resolution)
+yum install -y git htop wget --allowerasing
 
 # Create application directory
 mkdir -p /opt/preffy
@@ -22,8 +22,8 @@ cd /home/ec2-user
 
 # Clone the repository
 echo "🔗 Cloning repository..."
-git clone https://github.com/vxlmlxv/preffy-video-flow.git
-cd preffy-video-flow
+git clone https://github.com/vxlmlxv/preffy.git
+cd preffy
 
 # Make gradlew executable
 chmod +x backend/gradlew
@@ -150,7 +150,7 @@ pkill -f "preffy-backend.jar"
 sleep 3
 
 # Update repository
-cd /home/ec2-user/preffy-video-flow
+cd /home/ec2-user/preffy
 git pull origin main
 
 # Rebuild

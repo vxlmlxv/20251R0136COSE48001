@@ -1,16 +1,32 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { Menu, X } from 'lucide-react';
+import { isDemoMode } from '@/lib/config';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isDemo, setIsDemo] = useState(false);
+
+  useEffect(() => {
+    setIsDemo(isDemoMode());
+  }, [user]); // Update when user changes
 
   return (
-    <nav className="bg-white shadow-sm">
+    <>
+      {isDemo && (
+        <div className="bg-orange-100 border-b border-orange-200 px-4 py-2">
+          <div className="max-w-7xl mx-auto flex items-center justify-center">
+            <p className="text-sm font-medium text-orange-800">
+              🎭 Demo Mode - You're exploring with sample data
+            </p>
+          </div>
+        </div>
+      )}
+      <nav className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -33,7 +49,7 @@ export const Navbar = () => {
                 <Link to="/app/dashboard">
                   <Button variant="outline">Dashboard</Button>
                 </Link>
-                <Button onClick={logout} variant="ghost">Logout</Button>
+                <Button onClick={() => logout()} variant="ghost">Logout</Button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
@@ -80,8 +96,8 @@ export const Navbar = () => {
                   Dashboard
                 </Link>
                 <button
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
                     setMobileMenuOpen(false);
                   }}
                   className="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50"
@@ -111,5 +127,6 @@ export const Navbar = () => {
         </div>
       )}
     </nav>
+    </>
   );
 };

@@ -44,10 +44,10 @@ const queryClient = new QueryClient({
   },
 });
 
-// Initialize the mock API
-if (import.meta.env.MODE === 'development') {
-  mockApiHandler.setupMockApi();
-}
+// Initialize the mock API (commented out to use real backend)
+// if (import.meta.env.MODE === 'development') {
+//   mockApiHandler.setupMockApi();
+// }
 
 const App = () => {
   // Add a global fetch error handler

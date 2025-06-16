@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, ArrowRight, Upload, Check, FileVideo } from 'lucide-react';
+import { projectService } from '@/services/project-service';
+import { CreateProjectRequest } from '@/lib/types';
 
 const NewProjectPage = () => {
   const navigate = useNavigate();
@@ -22,8 +24,8 @@ const NewProjectPage = () => {
   // Project details
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [audience, setAudience] = useState<'general' | 'technical' | 'executive' | 'academic'>('general');
-  const [formality, setFormality] = useState<'casual' | 'neutral' | 'formal'>('neutral');
+  const [audience, setAudience] = useState<'GENERAL' | 'TECHNICAL' | 'EXECUTIVE' | 'ACADEMIC'>('GENERAL');
+  const [formality, setFormality] = useState<'CASUAL' | 'NEUTRAL' | 'FORMAL'>('NEUTRAL');
   const [domain, setDomain] = useState('');
   
   // Video upload
@@ -72,30 +74,40 @@ const NewProjectPage = () => {
     }, 200);
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isStep3Valid()) return;
     
     setIsSubmitting(true);
     
-    // Simulate upload process
-    simulateUpload();
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Create the project with the correct types
+      const projectData: CreateProjectRequest = {
+        title,
+        description,
+        audience,
+        formality,
+        domain,
+      };
+
+      const newProject = await projectService.createProject(projectData);
+      
       toast({
         title: 'Project created successfully',
         description: 'Your project has been created and is now being processed.',
         variant: 'default',
       });
       
+      // Navigate to the new project
+      navigate(`/app/projects/${newProject.id}/overview`);
+    } catch (error: any) {
+      toast({
+        title: 'Failed to create project',
+        description: error.message || 'An error occurred while creating your project.',
+        variant: 'destructive',
+      });
+    } finally {
       setIsSubmitting(false);
-      
-      // Simulate waiting for backend processing
-      setTimeout(() => {
-        // Navigate to the new project (using a mock ID for demo purposes)
-        navigate('/app/projects/project-new/overview');
-      }, 1000);
-    }, 5000); // 5 seconds to simulate upload completion
+    }
   };
   
   return (
@@ -171,21 +183,21 @@ const NewProjectPage = () => {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label htmlFor="audience" className="required">Target Audience</Label>
-                <RadioGroup value={audience} onValueChange={(value) => setAudience(value as any)}>
+                <RadioGroup value={audience} onValueChange={(value) => setAudience(value as 'GENERAL' | 'TECHNICAL' | 'EXECUTIVE' | 'ACADEMIC')}>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="general" id="audience-general" />
+                    <RadioGroupItem value="GENERAL" id="audience-general" />
                     <Label htmlFor="audience-general">General</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="technical" id="audience-technical" />
+                    <RadioGroupItem value="TECHNICAL" id="audience-technical" />
                     <Label htmlFor="audience-technical">Technical</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="executive" id="audience-executive" />
+                    <RadioGroupItem value="EXECUTIVE" id="audience-executive" />
                     <Label htmlFor="audience-executive">Executive</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="academic" id="audience-academic" />
+                    <RadioGroupItem value="ACADEMIC" id="audience-academic" />
                     <Label htmlFor="audience-academic">Academic</Label>
                   </div>
                 </RadioGroup>
@@ -193,17 +205,17 @@ const NewProjectPage = () => {
               
               <div className="space-y-3">
                 <Label htmlFor="formality" className="required">Presentation Formality</Label>
-                <RadioGroup value={formality} onValueChange={(value) => setFormality(value as any)}>
+                <RadioGroup value={formality} onValueChange={(value) => setFormality(value as 'CASUAL' | 'NEUTRAL' | 'FORMAL')}>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="casual" id="formality-casual" />
+                    <RadioGroupItem value="CASUAL" id="formality-casual" />
                     <Label htmlFor="formality-casual">Casual</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="neutral" id="formality-neutral" />
+                    <RadioGroupItem value="NEUTRAL" id="formality-neutral" />
                     <Label htmlFor="formality-neutral">Neutral</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="formal" id="formality-formal" />
+                    <RadioGroupItem value="FORMAL" id="formality-formal" />
                     <Label htmlFor="formality-formal">Formal</Label>
                   </div>
                 </RadioGroup>

@@ -11,7 +11,7 @@ KEY_NAME=${KEY_NAME:-"preffy-key-pair"}
 INSTANCE_TYPE=${INSTANCE_TYPE:-"t3.micro"}
 SECURITY_GROUP_NAME="preffy-backend-sg"
 EC2_NAME="preffy-backend-server"
-GITHUB_REPO="https://github.com/vxlmlxv/preffy-video-flow.git"
+GITHUB_REPO="https://github.com/vxlmlxv/preffy.git"
 
 echo "🚀 Deploying Preffy Backend from GitHub to AWS EC2..."
 echo ""

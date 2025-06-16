@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  swagger-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.swagger
+    container_name: preffy-swagger-ui
+    ports:
+      - "3001:8080"
+    environment:
+      - SWAGGER_JSON=/swagger.yaml
+      - BASE_URL=/
+      - DEEP_LINKING=true
+      - DISPLAY_OPERATION_ID=false
+      - DEFAULT_MODELS_EXPAND_DEPTH=1
+      - DEFAULT_MODEL_EXPAND_DEPTH=1
+      - DEFAULT_MODEL_RENDERING=example
+      - DISPLAY_REQUEST_DURATION=true
+      - DOC_EXPANSION=list
+      - FILTER=false
+      - MAX_DISPLAYED_TAGS=10
+      - OPERATIONS_SORTER=alpha
+      - SHOW_EXTENSIONS=false
+      - SHOW_COMMON_EXTENSIONS=false
+      - TRY_IT_OUT_ENABLED=true
+    restart: unless-stopped
+    networks:
+      - preffy-network
+
+  # Optional: Add nginx reverse proxy for custom domain
+  nginx:
+    image: nginx:alpine
+    container_name: preffy-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro  # For SSL certificates if needed
+    depends_on:
+      - swagger-ui
+    restart: unless-stopped
+    networks:
+      - preffy-network
+
+networks:
+  preffy-network:
+    driver: bridge

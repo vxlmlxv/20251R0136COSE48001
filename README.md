@@ -105,9 +105,6 @@ npm run dev
 - `GET /api/projects/:id/badge-scores` - Get badge scores
 - `GET /api/projects/:id/suggestions` - Get improvement suggestions
 
-### Health Check
-- `GET /health` - API health status
-
 ## 🎯 Features
 
 ### Body Feedback

@@ -104,7 +104,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
               <Button 
                 variant="ghost" 
                 className="w-full mt-4 text-red-500 hover:text-red-700 hover:bg-red-50 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:h-12 group-data-[collapsible=icon]:p-2 group-data-[collapsible=icon]:mt-2 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:justify-center"
-                onClick={logout}
+                onClick={() => logout()}
               >
                 <LogOut size={22} className="mr-2 group-data-[collapsible=icon]:mr-0" />
                 <span className="group-data-[collapsible=icon]:sr-only">Log out</span>

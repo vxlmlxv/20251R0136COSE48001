@@ -1,0 +1,12 @@
+# Dockerfile for Swagger UI
+FROM swaggerapi/swagger-ui:latest
+
+# Copy the OpenAPI specification files
+COPY swagger.yaml /swagger.yaml
+COPY swagger.json /swagger.json
+
+# Set the environment variable to point to our OpenAPI spec
+ENV SWAGGER_JSON=/swagger.yaml
+
+# Expose port 8080
+EXPOSE 8080

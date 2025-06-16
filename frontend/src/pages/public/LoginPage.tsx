@@ -58,10 +58,16 @@ const LoginPage = () => {
     }
   };
 
-  // For demo purposes, pre-fill with mock user credentials
+  // For demo purposes, pre-fill with test user credentials
   const fillDemoCredentials = () => {
-    setEmail('john@example.com');
+    setEmail('webtest@example.com');
     setPassword('password123');
+  };
+
+  // Test backend connection
+  const handleTestBackend = async () => {
+    console.log('Testing backend connection...');
+    // Test functions removed, use BackendTestComponent instead
   };
 
   return (

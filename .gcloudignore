@@ -1,0 +1,53 @@
+# .gcloudignore - Files to ignore when building with Google Cloud Build
+
+# Git files
+.git/
+.gitignore
+
+# Node modules (if any)
+node_modules/
+**/node_modules/
+
+# Build artifacts (backend)
+backend/build/
+backend/bin/
+backend/.gradle/
+backend/gradle/
+
+# Build artifacts (frontend)
+frontend/dist/
+frontend/build/
+frontend/node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Documentation (except swagger files)
+*.md
+!swagger.yaml
+!swagger.json
+
+# Demo project
+demo/
+
+# Only include necessary files for Swagger UI
+!Dockerfile.swagger
+!swagger.yaml
+!swagger.json
+!nginx.conf
