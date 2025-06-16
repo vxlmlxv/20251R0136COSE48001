@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { isDemoMode } from '@/lib/config';
 import { Menu, X } from 'lucide-react';
 
 export const Navbar = () => {
@@ -107,6 +108,18 @@ export const Navbar = () => {
                 </Link>
               </>
             )}
+          </div>
+        </div>
+      )}
+      
+      {/* Demo Mode Banner */}
+      {isDemoMode() && (
+        <div className="bg-blue-50 border-b border-blue-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <p className="text-center text-sm text-blue-800">
+              🎮 <strong>Demo Mode:</strong> You're viewing a demonstration version with sample data. 
+              <span className="hidden sm:inline"> Features may be limited.</span>
+            </p>
           </div>
         </div>
       )}

@@ -86,6 +86,7 @@ async function handleAuthEndpoints(endpoint: string, init?: RequestInit) {
       id: `user-${Date.now()}`,
       name,
       email,
+      username: email.split('@')[0], // Generate username from email
       locale: 'en-US',
       plan: 'free'
     };
@@ -207,6 +208,14 @@ async function handleProjectEndpoints(endpoint: string, init?: RequestInit) {
     } else {
       return createMockResponse(404, { message: 'Project not found' });
     }
+  }
+  
+  // Get project videos
+  if (endpoint.match(/^\/projects\/[^\/]+\/videos$/) && init?.method === 'GET') {
+    const projectId = endpoint.split('/')[2];
+    const videos = mockVideos.filter(v => v.projectId === projectId);
+    
+    return createMockResponse(200, videos);
   }
   
   // Get script segments

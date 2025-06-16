@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { getDemoCredentials } from '@/lib/config';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -58,10 +59,11 @@ const LoginPage = () => {
     }
   };
 
-  // For demo purposes, pre-fill with mock user credentials
+  // For demo purposes, pre-fill with demo user credentials
   const fillDemoCredentials = () => {
-    setEmail('john@example.com');
-    setPassword('password123');
+    const { email: demoEmail, password: demoPassword } = getDemoCredentials();
+    setEmail(demoEmail);
+    setPassword(demoPassword);
   };
 
   return (

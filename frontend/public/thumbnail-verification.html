@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        video {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+        .thumbnail-test {
+            width: 300px;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thumbnail Verification Test</h1>
+    
+    <div class="test-section">
+        <h2>Generated Thumbnail Display</h2>
+        <p>This should show the generated thumbnail image:</p>
+        <img src="/demo-videos/demo-thumbnail.jpg" alt="Generated Thumbnail" class="thumbnail-test">
+    </div>
+    
+    <div class="test-section">
+        <h2>Video with Thumbnail Poster</h2>
+        <p>This video should use the generated thumbnail as its poster:</p>
+        <video controls poster="/demo-videos/demo-thumbnail.jpg">
+            <source src="/demo-videos/demo.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    
+    <div class="test-section">
+        <h2>Video without Poster (for comparison)</h2>
+        <p>This video has no poster to show the difference:</p>
+        <video controls>
+            <source src="/demo-videos/demo.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</body>
+</html>

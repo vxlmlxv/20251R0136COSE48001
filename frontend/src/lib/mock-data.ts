@@ -7,9 +7,19 @@ export const mockUsers: User[] = [
     id: 'user-1',
     name: 'John Doe',
     email: 'john@example.com',
+    username: 'johndoe',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
     locale: 'en-US',
     plan: 'pro'
+  },
+  {
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@preffy.com',
+    username: 'demouser',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    locale: 'en-US',
+    plan: 'demo'
   }
 ];
 
@@ -23,7 +33,7 @@ export const mockProjects: Project[] = [
     audience: 'executive',
     formality: 'formal',
     domain: 'sales',
-    status: 'completed',
+    status: 'COMPLETED',
     createdAt: '2025-05-10T14:30:00Z'
   },
   {
@@ -34,7 +44,7 @@ export const mockProjects: Project[] = [
     audience: 'technical',
     formality: 'neutral',
     domain: 'product',
-    status: 'processing',
+    status: 'PROCESSING',
     createdAt: '2025-05-15T09:45:00Z'
   },
   {
@@ -45,8 +55,22 @@ export const mockProjects: Project[] = [
     audience: 'general',
     formality: 'casual',
     domain: 'internal',
-    status: 'created',
+    status: 'CREATED',
     createdAt: '2025-05-18T11:20:00Z'
+  },
+  // Demo project for demo mode
+  {
+    id: 'demo-project',
+    userId: 'demo-user',
+    title: 'Product Demo Presentation',
+    description: 'Complete demo project showing all features and analysis results',
+    audience: 'BUSINESS',
+    formality: 'NEUTRAL',
+    domain: 'product-demo',
+    status: 'COMPLETED',
+    videoUrl: '/demo-videos/demo.mp4',
+    createdAt: '2025-06-01T10:00:00Z',
+    updatedAt: '2025-06-01T10:30:00Z'
   }
 ];
 
@@ -55,8 +79,9 @@ export const mockVideos: Video[] = [
   {
     id: 'video-1',
     projectId: 'project-1',
-    url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    duration: 596,
+    url: '/demo-videos/demo.mp4',
+    duration: 30, // Our demo video is 30 seconds
+    thumbnail: '/demo-videos/demo-thumbnail.jpg',
     resolution: {
       width: 1280,
       height: 720
@@ -65,8 +90,21 @@ export const mockVideos: Video[] = [
   {
     id: 'video-2',
     projectId: 'project-2',
-    url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    duration: 653,
+    url: '/demo-videos/demo.mp4',
+    duration: 30, // Our demo video is 30 seconds
+    thumbnail: '/demo-videos/demo-thumbnail.jpg',
+    resolution: {
+      width: 1280,
+      height: 720
+    }
+  },
+  // Demo video for demo project
+  {
+    id: 'demo-video',
+    projectId: 'demo-project',
+    url: '/demo-videos/demo.mp4',
+    duration: 30,
+    thumbnail: '/demo-videos/demo-thumbnail.jpg',
     resolution: {
       width: 1280,
       height: 720
@@ -99,6 +137,43 @@ export const mockScriptSegments: ScriptSegment[] = [
     end: 35.7,
     text: 'Yes, we exceeded our targets by 15%, which is a significant improvement from last quarter.',
     speechAct: 'emphasis'
+  },
+  // Demo project script segments
+  {
+    id: 'demo-segment-1',
+    projectId: 'demo-project',
+    sectionName: 'Introduction',
+    start: 0,
+    end: 8,
+    text: 'Hello everyone, welcome to our product demo. Today I will show you the amazing features of our new platform.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'demo-segment-2',
+    projectId: 'demo-project',
+    sectionName: 'Features',
+    start: 8,
+    end: 18,
+    text: 'Let me walk you through the key capabilities. First, we have real-time collaboration tools.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'demo-segment-3',
+    projectId: 'demo-project',
+    sectionName: 'Benefits',
+    start: 18,
+    end: 25,
+    text: 'This will revolutionize how your team works together.',
+    speechAct: 'emphasis'
+  },
+  {
+    id: 'demo-segment-4',
+    projectId: 'demo-project',
+    sectionName: 'Closing',
+    start: 25,
+    end: 30,
+    text: 'Thank you for your attention. Any questions?',
+    speechAct: 'question'
   }
 ];
 
@@ -175,8 +250,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-1',
     projectId: 'project-1',
-    start: 10.2,
-    end: 12.5,
+    start: 0.2,
+    end: 1.3,
     type: 'gesture',
     category: 'arms-crossed',
     severity: 'medium'
@@ -184,8 +259,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-2',
     projectId: 'project-1',
-    start: 18.7,
-    end: 21.3,
+    start: 5.2,
+    end: 6.2,
     type: 'facial',
     category: 'lack-of-smile',
     severity: 'low'
@@ -193,8 +268,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-3',
     projectId: 'project-1',
-    start: 28.5,
-    end: 31.0,
+    start: 6.3,
+    end: 7.7,
     type: 'posture',
     category: 'slouching',
     severity: 'high'
@@ -203,8 +278,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-4',
     projectId: 'project-1',
-    start: 45.2,
-    end: 47.8,
+    start: 10.2,
+    end: 11.0,
     type: 'gesture',
     category: 'pointing-excessive',
     severity: 'medium'
@@ -212,8 +287,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-5',
     projectId: 'project-1',
-    start: 62.1,
-    end: 64.5,
+    start: 12.5,
+    end: 12.8,
     type: 'posture',
     category: 'head-tilt',
     severity: 'low'
@@ -221,8 +296,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-6',
     projectId: 'project-1',
-    start: 78.3,
-    end: 81.2,
+    start: 30.6,
+    end: 32.0,
     type: 'gesture',
     category: 'hands-in-pockets',
     severity: 'high'
@@ -231,8 +306,8 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
   {
     id: 'event-7',
     projectId: 'project-1',
-    start: 95.7,
-    end: 98.1,
+    start: 34.2,
+    end: 36.0,
     type: 'facial',
     category: 'eye-contact-poor',
     severity: 'medium'
@@ -256,46 +331,103 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
     category: 'fidgeting',
     severity: 'medium'
   },
+  // {
+  //   id: 'event-10',
+  //   projectId: 'project-1',
+  //   start: 145.8,
+  //   end: 148.4,
+  //   type: 'posture',
+  //   category: 'leaning-back',
+  //   severity: 'low'
+  // },
+  // {
+  //   id: 'event-11',
+  //   projectId: 'project-1',
+  //   start: 162.3,
+  //   end: 165.1,
+  //   type: 'gesture',
+  //   category: 'repetitive-hand-gestures',
+  //   severity: 'high'
+  // },
+  // // Additional facial expression events
+  // {
+  //   id: 'event-12',
+  //   projectId: 'project-1',
+  //   start: 178.9,
+  //   end: 181.5,
+  //   type: 'facial',
+  //   category: 'forced-smile',
+  //   severity: 'medium'
+  // },
+  // {
+  //   id: 'event-13',
+  //   projectId: 'project-1',
+  //   start: 195.2,
+  //   end: 197.8,
+  //   type: 'facial',
+  //   category: 'looking-away',
+  //   severity: 'high'
+  // }
+  
+  // Demo project behavior events
   {
-    id: 'event-10',
-    projectId: 'project-1',
-    start: 145.8,
-    end: 148.4,
-    type: 'posture',
-    category: 'leaning-back',
+    id: 'demo-event-1',
+    projectId: 'demo-project',
+    start: 2.5,
+    end: 3.2,
+    type: 'gesture',
+    category: 'pointing-excessive',
     severity: 'low'
   },
   {
-    id: 'event-11',
-    projectId: 'project-1',
-    start: 162.3,
-    end: 165.1,
-    type: 'gesture',
-    category: 'repetitive-hand-gestures',
-    severity: 'high'
-  },
-  // Additional facial expression events
-  {
-    id: 'event-12',
-    projectId: 'project-1',
-    start: 178.9,
-    end: 181.5,
-    type: 'facial',
-    category: 'forced-smile',
+    id: 'demo-event-2',
+    projectId: 'demo-project',
+    start: 10.1,
+    end: 11.0,
+    type: 'posture',
+    category: 'slouching',
     severity: 'medium'
   },
   {
-    id: 'event-13',
-    projectId: 'project-1',
-    start: 195.2,
-    end: 197.8,
+    id: 'demo-event-3',
+    projectId: 'demo-project',
+    start: 15.8,
+    end: 16.5,
     type: 'facial',
-    category: 'looking-away',
+    category: 'lack-of-smile',
+    severity: 'low'
+  },
+  {
+    id: 'demo-event-4',
+    projectId: 'demo-project',
+    start: 22.3,
+    end: 23.1,
+    type: 'gesture',
+    category: 'fidgeting',
+    severity: 'medium'
+  },
+  {
+    id: 'demo-event-5',
+    projectId: 'demo-project',
+    start: 28.7,
+    end: 29.5,
+    type: 'posture',
+    category: 'leaning-forward',
     severity: 'high'
+  },
+  {
+    id: 'demo-event-6',
+    projectId: 'demo-project',
+    start: 35.0,
+    end: 36.2,
+    type: 'facial',
+    category: 'eye-contact-poor',
+    severity: 'medium'
   }
 ];
 
 // Mock badge scores
+//ActionType : Eye Contact | Body Stability | Head Alignment | Distracting Gestures | Facing away
 export const mockBadgeScores: BadgeScore[] = [
   {
     badgeId: 'smile-consistency',
@@ -319,6 +451,31 @@ export const mockBadgeScores: BadgeScore[] = [
     badgeId: 'eye-contact',
     projectId: 'project-1',
     stars: 5,
+    totalEvents: 2
+  },
+  // Demo project badge scores
+  {
+    badgeId: 'smile-consistency',
+    projectId: 'demo-project',
+    stars: 4,
+    totalEvents: 3
+  },
+  {
+    badgeId: 'posture-alignment',
+    projectId: 'demo-project',
+    stars: 3,
+    totalEvents: 5
+  },
+  {
+    badgeId: 'hand-gestures',
+    projectId: 'demo-project',
+    stars: 3,
+    totalEvents: 4
+  },
+  {
+    badgeId: 'eye-contact',
+    projectId: 'demo-project',
+    stars: 4,
     totalEvents: 2
   }
 ];
@@ -362,5 +519,29 @@ export const mockSuggestions: Suggestion[] = [
     sectionId: 'section-5',
     type: 'delete',
     rationale: 'The future outlook section, while informative, may be too detailed for this quarterly review. Consider moving these points to a separate strategic planning discussion.'
+  },
+  // Demo project suggestions
+  {
+    id: 'demo-suggestion-1',
+    projectId: 'demo-project',
+    sectionId: 'demo-section-1',
+    type: 'modify',
+    suggestedText: 'Hello everyone, I am excited to welcome you to our comprehensive product demo. Today I will showcase the groundbreaking features of our innovative platform.',
+    rationale: 'Adding emotional language and stronger adjectives creates more engagement and enthusiasm.'
+  },
+  {
+    id: 'demo-suggestion-2',
+    projectId: 'demo-project',
+    sectionId: 'demo-section-2',
+    type: 'keep',
+    rationale: 'This section effectively presents the key features with clear structure and good pacing.'
+  },
+  {
+    id: 'demo-suggestion-3',
+    projectId: 'demo-project',
+    sectionId: 'demo-section-3',
+    type: 'modify',
+    suggestedText: 'This platform will transform and revolutionize how your team collaborates, leading to increased productivity and innovation.',
+    rationale: 'Expanding on the benefits with specific outcomes makes the value proposition stronger.'
   }
 ];

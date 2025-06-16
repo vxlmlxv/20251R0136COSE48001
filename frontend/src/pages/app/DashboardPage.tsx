@@ -32,38 +32,30 @@ const DashboardPage = () => {
   // Helper function to get status badge
   const getStatusBadge = (status: Project['status']) => {
     switch (status) {
-      case 'created':
+      case 'CREATED':
         return <Badge variant="outline" className="bg-gray-100 text-gray-800">Created</Badge>;
-      case 'uploading':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800">Uploading</Badge>;
-      case 'processing':
+      case 'PROCESSING':
         return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Processing</Badge>;
-      case 'analyzed':
-        return <Badge variant="outline" className="bg-purple-100 text-purple-800">Analyzed</Badge>;
-      case 'completed':
+      case 'COMPLETED':
         return <Badge variant="outline" className="bg-green-100 text-green-800">Completed</Badge>;
       default:
         return null;
     }
   };
 
-  // Helper function to get status icon
-  const getStatusIcon = (status: Project['status']) => {
-    switch (status) {
-      case 'created':
-        return <FileVideo className="h-5 w-5 text-gray-400" />;
-      case 'uploading':
-        return <PlusCircle className="h-5 w-5 text-blue-500" />;
-      case 'processing':
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case 'analyzed':
-        return <PlayCircle className="h-5 w-5 text-purple-500" />;
-      case 'completed':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      default:
-        return null;
-    }
-  };
+  // // Helper function to get status icon
+  // const getStatusIcon = (status: Project['status']) => {
+  //   switch (status) {
+  //     case 'CREATED':
+  //       return <FileVideo className="h-5 w-5 text-gray-400" />;
+  //     case 'PROCESSING':
+  //       return <Clock className="h-5 w-5 text-yellow-500" />;
+  //     case 'COMPLETED':
+  //       return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -158,10 +150,7 @@ const DashboardPage = () => {
               </CardContent>
               <CardFooter className="pt-3 flex justify-between">
                 <div className="flex items-center text-gray-500 text-sm">
-                  {getStatusIcon(project.status)}
-                  <span className="ml-1">
-                    {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
-                  </span>
+
                 </div>
                 <Link to={`/app/projects/${project.id}/overview`}>
                   <Button variant="outline" size="sm">

@@ -41,7 +41,7 @@ const ProjectOverviewPage = () => {
     }, 800);
     
     // If project is processing, simulate progress updates
-    if (project?.status === 'processing') {
+    if (project?.status === 'PROCESSING') {
       const interval = setInterval(() => {
         setProcessingProgress(prev => {
           const newProgress = prev + Math.random() * 5;
@@ -49,8 +49,8 @@ const ProjectOverviewPage = () => {
             clearInterval(interval);
             
             // Update project status to 'analyzed' after processing is complete
-            setProject(project => project ? { ...project, status: 'analyzed' } : null);
-            
+            setProject(project => project ? { ...project, status: 'COMPLETED' } : null);
+
             return 100;
           }
           return newProgress;
@@ -121,11 +121,9 @@ const ProjectOverviewPage = () => {
         <Badge 
           variant="outline"
           className={`
-            ${project.status === 'created' ? 'bg-gray-100 text-gray-800' : ''}
-            ${project.status === 'uploading' ? 'bg-blue-100 text-blue-800' : ''}
-            ${project.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : ''}
-            ${project.status === 'analyzed' ? 'bg-purple-100 text-purple-800' : ''}
-            ${project.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
+            ${project.status === 'CREATED' ? 'bg-gray-100 text-gray-800' : ''}
+            ${project.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' : ''}
+            ${project.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : ''}
           `}
         >
           {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
@@ -133,7 +131,7 @@ const ProjectOverviewPage = () => {
       </div>
       
       {/* Processing Progress (shown only during processing) */}
-      {project.status === 'processing' && (
+      {project.status === 'PROCESSING' && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
@@ -177,7 +175,7 @@ const ProjectOverviewPage = () => {
                     src={video.url} 
                     controls 
                     className="w-full h-full object-contain"
-                    poster="https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    poster={video.thumbnail || "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"}
                   />
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
@@ -231,7 +229,7 @@ const ProjectOverviewPage = () => {
               </div>
               
               {/* Overall Score (visible once analysis is complete) */}
-              {(project.status === 'analyzed' || project.status === 'completed') && (
+              {(project.status === 'COMPLETED') && (
                 <div className="mt-6 border-t pt-4">
                   <h3 className="text-sm font-medium text-gray-500 mb-2">Overall Assessment</h3>
                   <div className="flex items-center">
@@ -249,57 +247,49 @@ const ProjectOverviewPage = () => {
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Feedback Sections */}
+                  <div className="mt-6 pt-4 border-t">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Body Language Feedback */}
+                      <div className="flex items-start">
+                        <div className="bg-purple-100 p-3 rounded-full mr-4">
+                          <PlayCircle className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-1">Body Language Feedback</h3>
+                          <p className="text-gray-600 mb-4">
+                            Analysis of your gestures, posture, and facial expressions.
+                          </p>
+                          <Link to={`/app/projects/${project.id}/body-feedback`}>
+                            <Button variant="outline" className="w-full">View Details</Button>
+                          </Link>
+                        </div>
+                      </div>
+                      
+                      {/* Script Feedback */}
+                      <div className="flex items-start">
+                        <div className="bg-blue-100 p-3 rounded-full mr-4">
+                          <Mic2 className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-1">Script Feedback</h3>
+                          <p className="text-gray-600 mb-4">
+                            Analysis of your speech, filler words, and message clarity.
+                          </p>
+                          <Link to={`/app/projects/${project.id}/script-feedback`}>
+                            <Button variant="outline" className="w-full">View Details</Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
-      
-      {/* Feedback Sections (visible once processing is complete) */}
-      {(project.status === 'analyzed' || project.status === 'completed') && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Body Language Feedback */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                  <PlayCircle className="h-6 w-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">Body Language Feedback</h3>
-                  <p className="text-gray-600 mb-4">
-                    Analysis of your gestures, posture, and facial expressions.
-                  </p>
-                  <Link to={`/app/projects/${project.id}/body-feedback`}>
-                    <Button variant="outline" className="w-full">View Details</Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Script Feedback */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start">
-                <div className="bg-blue-100 p-3 rounded-full mr-4">
-                  <Mic2 className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">Script Feedback</h3>
-                  <p className="text-gray-600 mb-4">
-                    Analysis of your speech, filler words, and message clarity.
-                  </p>
-                  <Link to={`/app/projects/${project.id}/script-feedback`}>
-                    <Button variant="outline" className="w-full">View Details</Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };

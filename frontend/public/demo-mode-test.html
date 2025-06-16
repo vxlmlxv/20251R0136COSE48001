@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Mode Test - Preffy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .demo-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .demo-button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Preffy Demo Mode Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Demo Mode Controls</h2>
+        <p>Use these buttons to test demo mode functionality:</p>
+        <button class="demo-button" onclick="enableDemoMode()">Enable Demo Mode</button>
+        <button class="demo-button" onclick="disableDemoMode()">Disable Demo Mode</button>
+        <button class="demo-button" onclick="checkDemoMode()">Check Demo Mode Status</button>
+        <div id="demoStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Quick Access Links</h2>
+        <p>Test the main application features:</p>
+        <a href="/?demo=true" target="_blank">
+            <button class="demo-button">Open App in Demo Mode</button>
+        </a>
+        <a href="/login?demo=true" target="_blank">
+            <button class="demo-button">Login Page (Demo)</button>
+        </a>
+        <a href="/app/dashboard" target="_blank">
+            <button class="demo-button">Dashboard</button>
+        </a>
+    </div>
+    
+    <div class="test-section">
+        <h2>Demo Credentials</h2>
+        <p>Use these credentials for testing:</p>
+        <ul>
+            <li><strong>Email:</strong> demo@preffy.com</li>
+            <li><strong>Password:</strong> demo123</li>
+            <li><strong>User ID:</strong> demo-user</li>
+            <li><strong>Demo Project ID:</strong> demo-project</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>Features to Test</h2>
+        <ul>
+            <li>✓ Login with demo credentials</li>
+            <li>✓ View demo project in dashboard</li>
+            <li>✓ Play demo video with generated thumbnail</li>
+            <li>✓ View script analysis and suggestions</li>
+            <li>✓ Check body language feedback</li>
+            <li>✓ Verify badge scores</li>
+            <li>✓ Thumbnail extraction functionality</li>
+            <li>✓ Demo mode banner display</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>Backend Endpoints Test</h2>
+        <p>These should work with the mock API:</p>
+        <button class="demo-button" onclick="testAPI()">Test API Endpoints</button>
+        <div id="apiResults"></div>
+    </div>
+
+    <script>
+        function enableDemoMode() {
+            localStorage.setItem('demoMode', 'true');
+            updateStatus('Demo mode enabled', 'success');
+        }
+        
+        function disableDemoMode() {
+            localStorage.removeItem('demoMode');
+            updateStatus('Demo mode disabled', 'success');
+        }
+        
+        function checkDemoMode() {
+            const isDemoMode = localStorage.getItem('demoMode') === 'true' || 
+                              new URLSearchParams(window.location.search).get('demo') === 'true';
+            updateStatus(`Demo mode is ${isDemoMode ? 'ENABLED' : 'DISABLED'}`, isDemoMode ? 'success' : 'error');
+        }
+        
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('demoStatus');
+            statusDiv.innerHTML = `<p class="${type}">${message}</p>`;
+        }
+        
+        async function testAPI() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<p>Testing API endpoints...</p>';
+            
+            const tests = [
+                { endpoint: '/demo-videos/demo.mp4', description: 'Demo Video' },
+                { endpoint: '/demo-videos/demo-thumbnail.jpg', description: 'Demo Thumbnail' }
+            ];
+            
+            let results = '<h4>API Test Results:</h4><ul>';
+            
+            for (const test of tests) {
+                try {
+                    const response = await fetch(test.endpoint);
+                    const status = response.ok ? 'success' : 'error';
+                    results += `<li class="${status}">${test.description}: ${response.status} ${response.statusText}</li>`;
+                } catch (error) {
+                    results += `<li class="error">${test.description}: Error - ${error.message}</li>`;
+                }
+            }
+            
+            results += '</ul>';
+            resultsDiv.innerHTML = results;
+        }
+        
+        // Check demo mode on page load
+        window.onload = function() {
+            checkDemoMode();
+        };
+    </script>
+</body>
+</html>

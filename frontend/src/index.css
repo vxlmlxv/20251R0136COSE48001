@@ -85,6 +85,6 @@
 
 @layer components {
   .preffy-logo {
-    @apply font-poppins font-extrabold italic text-mint;
+    @apply font-inter font-extrabold italic text-mint;
   }
 }

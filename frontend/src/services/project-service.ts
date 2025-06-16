@@ -76,6 +76,13 @@ export const projectService = {
   },
   
   /**
+   * Get videos for a project
+   */
+  getProjectVideos: async (projectId: string): Promise<Video[]> => {
+    return await api.get(`/projects/${projectId}/videos`);
+  },
+  
+  /**
    * Poll for project status updates
    */
   pollProjectStatus: async (projectId: string, callback: (status: string) => void): Promise<void> => {
