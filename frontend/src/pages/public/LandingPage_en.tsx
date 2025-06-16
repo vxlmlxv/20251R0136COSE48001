@@ -13,21 +13,20 @@ const LandingPage = () => {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 items-center">
             <div className="mb-12 lg:mb-0">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-jet tracking-tight mb-6">
-                프레젠테이션 전에 <br className="hidden lg:block" />
-                <span className="text-mint">프레피</span>로 연습하세요.
+                Present with <span className="text-mint">confidence</span> 
               </h1>
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8">
-                언어적 표현부터 비언어적 표현까지 피드백 제공
+                AI-powered feedback for your presentation videos. Improve your body language, facial expressions, and script in minutes.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/signup">
                   <Button size="lg" className="bg-mint hover:bg-mint/90 text-white">
-                    무료로 시작하기
+                    Start For Free
                   </Button>
                 </Link>
                 <Link to="/features">
                   <Button size="lg" variant="outline">
-                    자세히 알아보기
+                    Learn More
                   </Button>
                 </Link>
               </div>
@@ -46,9 +45,9 @@ const LandingPage = () => {
       {/* Features Teaser */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">프레피와 함께 자신감있게 발표하기</h2>
+          <h2 className="text-3xl font-bold mb-4">How Preffy Helps You</h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            AI로 발표 비디오를 분석하고 개선을 위한 실행 가능한 피드백 제공
+            Our AI analyzes your presentation videos and provides actionable feedback to help you improve.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">

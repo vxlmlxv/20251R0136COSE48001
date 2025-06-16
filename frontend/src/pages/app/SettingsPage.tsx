@@ -17,7 +17,7 @@ const SettingsPage = () => {
   const { toast } = useToast();
   
   const [theme, setTheme] = useState('light');
-  const [language, setLanguage] = useState('en-US');
+  const [language, setLanguage] = useState('en');
   const [isAutoplayEnabled, setIsAutoplayEnabled] = useState(true);
   const [isAnimationsEnabled, setIsAnimationsEnabled] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -158,8 +158,8 @@ const SettingsPage = () => {
                     <SelectValue placeholder="Select a language" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en-US">English (US)</SelectItem>
-                    <SelectItem value="en-GB">English (UK)</SelectItem>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="kr">Korean</SelectItem>
                     <SelectItem value="es">Spanish</SelectItem>
                     <SelectItem value="fr">French</SelectItem>
                     <SelectItem value="de">German</SelectItem>
