@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { mockProjects, mockVideos, mockScriptSections, mockSuggestions } from '@/lib/mock-data';
 import { Project, Video, ScriptSection, Suggestion } from '@/lib/types';
-import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, FileText, Repeat, BookOpen, Volume2, Target, Zap } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, FileText, Repeat, BookOpen, Volume2, Target, Zap, TrendingUp, BarChart3, Eye, Heart, Brain, Smile } from 'lucide-react';
 
 const ScriptFeedbackPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -16,9 +17,61 @@ const ScriptFeedbackPage = () => {
   const [scriptSections, setScriptSections] = useState<ScriptSection[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState<'structure' | 'habits'>('structure');
+  const [currentTab, setCurrentTab] = useState<'structure' | 'expressions' | 'habits'>('structure');
   const [acceptedSuggestions, setAcceptedSuggestions] = useState<string[]>([]);
   const [rejectedSuggestions, setRejectedSuggestions] = useState<string[]>([]);
+
+  // Enhanced script structure analysis
+  const structureAnalysis = {
+    overallScore: 8.2,
+    strengths: [
+      "Clear introduction that establishes context",
+      "Logical flow between main topics",
+      "Strong conclusion with actionable insights"
+    ],
+    improvements: [
+      "Add more transition phrases between sections",
+      "Include specific examples in section 2",
+      "Strengthen the call-to-action"
+    ],
+    sections: [
+      { name: "Introduction", score: 9.1, feedback: "Excellent hook and clear agenda setting" },
+      { name: "Problem Statement", score: 8.5, feedback: "Well-defined but could use more specific data" },
+      { name: "Solution Overview", score: 7.8, feedback: "Good structure, needs more concrete examples" },
+      { name: "Implementation", score: 8.0, feedback: "Clear steps, consider adding timeline" },
+      { name: "Conclusion", score: 8.5, feedback: "Strong summary, enhance call-to-action" }
+    ]
+  };
+
+  // Sentence expression analysis
+  const expressionAnalysis = {
+    sentenceVariety: {
+      score: 7.5,
+      short: 45, // percentage
+      medium: 35,
+      long: 20,
+      feedback: "Good variety. Consider adding more medium-length sentences for better flow."
+    },
+    emotionalTone: {
+      confident: 65,
+      enthusiastic: 25,
+      cautious: 10,
+      feedback: "Strong confident tone. Add more enthusiasm in key moments."
+    },
+    clarity: {
+      score: 8.3,
+      complexSentences: 12,
+      jargonUse: 8,
+      feedback: "Excellent clarity overall. Simplify 3 technical terms for broader audience."
+    },
+    engagement: {
+      score: 7.8,
+      questions: 4,
+      statements: 28,
+      imperatives: 6,
+      feedback: "Good use of questions. Consider adding more direct calls to action."
+    }
+  };
 
   // Fake filler word data
   const fillerWordStats = {
@@ -28,7 +81,7 @@ const ScriptFeedbackPage = () => {
     actually: { count: 4, timestamp: [62.4, 114.7, 158.3, 217.5] },
   };
 
-  // Helper function to get suggestion colors based on type
+  // Helper functions
   const getSuggestionColor = (type: string, isAccepted: boolean) => {
     if (isAccepted) return 'border-green-300 bg-green-50';
     
@@ -44,7 +97,6 @@ const ScriptFeedbackPage = () => {
     }
   };
 
-  // Helper function to get suggestion icon based on type
   const getSuggestionTypeIcon = (type: string) => {
     switch (type) {
       case 'modify':
@@ -58,40 +110,47 @@ const ScriptFeedbackPage = () => {
     }
   };
 
-  // Helper function to get filler word icon
-  const getFillerWordIcon = (word: string) => {
-    return <Mic2 className="h-4 w-4 text-orange-600" />;
+  const getScoreColor = (score: number) => {
+    if (score >= 8.5) return 'text-green-600';
+    if (score >= 7.0) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
-  // Helper function to get filler word color
+  const getScoreBadgeColor = (score: number) => {
+    if (score >= 8.5) return 'bg-green-100 text-green-800';
+    if (score >= 7.0) return 'bg-yellow-100 text-yellow-800';
+    return 'bg-red-100 text-red-800';
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const getFillerWordColor = (wordIndex: number) => {
-    const colors = ['#09A484', '#EACD10', '#6366F1', '#EC4899']; // mint, yellow, blue, pink
+    const colors = ['#09A484', '#EACD10', '#6366F1', '#EC4899'];
     return colors[wordIndex % colors.length];
   };
 
+  // Event handlers
   useEffect(() => {
-    // Simulate loading data from API
     setTimeout(() => {
-      // Find project by ID
       const foundProject = mockProjects.find(p => p.id === projectId);
       if (foundProject) {
         setProject(foundProject);
         
-        // Find video for this project
         const foundVideo = mockVideos.find(v => v.projectId === projectId);
         if (foundVideo) {
           setVideo(foundVideo);
         }
         
-        // Get script sections for this project
         const projectSections = mockScriptSections.filter(sec => sec.projectId === projectId);
         setScriptSections(projectSections);
         
-        // Get suggestions for this project
         const projectSuggestions = mockSuggestions.filter(sug => sug.projectId === projectId);
         setSuggestions(projectSuggestions);
         
-        // Initialize "keep" suggestions as accepted by default
         const keepSuggestions = projectSuggestions.filter(sug => sug.type === 'keep').map(sug => sug.id);
         setAcceptedSuggestions(keepSuggestions);
       }
@@ -100,33 +159,21 @@ const ScriptFeedbackPage = () => {
     }, 800);
   }, [projectId]);
 
-  // Handle accepting a suggestion (make it reselectable)
   const acceptSuggestion = (suggestionId: string) => {
     const isAlreadyAccepted = acceptedSuggestions.includes(suggestionId);
     if (isAlreadyAccepted) {
-      // If already accepted, remove from accepted
       setAcceptedSuggestions(prev => prev.filter(id => id !== suggestionId));
     } else {
-      // If not accepted, add to accepted and remove from rejected
       setAcceptedSuggestions(prev => [...prev, suggestionId]);
       setRejectedSuggestions(prev => prev.filter(id => id !== suggestionId));
     }
   };
 
-  // Handle rejecting a suggestion
   const rejectSuggestion = (suggestionId: string) => {
     setRejectedSuggestions(prev => [...prev, suggestionId]);
     setAcceptedSuggestions(prev => prev.filter(id => id !== suggestionId));
   };
 
-  // Format time (mm:ss)
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Render loading state
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-6">
@@ -137,7 +184,6 @@ const ScriptFeedbackPage = () => {
     );
   }
 
-  // Render error state if project not found
   if (!project) {
     return (
       <div className="text-center py-12">
@@ -155,8 +201,7 @@ const ScriptFeedbackPage = () => {
   
   return (
     <div className="space-y-6">
-      {/* Tabs wrapper */}
-      <Tabs defaultValue="structure" onValueChange={(value) => setCurrentTab(value as 'structure' | 'habits')}>
+      <Tabs defaultValue="structure" onValueChange={(value) => setCurrentTab(value as 'structure' | 'expressions' | 'habits')}>
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-6">
@@ -166,150 +211,422 @@ const ScriptFeedbackPage = () => {
                 Back to Overview
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">Script Feedback</h1>
-            {/* Tabs next to title */}
-            <TabsList className="grid grid-cols-2 max-w-md">
-              <TabsTrigger value="structure" className="px-4">
-                Structure & Content
-              </TabsTrigger>
-              <TabsTrigger value="habits" className="px-4">
-                Speech Habits
-              </TabsTrigger>
-            </TabsList>
+            <div>
+              <h1 className="text-2xl font-bold">Script Analysis</h1>
+              <p className="text-gray-600">AI-powered feedback for your presentation script</p>
+            </div>
           </div>
         </div>
+
+        {/* Enhanced Tabs */}
+        <TabsList className="grid grid-cols-3 max-w-2xl">
+          <TabsTrigger value="structure" className="px-6">
+            <FileText className="mr-2 h-4 w-4" />
+            Structure & Flow
+          </TabsTrigger>
+          <TabsTrigger value="expressions" className="px-6">
+            <Brain className="mr-2 h-4 w-4" />
+            Expression Analysis
+          </TabsTrigger>
+          <TabsTrigger value="habits" className="px-6">
+            <Mic2 className="mr-2 h-4 w-4" />
+            Speech Habits
+          </TabsTrigger>
+        </TabsList>
         
+        {/* Structure & Flow Tab */}
         <TabsContent value="structure" className="mt-6 space-y-6">
-          {/* Script Sections and Suggestions */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Original Script Sections */}
-            <Card className="lg:col-span-1">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Original Script Sections</CardTitle>
-                <CardDescription>Your presentation organized by topics</CardDescription>
-              </CardHeader>
-              <CardContent className="max-h-[500px] overflow-y-auto">
-                <div className="space-y-4">
-                  {scriptSections.map(section => (
-                    <div key={section.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                          {section.title}
-                        </Badge>
-                        <Badge variant="outline" className="bg-gray-50">
-                          {formatTime(section.start)} - {formatTime(section.end)}
-                        </Badge>
-                      </div>
-                      <div className="space-y-2">
-                        {section.sentences.map((sentence, index) => (
-                          <p key={index} className="text-gray-800 text-sm leading-relaxed">
-                            {sentence}
-                          </p>
-                        ))}
+          {/* Overall Structure Score */}
+          <Card className="border-l-4 border-l-mint">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">Overall Structure Score</CardTitle>
+                  <CardDescription>How well your presentation flows and connects</CardDescription>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-mint">{structureAnalysis.overallScore}/10</div>
+                  <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Strengths */}
+                <div>
+                  <h4 className="font-semibold text-green-700 mb-3 flex items-center">
+                    <Check className="h-4 w-4 mr-2" />
+                    Key Strengths
+                  </h4>
+                  <ul className="space-y-2">
+                    {structureAnalysis.strengths.map((strength, index) => (
+                      <li key={index} className="flex items-start text-sm">
+                        <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                        {strength}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {/* Improvements */}
+                <div>
+                  <h4 className="font-semibold text-yellow-700 mb-3 flex items-center">
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Areas for Improvement
+                  </h4>
+                  <ul className="space-y-2">
+                    {structureAnalysis.improvements.map((improvement, index) => (
+                      <li key={index} className="flex items-start text-sm">
+                        <div className="h-2 w-2 rounded-full bg-yellow-500 mt-2 mr-3 flex-shrink-0"></div>
+                        {improvement}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-mint" />
+                Section-by-Section Analysis
+              </CardTitle>
+              <CardDescription>Detailed breakdown of each presentation section</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {structureAnalysis.sections.map((section, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">{section.name}</h4>
+                      <Badge className={getScoreBadgeColor(section.score)}>
+                        {section.score}/10
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-gray-600">{section.feedback}</p>
+                    <div className="mt-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-mint h-2 rounded-full transition-all duration-500"
+                          style={{ width: `${(section.score / 10) * 100}%` }}
+                        ></div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* AI Suggestions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Zap className="h-5 w-5 mr-2 text-mint" />
+                AI Improvement Suggestions
+              </CardTitle>
+              <CardDescription>Specific recommendations to enhance your script</CardDescription>
+            </CardHeader>
+            <CardContent className="max-h-[500px] overflow-y-auto">
+              <div className="space-y-4">
+                {suggestions.length > 0 ? (
+                  suggestions.map(suggestion => {
+                    const isAccepted = acceptedSuggestions.includes(suggestion.id);
+                    const isRejected = rejectedSuggestions.includes(suggestion.id);
+                    const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || 'Unknown Section';
+                    
+                    return (
+                      <div 
+                        key={suggestion.id} 
+                        className={`border rounded-lg p-4 ${getSuggestionColor(suggestion.type, isAccepted)}`}
+                      >
+                        <div className="flex items-center space-x-2 mb-3">
+                          {getSuggestionTypeIcon(suggestion.type)}
+                          <span className="text-sm font-medium text-gray-700">
+                            {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)} Suggestion
+                          </span>
+                          <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span>
+                        </div>
+                        
+                        {suggestion.suggestedText && (
+                          <div className="mb-3">
+                            <p className="text-gray-500 text-sm mb-2">Suggested content:</p>
+                            <p className="text-gray-800 text-sm leading-relaxed p-3 rounded border-l-4 border-l-mint bg-white">
+                              {suggestion.suggestedText}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <Accordion type="single" collapsible>
+                          <AccordionItem value="explanation">
+                            <AccordionTrigger className="text-sm text-gray-600 flex items-center">
+                              <HelpCircle className="h-4 w-4 mr-1" />
+                              Why this suggestion?
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                                {suggestion.rationale}
+                              </p>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                        
+                        <div className="flex justify-end mt-3 space-x-2">
+                          {!isRejected && (
+                            <>
+                              {!isAccepted && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600"
+                                  onClick={() => rejectSuggestion(suggestion.id)}
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Reject
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                className={isAccepted ? "bg-green-600 hover:bg-green-700 text-white" : "bg-mint hover:bg-mint/90 text-white"}
+                                onClick={() => acceptSuggestion(suggestion.id)}
+                              >
+                                <Check className="h-4 w-4 mr-1" />
+                                {isAccepted ? 'Accepted' : 'Accept'}
+                              </Button>
+                            </>
+                          )}
+                          
+                          {isRejected && (
+                            <Badge className="bg-red-100 text-red-800">
+                              <X className="h-4 w-4 mr-1" />
+                              Rejected
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">No suggestions available</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Expression Analysis Tab */}
+        <TabsContent value="expressions" className="mt-6 space-y-6">
+          {/* Sentence Structure Analysis */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Eye className="h-5 w-5 mr-2 text-mint" />
+                  Sentence Variety
+                </CardTitle>
+                <CardDescription>Balance of short, medium, and long sentences</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Overall Score</span>
+                    <Badge className={getScoreBadgeColor(expressionAnalysis.sentenceVariety.score)}>
+                      {expressionAnalysis.sentenceVariety.score}/10
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Short (1-8 words)</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.sentenceVariety.short}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-green-500 h-2 rounded-full"
+                        style={{ width: `${expressionAnalysis.sentenceVariety.short}%` }}
+                      ></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Medium (9-18 words)</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.sentenceVariety.medium}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-yellow-500 h-2 rounded-full"
+                        style={{ width: `${expressionAnalysis.sentenceVariety.medium}%` }}
+                      ></div>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Long (19+ words)</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.sentenceVariety.long}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-red-500 h-2 rounded-full"
+                        style={{ width: `${expressionAnalysis.sentenceVariety.long}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-800">{expressionAnalysis.sentenceVariety.feedback}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-            
-            {/* AI Suggestions */}
-            <Card className="lg:col-span-2">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">AI Suggestions</CardTitle>
-                <CardDescription>Section-based recommendations for improvement</CardDescription>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Heart className="h-5 w-5 mr-2 text-mint" />
+                  Emotional Tone
+                </CardTitle>
+                <CardDescription>How your message comes across emotionally</CardDescription>
               </CardHeader>
-              <CardContent className="max-h-[500px] overflow-y-auto">
+              <CardContent>
                 <div className="space-y-4">
-                  {suggestions.length > 0 ? (
-                    suggestions.map(suggestion => {
-                      const isAccepted = acceptedSuggestions.includes(suggestion.id);
-                      const isRejected = rejectedSuggestions.includes(suggestion.id);
-                      const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || 'Unknown Section';
-                      
-                      return (
-                        <div 
-                          key={suggestion.id} 
-                          className={`border rounded-lg p-4 ${getSuggestionColor(suggestion.type, isAccepted)}`}
-                        >
-                          <div className="flex items-center space-x-2 mb-3">
-                            {getSuggestionTypeIcon(suggestion.type)}
-                            <span className="text-sm font-medium text-gray-700">
-                              {suggestion.type.charAt(0).toUpperCase() + suggestion.type.slice(1)} Suggestion
-                            </span>
-                            <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span>
-                          </div>
-                          
-                          {suggestion.suggestedText && (
-                            <div className="mb-3">
-                              <p className="text-gray-500 text-sm mb-2">Suggested content:</p>
-                              <p className="text-gray-800 text-sm leading-relaxed p-3 rounded border-l-4 border-l-mint w-full">
-                                {suggestion.suggestedText}
-                              </p>
-                            </div>
-                          )}
-                          
-                          <Accordion type="single" collapsible>
-                            <AccordionItem value="explanation">
-                              <AccordionTrigger className="text-sm text-gray-600 flex items-center">
-                                <HelpCircle className="h-4 w-4 mr-1" />
-                                See why
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                                  {suggestion.rationale}
-                                </p>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                          
-                          <div className="flex justify-end mt-3 space-x-2">
-                            {!isRejected && (
-                              <>
-                                {!isAccepted && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-red-600"
-                                    onClick={() => rejectSuggestion(suggestion.id)}
-                                  >
-                                    <X className="h-4 w-4 mr-1" />
-                                    Reject
-                                  </Button>
-                                )}
-                                <Button
-                                  size="sm"
-                                  className={isAccepted ? "bg-green-600 hover:bg-green-700 text-white" : "bg-mint hover:bg-mint/90 text-white"}
-                                  onClick={() => acceptSuggestion(suggestion.id)}
-                                >
-                                  <Check className="h-4 w-4 mr-1" />
-                                  {isAccepted ? 'Accepted' : 'Accept'}
-                                </Button>
-                              </>
-                            )}
-                            
-                            {isRejected && (
-                              <Badge className="bg-red-100 text-red-800">
-                                <X className="h-4 w-4 mr-1" />
-                                Rejected
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-8">
-                      <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <p className="text-gray-500">No suggestions available</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm flex items-center">
+                        <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        Confident
+                      </span>
+                      <span className="text-sm font-medium">{expressionAnalysis.emotionalTone.confident}%</span>
                     </div>
-                  )}
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm flex items-center">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                        Enthusiastic
+                      </span>
+                      <span className="text-sm font-medium">{expressionAnalysis.emotionalTone.enthusiastic}%</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm flex items-center">
+                        <div className="w-3 h-3 bg-gray-500 rounded-full mr-2"></div>
+                        Cautious
+                      </span>
+                      <span className="text-sm font-medium">{expressionAnalysis.emotionalTone.cautious}%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="w-full bg-gray-200 rounded-full h-4 relative">
+                    <div 
+                      className="bg-green-500 h-4 rounded-l-full absolute left-0"
+                      style={{ width: `${expressionAnalysis.emotionalTone.confident}%` }}
+                    ></div>
+                    <div 
+                      className="bg-yellow-500 h-4 absolute"
+                      style={{ 
+                        left: `${expressionAnalysis.emotionalTone.confident}%`,
+                        width: `${expressionAnalysis.emotionalTone.enthusiastic}%` 
+                      }}
+                    ></div>
+                    <div 
+                      className="bg-gray-500 h-4 rounded-r-full absolute right-0"
+                      style={{ width: `${expressionAnalysis.emotionalTone.cautious}%` }}
+                    ></div>
+                  </div>
+                  
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <p className="text-sm text-blue-800">{expressionAnalysis.emotionalTone.feedback}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Clarity and Engagement */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Brain className="h-5 w-5 mr-2 text-mint" />
+                  Clarity Score
+                </CardTitle>
+                <CardDescription>How easy your content is to understand</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Overall Clarity</span>
+                    <Badge className={getScoreBadgeColor(expressionAnalysis.clarity.score)}>
+                      {expressionAnalysis.clarity.score}/10
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Complex Sentences</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.clarity.complexSentences}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Technical Terms</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.clarity.jargonUse}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <p className="text-sm text-green-800">{expressionAnalysis.clarity.feedback}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Smile className="h-5 w-5 mr-2 text-mint" />
+                  Engagement Level
+                </CardTitle>
+                <CardDescription>How well you connect with your audience</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Engagement Score</span>
+                    <Badge className={getScoreBadgeColor(expressionAnalysis.engagement.score)}>
+                      {expressionAnalysis.engagement.score}/10
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Questions Asked</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.engagement.questions}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Direct Statements</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.engagement.statements}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Call to Actions</span>
+                      <span className="text-sm font-medium">{expressionAnalysis.engagement.imperatives}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-50 p-3 rounded-lg">
+                    <p className="text-sm text-yellow-800">{expressionAnalysis.engagement.feedback}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
         
+        {/* Speech Habits Tab */}
         <TabsContent value="habits" className="mt-6 space-y-6">
           {/* Speech Habits Analysis */}
           <Card>
