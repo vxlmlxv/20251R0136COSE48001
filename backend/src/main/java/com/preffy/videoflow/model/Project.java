@@ -33,8 +33,8 @@ public class Project {
     
     private String domain;
     
-    @Column(name = "video_path")
-    private String videoPath;
+    @Column(name = "video_url")
+    private String videoUrl;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -87,8 +87,8 @@ public class Project {
     public String getDomain() { return domain; }
     public void setDomain(String domain) { this.domain = domain; }
     
-    public String getVideoPath() { return videoPath; }
-    public void setVideoPath(String videoPath) { this.videoPath = videoPath; }
+    public String getVideoUrl() { return videoUrl; }
+    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
@@ -97,11 +97,11 @@ public class Project {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
     public enum ProjectStatus {
-        CREATED, UPLOADING, PROCESSING, ANALYZED, COMPLETED
+        CREATED, PROCESSING, COMPLETED
     }
     
     public enum AudienceType {
-        GENERAL, TECHNICAL, BUSINESS, ACADEMIC
+        GENERAL, TECHNICAL, EXECUTIVE, ACADEMIC
     }
     
     public enum FormalityLevel {
