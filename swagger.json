@@ -1,0 +1,731 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Preffy Video Flow API",
+    "description": "A modern video feedback platform API built with Spring Boot that helps users analyze and improve their video presentations through AI-powered feedback.\n\n## Features\n- User authentication with JWT tokens\n- Video project management\n- AI-powered video analysis\n- Script segment extraction and analysis\n- Posture event detection\n- Improvement suggestions\n- RESTful API design\n\n## Authentication\nAll endpoints (except authentication) require a valid JWT token in the Authorization header:\n```\nAuthorization: Bearer <your-jwt-token>\n```\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Preffy Team",
+      "email": "support@preffy.com"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://api.preffyvideoflow.com",
+      "description": "Production Server"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization endpoints"
+    },
+    {
+      "name": "Projects",
+      "description": "Video project management endpoints"
+    },
+    {
+      "name": "Feedback & Analysis",
+      "description": "Endpoints for retrieving video analysis results and feedback"
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register User",
+        "description": "Register a new user account",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid registration data"
+          },
+          "409": {
+            "description": "User already exists"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login User",
+        "description": "Authenticate user and receive JWT token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/projects": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "Get All Projects",
+        "description": "Retrieve all video projects for the authenticated user, ordered by creation date (newest first)",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Projects"],
+        "summary": "Create New Project",
+        "description": "Create a new video analysis project",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Project created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid project data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/script-segments": {
+      "get": {
+        "tags": ["Feedback & Analysis"],
+        "summary": "Get Script Segments",
+        "description": "Retrieve analyzed speech segments with timing and content for a project",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Project ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved script segments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScriptSegmentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/posture-events": {
+      "get": {
+        "tags": ["Feedback & Analysis"],
+        "summary": "Get Posture Events",
+        "description": "Retrieve detected posture analysis results with timing and categorization",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Project ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved posture events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PostureEventResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/suggestions": {
+      "get": {
+        "tags": ["Feedback & Analysis"],
+        "summary": "Get Improvement Suggestions",
+        "description": "Retrieve AI-generated improvement suggestions for script and delivery",
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "description": "Project ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved suggestions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SuggestionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Project not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT Bearer Token Authentication. Format: Bearer {token}"
+      }
+    },
+    "schemas": {
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["username", "email", "password", "fullName"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "johndoe",
+            "description": "Unique username"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com",
+            "description": "User email address"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "securePassword123",
+            "minLength": 8,
+            "description": "User password (minimum 8 characters)"
+          },
+          "fullName": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "User's full name"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com",
+            "description": "User email address"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "securePassword123",
+            "description": "User password"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "description": "JWT access token"
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer",
+            "description": "Token type"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1",
+            "description": "User ID"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "User's full name"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com",
+            "description": "User email address"
+          },
+          "username": {
+            "type": "string",
+            "example": "johndoe",
+            "description": "Username"
+          }
+        }
+      },
+      "ProjectRequest": {
+        "type": "object",
+        "required": ["title", "description", "audience", "formality", "domain"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "My Presentation",
+            "description": "Project title"
+          },
+          "description": {
+            "type": "string",
+            "example": "A presentation about our new product features",
+            "description": "Project description"
+          },
+          "audience": {
+            "type": "string",
+            "enum": ["GENERAL", "TECHNICAL", "BUSINESS", "ACADEMIC"],
+            "example": "GENERAL",
+            "description": "Target audience type"
+          },
+          "formality": {
+            "type": "string",
+            "enum": ["INFORMAL", "NEUTRAL", "FORMAL"],
+            "example": "NEUTRAL",
+            "description": "Formality level"
+          },
+          "domain": {
+            "type": "string",
+            "example": "technology",
+            "description": "Subject domain"
+          }
+        }
+      },
+      "ProjectResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1",
+            "description": "Project ID"
+          },
+          "userId": {
+            "type": "string",
+            "example": "1",
+            "description": "User ID who owns the project"
+          },
+          "title": {
+            "type": "string",
+            "example": "My Presentation",
+            "description": "Project title"
+          },
+          "description": {
+            "type": "string",
+            "example": "A presentation about our new product features",
+            "description": "Project description"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["CREATED", "PROCESSING", "COMPLETED"],
+            "example": "COMPLETED",
+            "description": "Project processing status"
+          },
+          "audience": {
+            "type": "string",
+            "enum": ["GENERAL", "TECHNICAL", "BUSINESS", "ACADEMIC"],
+            "example": "GENERAL",
+            "description": "Target audience type"
+          },
+          "formality": {
+            "type": "string",
+            "enum": ["INFORMAL", "NEUTRAL", "FORMAL"],
+            "example": "NEUTRAL",
+            "description": "Formality level"
+          },
+          "domain": {
+            "type": "string",
+            "example": "technology",
+            "description": "Subject domain"
+          },
+          "videoUrl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/video.mp4",
+            "description": "URL to the uploaded video"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-06-15T15:30:00.025056",
+            "description": "Project creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-06-15T15:30:00.025056",
+            "description": "Project last update timestamp"
+          }
+        }
+      },
+      "ScriptSegmentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1",
+            "description": "Segment ID"
+          },
+          "projectId": {
+            "type": "string",
+            "example": "1",
+            "description": "Associated project ID"
+          },
+          "sectionName": {
+            "type": "string",
+            "example": "Introduction",
+            "description": "Section name"
+          },
+          "start": {
+            "type": "number",
+            "format": "double",
+            "example": 10.5,
+            "description": "Start time in seconds"
+          },
+          "end": {
+            "type": "number",
+            "format": "double",
+            "example": 15.2,
+            "description": "End time in seconds"
+          },
+          "text": {
+            "type": "string",
+            "example": "Welcome to today's presentation",
+            "description": "Transcribed text"
+          },
+          "speechAct": {
+            "type": "string",
+            "enum": ["representatives", "directives", "commissives", "expressives", "declaratives"],
+            "example": "representatives",
+            "description": "Speech act type"
+          }
+        }
+      },
+      "PostureEventResponse": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "example": "1",
+            "description": "Associated project ID"
+          },
+          "totalBadPostures": {
+            "type": "integer",
+            "example": 15,
+            "description": "Total number of detected bad postures"
+          },
+          "totalDurationSeconds": {
+            "type": "number",
+            "format": "double",
+            "example": 45.6,
+            "description": "Total duration of bad posture events in seconds"
+          },
+          "detectedActions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectedActionResponse"
+            },
+            "description": "List of detected actions"
+          }
+        }
+      },
+      "DetectedActionResponse": {
+        "type": "object",
+        "properties": {
+          "actionName": {
+            "type": "string",
+            "example": "slouching",
+            "description": "Action name"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActionPeriodResponse"
+            },
+            "description": "List of time periods when action occurred"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ActionSummaryResponse"
+          }
+        }
+      },
+      "ActionPeriodResponse": {
+        "type": "object",
+        "properties": {
+          "startFrame": {
+            "type": "integer",
+            "example": 150,
+            "description": "Start frame number"
+          },
+          "endFrame": {
+            "type": "integer",
+            "example": 300,
+            "description": "End frame number"
+          },
+          "durationSeconds": {
+            "type": "number",
+            "format": "double",
+            "example": 5.0,
+            "description": "Duration in seconds"
+          }
+        }
+      },
+      "ActionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalDurationSeconds": {
+            "type": "number",
+            "format": "double",
+            "example": 25.5,
+            "description": "Total duration of all occurrences in seconds"
+          },
+          "occurrenceCount": {
+            "type": "integer",
+            "example": 5,
+            "description": "Number of times this action occurred"
+          }
+        }
+      },
+      "SuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1",
+            "description": "Suggestion ID"
+          },
+          "projectId": {
+            "type": "string",
+            "example": "1",
+            "description": "Associated project ID"
+          },
+          "sectionId": {
+            "type": "string",
+            "example": "intro",
+            "description": "Section identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["modify", "add", "remove"],
+            "example": "modify",
+            "description": "Type of suggestion"
+          },
+          "suggestedText": {
+            "type": "string",
+            "example": "Consider starting with a more engaging hook",
+            "description": "Suggested improvement text"
+          },
+          "originalText": {
+            "type": "string",
+            "example": "Welcome everyone to today's presentation",
+            "description": "Original text being suggested for change"
+          },
+          "explanation": {
+            "type": "string",
+            "example": "A compelling opening will capture audience attention immediately",
+            "description": "Explanation for the suggestion"
+          }
+        }
+      },
+      "VideoUploadRequest": {
+        "type": "object",
+        "required": ["fileName", "fileSize", "fileType"],
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "example": "presentation.mp4",
+            "description": "Name of the video file"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "example": 52428800,
+            "description": "Size of the video file in bytes"
+          },
+          "fileType": {
+            "type": "string",
+            "example": "video/mp4",
+            "description": "MIME type of the video file"
+          }
+        }
+      },
+      "VideoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "1",
+            "description": "Video ID"
+          },
+          "projectId": {
+            "type": "string",
+            "example": "1",
+            "description": "Associated project ID"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/video.mp4",
+            "description": "URL to access the video"
+          },
+          "duration": {
+            "type": "integer",
+            "example": 300,
+            "description": "Video duration in seconds"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ResolutionResponse"
+          }
+        }
+      },
+      "ResolutionResponse": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "example": 1920,
+            "description": "Video width in pixels"
+          },
+          "height": {
+            "type": "integer",
+            "example": 1080,
+            "description": "Video height in pixels"
+          }
+        }
+      }
+    }
+  }
+}

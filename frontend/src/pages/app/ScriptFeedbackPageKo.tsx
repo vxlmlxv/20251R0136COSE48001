@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ const ScriptFeedbackPageKo = () => {
   const [project, setProject] = useState<Project | null>(null);
   const [video, setVideo] = useState<Video | null>(null);
   const [scriptSections, setScriptSections] = useState<ScriptSection[]>([]);
+  const [originalScriptSections, setOriginalScriptSections] = useState<ScriptSection[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState<'structure' | 'habits'>('structure');
@@ -25,7 +26,7 @@ const ScriptFeedbackPageKo = () => {
     '음': { count: 12, timestamp: [17.5, 32.1, 56.8, 72.3, 89.5, 103.2, 125.7, 147.2, 168.9, 184.2, 205.5, 230.1] },
     '그': { count: 8, timestamp: [25.3, 49.7, 78.2, 96.5, 142.8, 178.4, 211.6, 247.9] },
     '뭐': { count: 5, timestamp: [39.2, 85.7, 132.5, 189.3, 236.8] },
-    '아': { count: 4, timestamp: [62.4, 114.7, 158.3, 217.5] },
+    '이제': { count: 4, timestamp: [62.4, 114.7, 158.3, 217.5] },
   };
 
   // Helper function to get suggestion colors based on type
@@ -95,6 +96,7 @@ const ScriptFeedbackPageKo = () => {
         // Get script sections for this project
         const projectSections = mockScriptSections.filter(sec => sec.projectId === projectId);
         setScriptSections(projectSections);
+        setOriginalScriptSections(projectSections); // Store original for reset functionality
         
         // Get suggestions for this project
         const projectSuggestions = mockSuggestions.filter(sug => sug.projectId === projectId);
@@ -108,6 +110,52 @@ const ScriptFeedbackPageKo = () => {
       setIsLoading(false);
     }, 800);
   }, [projectId]);
+
+  // Function to apply accepted suggestions to script sections
+  const applyAcceptedSuggestions = useCallback(() => {
+    const updatedSections = originalScriptSections.map(section => {
+      // Find accepted suggestions for this section
+      const sectionSuggestions = suggestions.filter(s => 
+        s.sectionId === section.id && acceptedSuggestions.includes(s.id)
+      );
+      
+      // If no accepted suggestions for this section, return original
+      if (sectionSuggestions.length === 0) {
+        return section;
+      }
+      
+      // Apply suggestions based on type
+      let updatedSection = { ...section };
+      
+      sectionSuggestions.forEach(suggestion => {
+        if (suggestion.type === 'modify' && suggestion.suggestedText) {
+          // For modify suggestions, replace the sentences with the suggested text
+          updatedSection = {
+            ...updatedSection,
+            sentences: [suggestion.suggestedText]
+          };
+        } else if (suggestion.type === 'delete') {
+          // For delete suggestions, mark section as deleted or remove content
+          updatedSection = {
+            ...updatedSection,
+            sentences: ['[이 섹션은 AI 제안에 따라 제거되었습니다]']
+          };
+        }
+        // 'keep' suggestions don't change the content
+      });
+      
+      return updatedSection;
+    });
+    
+    setScriptSections(updatedSections);
+  }, [originalScriptSections, suggestions, acceptedSuggestions]);
+
+  // Apply suggestions whenever acceptedSuggestions changes
+  useEffect(() => {
+    if (originalScriptSections.length > 0) {
+      applyAcceptedSuggestions();
+    }
+  }, [applyAcceptedSuggestions, originalScriptSections]);
 
   // Handle accepting a suggestion (make it reselectable)
   const acceptSuggestion = (suggestionId: string) => {
@@ -189,35 +237,114 @@ const ScriptFeedbackPageKo = () => {
         </div>
         
         <TabsContent value="structure" className="mt-6 space-y-6">
+          {/* Summary of Applied Changes */}
+          {acceptedSuggestions.length > 0 && (
+            <Card className="border-mint bg-mint/5">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center">
+                  <Zap className="h-4 w-4 mr-2 text-mint" />
+                  적용된 변경사항 요약
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {acceptedSuggestions.map(suggestionId => {
+                    const suggestion = suggestions.find(s => s.id === suggestionId);
+                    const section = scriptSections.find(s => s.id === suggestion?.sectionId);
+                    if (!suggestion || !section) return null;
+                    
+                    return (
+                      <Badge 
+                        key={suggestionId} 
+                        variant="outline" 
+                        className="bg-white border-mint text-mint"
+                      >
+                        {getSuggestionTypeIcon(suggestion.type)}
+                        <span className="ml-1">{getSuggestionTypeKo(suggestion.type)}</span>
+                        <span className="ml-1 text-gray-500">• {section.title}</span>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Script Sections and Suggestions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Original Script Sections */}
             <Card className="lg:col-span-1">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">원본 스크립트 섹션</CardTitle>
-                <CardDescription>주제별로 정리된 프레젠테이션</CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-lg">스크립트 섹션</CardTitle>
+                    <CardDescription>주제별로 정리된 프레젠테이션</CardDescription>
+                  </div>
+                  {acceptedSuggestions.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setScriptSections(originalScriptSections);
+                        setAcceptedSuggestions([]);
+                        setRejectedSuggestions([]);
+                      }}
+                      className="text-xs"
+                    >
+                      <Repeat className="h-3 w-3 mr-1" />
+                      초기화
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="max-h-[500px] overflow-y-auto">
                 <div className="space-y-4">
-                  {scriptSections.map(section => (
-                    <div key={section.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                          {section.title}
-                        </Badge>
-                        <Badge variant="outline" className="bg-gray-50">
-                          {formatTime(section.start)} - {formatTime(section.end)}
-                        </Badge>
+                  {scriptSections.map(section => {
+                    // Check if this section has been modified by accepted suggestions
+                    const hasModifications = suggestions.some(s => 
+                      s.sectionId === section.id && 
+                      acceptedSuggestions.includes(s.id) && 
+                      (s.type === 'modify' || s.type === 'delete')
+                    );
+                    
+                    return (
+                      <div 
+                        key={section.id} 
+                        className={`border rounded-lg p-4 transition-all duration-300 ${hasModifications ? 'border-mint bg-mint/5 shadow-md' : ''}`}
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                              {section.title}
+                            </Badge>
+                            {hasModifications && (
+                              <Badge variant="outline" className="bg-mint/20 text-mint border-mint">
+                                <Zap className="h-3 w-3 mr-1" />
+                                수정됨
+                              </Badge>
+                            )}
+                          </div>
+                          <Badge variant="outline" className="bg-gray-50">
+                            {formatTime(section.start)} - {formatTime(section.end)}
+                          </Badge>
+                        </div>
+                        <div className="space-y-2">
+                          {section.sentences.map((sentence, index) => (
+                            <p 
+                              key={index} 
+                              className={`text-sm leading-relaxed ${
+                                hasModifications ? 'text-gray-900 font-medium' : 'text-gray-800'
+                              } ${
+                                sentence.includes('[이 섹션은') ? 'text-red-600 italic' : ''
+                              }`}
+                            >
+                              {sentence}
+                            </p>
+                          ))}
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        {section.sentences.map((sentence, index) => (
-                          <p key={index} className="text-gray-800 text-sm leading-relaxed">
-                            {sentence}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -235,75 +362,109 @@ const ScriptFeedbackPageKo = () => {
                       const isAccepted = acceptedSuggestions.includes(suggestion.id);
                       const isRejected = rejectedSuggestions.includes(suggestion.id);
                       const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || '알 수 없는 섹션';
+                      const isProcessed = isAccepted || isRejected;
                       
                       return (
                         <div 
                           key={suggestion.id} 
-                          className={`border rounded-lg p-4 ${getSuggestionColor(suggestion.type, isAccepted)}`}
+                          className={`border rounded-lg transition-all duration-300 ${
+                            isProcessed 
+                              ? 'p-2 bg-gray-50 border-gray-200' 
+                              : `p-4 ${getSuggestionColor(suggestion.type, isAccepted)}`
+                          }`}
                         >
-                          <div className="flex items-center space-x-2 mb-3">
-                            {getSuggestionTypeIcon(suggestion.type)}
-                            <span className="text-sm font-medium text-gray-700">
-                              {getSuggestionTypeKo(suggestion.type)} 제안
-                            </span>
-                            <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span>
-                          </div>
-                          
-                          {suggestion.suggestedText && (
-                            <div className="mb-3">
-                              <p className="text-gray-500 text-sm mb-2">제안 내용:</p>
-                              <p className="text-gray-800 text-sm leading-relaxed p-3 rounded border-l-4 border-l-mint w-full">
-                                {suggestion.suggestedText}
-                              </p>
-                            </div>
-                          )}
-                          
-                          <Accordion type="single" collapsible>
-                            <AccordionItem value="explanation">
-                              <AccordionTrigger className="text-sm text-gray-600 flex items-center">
-                                <HelpCircle className="h-4 w-4 mr-1" />
-                                이유 보기
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                                  {suggestion.rationale}
-                                </p>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                          
-                          <div className="flex justify-end mt-3 space-x-2">
-                            {!isRejected && (
-                              <>
-                                {!isAccepted && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-red-600"
-                                    onClick={() => rejectSuggestion(suggestion.id)}
-                                  >
-                                    <X className="h-4 w-4 mr-1" />
-                                    거부
-                                  </Button>
+                          {/* Collapsed view for processed suggestions */}
+                          {isProcessed ? (
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                {getSuggestionTypeIcon(suggestion.type)}
+                                <span className="text-sm text-gray-600">
+                                  {getSuggestionTypeKo(suggestion.type)} 제안
+                                </span>
+                                <span className="text-xs text-gray-500">• {sectionTitle}</span>
+                                {isAccepted && (
+                                  <Badge className="bg-green-100 text-green-800 text-xs">
+                                    <Check className="h-3 w-3 mr-1" />
+                                    수락됨
+                                  </Badge>
                                 )}
+                                {isRejected && (
+                                  <Badge className="bg-red-100 text-red-800 text-xs">
+                                    <X className="h-3 w-3 mr-1" />
+                                    거부됨
+                                  </Badge>
+                                )}
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-500 hover:text-gray-700 h-6 w-6 p-0"
+                                onClick={() => {
+                                  if (isAccepted) {
+                                    setAcceptedSuggestions(prev => prev.filter(id => id !== suggestion.id));
+                                  } else if (isRejected) {
+                                    setRejectedSuggestions(prev => prev.filter(id => id !== suggestion.id));
+                                  }
+                                }}
+                              >
+                                <Repeat className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            /* Expanded view for pending suggestions */
+                            <>
+                              <div className="flex items-center space-x-2 mb-3">
+                                {getSuggestionTypeIcon(suggestion.type)}
+                                <span className="text-sm font-medium text-gray-700">
+                                  {getSuggestionTypeKo(suggestion.type)} 제안
+                                </span>
+                                <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span>
+                              </div>
+                              
+                              {suggestion.suggestedText && (
+                                <div className="mb-3">
+                                  <p className="text-gray-500 text-sm mb-2">제안 내용:</p>
+                                  <p className="text-gray-800 text-sm leading-relaxed p-3 rounded border-l-4 border-l-mint w-full">
+                                    {suggestion.suggestedText}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              <Accordion type="single" collapsible>
+                                <AccordionItem value="explanation">
+                                  <AccordionTrigger className="text-sm text-gray-600 flex items-center">
+                                    <HelpCircle className="h-4 w-4 mr-1" />
+                                    이유 보기
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                                      {suggestion.rationale}
+                                    </p>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                              
+                              <div className="flex justify-end mt-3 space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600"
+                                  onClick={() => rejectSuggestion(suggestion.id)}
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  거부
+                                </Button>
                                 <Button
                                   size="sm"
-                                  className={isAccepted ? "bg-green-600 hover:bg-green-700 text-white" : "bg-mint hover:bg-mint/90 text-white"}
+                                  className="bg-mint hover:bg-mint/90 text-white"
                                   onClick={() => acceptSuggestion(suggestion.id)}
                                 >
                                   <Check className="h-4 w-4 mr-1" />
-                                  {isAccepted ? '수락됨' : '수락'}
+                                  수락
                                 </Button>
-                              </>
-                            )}
-                            
-                            {isRejected && (
-                              <Badge className="bg-red-100 text-red-800">
-                                <X className="h-4 w-4 mr-1" />
-                                거부됨
-                              </Badge>
-                            )}
-                          </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     })
@@ -344,37 +505,72 @@ const ScriptFeedbackPageKo = () => {
                 {/* Timeline of Filler Words */}
                 <div>
                   <h3 className="font-medium mb-3">군더더기 말 타임라인</h3>
-                  <div className="relative h-12 border rounded-lg overflow-hidden">
-                    {video && Object.entries(fillerWordStats).map(([word, stats], wordIndex) => (
-                      <div key={word} className="absolute top-0 w-full h-full">
-                        {stats.timestamp.map((time, i) => (
-                          <div 
-                            key={`${word}-${i}`}
-                            className="absolute h-full w-1.5 cursor-pointer hover:opacity-80"
-                            style={{
-                              left: `${(time / video.duration) * 100}%`,
-                              backgroundColor: getFillerWordColor(wordIndex),
-                              opacity: 0.7
-                            }}
-                            title={`"${word}" at ${formatTime(time)}`}
-                          ></div>
+                  <div className="relative">
+                    {/* Timeline container with better visibility */}
+                    <div className="relative h-16 border rounded-lg overflow-hidden bg-gray-50">
+                      {/* Timestamp markers */}
+                      <div className="absolute top-0 left-0 right-0 h-full">
+                        {video && [0, video.duration / 4, video.duration / 2, (3 * video.duration) / 4, video.duration].map((time, index) => (
+                          <div
+                            key={index}
+                            className="absolute top-0 h-full w-px bg-gray-300"
+                            style={{ left: `${(time / video.duration) * 100}%` }}
+                          >
+                            <div className="absolute -bottom-6 -translate-x-1/2 text-xs text-gray-500 font-mono">
+                              {formatTime(time)}
+                            </div>
+                          </div>
                         ))}
                       </div>
-                    ))}
-                    
-                    {/* Legend */}
-                    <div className="absolute -bottom-6 left-0 right-0 flex justify-center space-x-4 text-xs text-gray-500">
-                      {Object.keys(fillerWordStats).map((word, i) => (
-                        <div key={word} className="flex items-center">
-                          <div 
-                            className="w-3 h-3 mr-1 rounded-full flex items-center justify-center" 
-                            style={{ backgroundColor: getFillerWordColor(i) }}
-                          >
-                            <Mic2 className="w-2 h-2 text-white" />
-                          </div>
-                          "{word}"
+                      
+                      {/* Filler word markers */}
+                      {video && Object.entries(fillerWordStats).map(([word, stats], wordIndex) => (
+                        <div key={word} className="absolute top-2 w-full h-12">
+                          {stats.timestamp.map((time, i) => (
+                            <div 
+                              key={`${word}-${i}`}
+                              className="absolute h-12 w-2 cursor-pointer hover:opacity-100 transition-opacity rounded-sm shadow-sm"
+                              style={{
+                                left: `${(time / video.duration) * 100}%`,
+                                backgroundColor: getFillerWordColor(wordIndex),
+                                opacity: 0.8,
+                                transform: 'translateX(-50%)'
+                              }}
+                              title={`"${word}" 시간: ${formatTime(time)}`}
+                            >
+                              {/* Tooltip on hover */}
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                "{word}" 시간: {formatTime(time)}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       ))}
+                    </div>
+                    
+                    {/* Enhanced Legend with start/end timestamps */}
+                    <div className="mt-8 mb-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">타임라인 범례:</span>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <span className="mr-4">시작: {video ? formatTime(0) : '0:00'}</span>
+                          <span>끝: {video ? formatTime(video.duration) : '0:00'}</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-4 text-sm">
+                        {Object.entries(fillerWordStats).map(([word, stats], i) => (
+                          <div key={word} className="flex items-center">
+                            <div 
+                              className="w-4 h-4 mr-2 rounded flex items-center justify-center shadow-sm" 
+                              style={{ backgroundColor: getFillerWordColor(i) }}
+                            >
+                              <Mic2 className="w-2.5 h-2.5 text-white" />
+                            </div>
+                            <span className="font-medium">"{word}"</span>
+                            <span className="ml-2 text-gray-500">({stats.count}회)</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
