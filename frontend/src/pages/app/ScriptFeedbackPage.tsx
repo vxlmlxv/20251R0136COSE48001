@@ -28,6 +28,43 @@ const ScriptFeedbackPage = () => {
   const [isLoadingBodyLanguage, setIsLoadingBodyLanguage] = useState(false);
   const [bodyLanguageError, setBodyLanguageError] = useState<string | null>(null);
 
+  // Script analysis state
+  const [scriptAnalysis, setScriptAnalysis] = useState<{
+    id: number;
+    projectId: number;
+    audioUrl: string;
+    transcript: string;
+    feedback: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null>(null);
+  const [isLoadingScript, setIsLoadingScript] = useState(false);
+  const [scriptError, setScriptError] = useState<string | null>(null);
+
+  // Load script analysis function
+  const loadScriptAnalysis = useCallback(async () => {
+    if (!projectId) return;
+    
+    setIsLoadingScript(true);
+    setScriptError(null);
+    
+    try {
+      console.log('Loading script analysis for project:', projectId);
+      const analysis = await projectService.getScriptAnalysis(projectId);
+      setScriptAnalysis(analysis);
+      
+      toast({
+        title: "Script Analysis Loaded",
+        description: "Script feedback analysis has been loaded successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to load script analysis:', error);
+      setScriptError('Script analysis not available yet. The analysis may still be in progress.');
+    } finally {
+      setIsLoadingScript(false);
+    }
+  }, [projectId]);
+
   // Fake filler word data
   const fillerWordStats = {
     um: { count: 12, timestamp: [17.5, 32.1, 56.8, 72.3, 89.5, 103.2, 125.7, 147.2, 168.9, 184.2, 205.5, 230.1] },
@@ -163,11 +200,14 @@ const ScriptFeedbackPage = () => {
 
         // Load body language analysis
         loadBodyLanguageAnalysis();
+        
+        // Load script analysis
+        loadScriptAnalysis();
       }
       
       setIsLoading(false);
     }, 800);
-  }, [projectId, loadBodyLanguageAnalysis]);
+  }, [projectId, loadBodyLanguageAnalysis, loadScriptAnalysis]);
 
   // Function to apply accepted suggestions to script sections
   const applyAcceptedSuggestions = useCallback(() => {

@@ -17,6 +17,46 @@ export const projectService = {
   },
   
   /**
+   * Create a new project with video upload
+   */
+  createProjectWithVideo: async (projectData: {
+    title: string;
+    description: string;
+    domain?: string;
+    audience?: string;
+    formality?: string;
+  }, videoFile: File, onProgress?: (progress: number) => void): Promise<Project> => {
+    const formData = new FormData();
+    formData.append('title', projectData.title);
+    formData.append('description', projectData.description);
+    if (projectData.domain) formData.append('domain', projectData.domain);
+    if (projectData.audience) formData.append('audience', projectData.audience);
+    if (projectData.formality) formData.append('formality', projectData.formality);
+    formData.append('video', videoFile);
+
+    // Simulate upload progress
+    if (onProgress) {
+      let lastProgress = 0;
+      const interval = setInterval(() => {
+        const progress = Math.random() * 10;
+        lastProgress = Math.min(progress + lastProgress, 90);
+        onProgress(lastProgress);
+        if (lastProgress >= 90) {
+          clearInterval(interval);
+        }
+      }, 200);
+    }
+
+    const result = await api.postFormData('/projects/with-video', formData);
+    
+    if (onProgress) {
+      onProgress(100);
+    }
+    
+    return result;
+  },
+
+  /**
    * Create a new project
    */
   createProject: async (projectData: Omit<Project, 'id' | 'userId' | 'status' | 'createdAt'>): Promise<Project> => {
@@ -154,5 +194,20 @@ export const projectService = {
     };
     
     checkResults();
+  },
+
+  /**
+   * Get script analysis results for a project
+   */
+  getScriptAnalysis: async (projectId: string): Promise<{
+    id: number;
+    projectId: number;
+    audioUrl: string;
+    transcript: string;
+    feedback: string;
+    createdAt: string;
+    updatedAt: string;
+  }> => {
+    return await api.get(`/script-analysis/project/${projectId}`);
   },
 };

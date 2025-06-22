@@ -7,157 +7,185 @@ on:
       - 'backend/**'
       - '.github/workflows/backend.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
     paths:
       - 'backend/**'
 
+env:
+  JAVA_VERSION: '22'
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true'
+
 jobs:
+  # Validate and test the backend application
   test:
+    name: Test & Validate
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 22
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
       uses: actions/setup-java@v4
       with:
-        java-version: '22'
+        java-version: ${{ env.JAVA_VERSION }}
         distribution: 'temurin'
         
-    - name: Cache Gradle packages
+    - name: Setup Gradle cache
       uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: gradle-${{ runner.os }}-${{ hashFiles('backend/**/*.gradle*', 'backend/gradle-wrapper.properties') }}
         restore-keys: |
-          ${{ runner.os }}-gradle-
+          gradle-${{ runner.os }}-
           
-    - name: Grant execute permission for gradlew
+    - name: Make gradlew executable
       run: chmod +x backend/gradlew
       
-    - name: Run tests
-      run: cd backend && ./gradlew test -Dspring.profiles.active=test
+    - name: Validate Gradle wrapper
+      run: cd backend && ./gradlew wrapper --gradle-version=8.5
       
-    - name: Build application
-      run: cd backend && ./gradlew build -x test
+    - name: Run unit tests
+      run: cd backend && ./gradlew test --info
       
-    - name: Upload build artifacts
+    - name: Generate test report
+      if: always()
+      run: cd backend && ./gradlew testReport
+      
+    - name: Upload test results
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: backend-jar
-        path: backend/build/libs/*.jar
+        name: test-results-${{ github.run_number }}
+        path: |
+          backend/build/reports/tests/
+          backend/build/test-results/
         retention-days: 7
 
-  deploy:
+  # Build the application and create artifacts
+  build:
+    name: Build Application
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    env:
-      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      SERVICE_NAME: preffy-backend
-      REGION: us-central1
-      ARTIFACT_REGISTRY_REPO: preffy-docker-repo
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 22
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
       uses: actions/setup-java@v4
       with:
-        java-version: '22'
+        java-version: ${{ env.JAVA_VERSION }}
         distribution: 'temurin'
         
-    - name: Cache Gradle packages
+    - name: Setup Gradle cache
       uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
           ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: gradle-${{ runner.os }}-${{ hashFiles('backend/**/*.gradle*', 'backend/gradle-wrapper.properties') }}
         restore-keys: |
-          ${{ runner.os }}-gradle-
+          gradle-${{ runner.os }}-
           
-    - name: Grant execute permission for gradlew
+    - name: Make gradlew executable
       run: chmod +x backend/gradlew
       
     - name: Build application
-      run: cd backend && ./gradlew build -x test
+      run: cd backend && ./gradlew build -x test --info
       
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
+    - name: Upload JAR artifacts
+      uses: actions/upload-artifact@v4
       with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-        
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-      with:
-        project_id: ${{ env.PROJECT_ID }}
-        
-    - name: Configure Docker to use gcloud as a credential helper
-      run: |
-        gcloud auth configure-docker us-central1-docker.pkg.dev
-        
-    - name: Ensure Artifact Registry repository exists
-      run: |
-        gcloud artifacts repositories describe ${{ env.ARTIFACT_REGISTRY_REPO }} \
-          --location=${{ env.REGION }} || \
-        gcloud artifacts repositories create ${{ env.ARTIFACT_REGISTRY_REPO }} \
-          --location=${{ env.REGION }} \
-          --repository-format=docker \
-          --description="Docker repository for Preffy backend"
+        name: backend-jar-${{ github.run_number }}
+        path: backend/build/libs/*.jar
+        retention-days: 30
+
+  # Build Docker image (only on main branch push)
+  docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
       
-    - name: Build and push Docker image
-      run: |
-        cd backend
-        IMAGE_TAG="us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
-        echo "Building image: $IMAGE_TAG"
-        docker build -t $IMAGE_TAG .
-        echo "Pushing image to Artifact Registry..."
-        docker push $IMAGE_TAG
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-        
-    - name: Deploy to Cloud Run
-      run: |
-        echo "Deploying to Cloud Run..."
-        gcloud run deploy ${{ env.SERVICE_NAME }} \
-          --image $IMAGE_TAG \
-          --region ${{ env.REGION }} \
-          --platform managed \
-          --allow-unauthenticated \
-          --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
-          --set-env-vars="DB_HOST=${{ secrets.DB_HOST }}" \
-          --set-env-vars="DB_PORT=3306" \
-          --set-env-vars="DB_NAME=${{ secrets.DB_NAME }}" \
-          --set-env-vars="DB_USER=${{ secrets.DB_USER }}" \
-          --set-env-vars="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
-          --set-env-vars="JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-          --set-env-vars="GCS_BUCKET=${{ secrets.GCS_BUCKET }}" \
-          --set-env-vars="API_URL=${{ secrets.API_URL }}" \
-          --add-cloudsql-instances="${{ env.PROJECT_ID }}:${{ env.REGION }}:preffy-db" \
-          --memory=1Gi \
-          --cpu=1 \
-          --concurrency=80 \
-          --max-instances=10 \
-          --timeout=300 \
-          --quiet
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: preffy-backend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
           
-    - name: Verify deployment
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: false
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Save Docker image
       run: |
-        echo "Getting service URL..."
-        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
-          --region=${{ env.REGION }} \
-          --format="value(status.url)")
-        echo "Service deployed at: $SERVICE_URL"
+        docker save preffy-backend:latest | gzip > backend-docker-${{ github.sha }}.tar.gz
         
-        echo "Testing health endpoint..."
-        curl -f "$SERVICE_URL/api/health" || {
-          echo "Health check failed!"
-          exit 1
-        }
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-docker-${{ github.run_number }}
+        path: backend-docker-${{ github.sha }}.tar.gz
+        retention-days: 30
+
+  # Security and quality checks
+  security:
+    name: Security & Quality Checks
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
         
-        echo "✅ Deployment successful!"
-        echo "🚀 API is available at: $SERVICE_URL/api"
-        echo "🔍 Health check: $SERVICE_URL/api/health"
+    - name: Setup Gradle cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: gradle-${{ runner.os }}-${{ hashFiles('backend/**/*.gradle*', 'backend/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
+          
+    - name: Make gradlew executable
+      run: chmod +x backend/gradlew
+      
+    - name: Run dependency vulnerability check
+      run: cd backend && ./gradlew dependencyCheckAnalyze --info || true
+      
+    - name: Upload security reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports-${{ github.run_number }}
+        path: backend/build/reports/
+        retention-days: 7

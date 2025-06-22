@@ -1,0 +1,40 @@
+# Build directories
+build/
+bin/
+.gradle/
+gradle-app.setting
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+HELP.md
+*.md
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Test files
+src/test/
+
+# Application properties (will be set via environment)
+src/main/resources/application-*.properties

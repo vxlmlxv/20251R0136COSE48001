@@ -1,28 +1,34 @@
-# Use Eclipse Temurin JDK 22 as base image
+# Multi-stage build for optimized production image
 FROM eclipse-temurin:22-jdk-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy Gradle wrapper and build files
+# Copy Gradle wrapper and build files first (for better layer caching)
 COPY gradlew .
-COPY gradle gradle
+COPY gradle gradle/
 COPY build.gradle .
 COPY settings.gradle .
-
-# Copy source code
-COPY src src
 
 # Make gradlew executable
 RUN chmod +x ./gradlew
 
-# Build the application
-RUN ./gradlew build -x test
+# Download dependencies (cached layer if no changes to build files)
+RUN ./gradlew dependencies --no-daemon
 
-# Use Eclipse Temurin JRE 22 for runtime
+# Copy source code
+COPY src src/
+
+# Build the application
+RUN ./gradlew build -x test --no-daemon
+
+# Production runtime stage
 FROM eclipse-temurin:22-jre-alpine
 
-# Create non-root user
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Create non-root user for security
 RUN addgroup -g 1001 -S spring && \
     adduser -S spring -u 1001 -G spring
 
@@ -34,18 +40,27 @@ COPY --from=builder /app/build/libs/demo-0.0.1-SNAPSHOT.jar app.jar
 
 # Change ownership to spring user
 RUN chown -R spring:spring /app
+
+# Switch to non-root user
 USER spring
 
 # Expose port 8080
 EXPOSE 8080
 
-# Set environment variables
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
+# Set JVM options for container environment
+ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+# Set default Spring profile
 ENV SPRING_PROFILES_ACTIVE=mysql
 
-# Health check
+# Health check endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Run the application
+# Add application metadata
+LABEL maintainer="Preffy Video Flow Team" \
+      version="1.0" \
+      description="Preffy Video Flow Backend Service"
+
+# Run the application with optimized JVM settings
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
