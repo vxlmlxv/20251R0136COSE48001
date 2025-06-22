@@ -596,53 +596,6 @@ const ScriptFeedbackPageKo = () => {
                     </li>
                   </ul>
                 </div>
-                
-                {/* Quick Fixes */}
-                <div>
-                  <h3 className="font-medium mb-3">일반적인 대체 표현</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">이렇게 말하는 대신:</p>
-                        <p>"음, 제가 말하고 싶은 것은..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">이렇게 해보세요:</p>
-                        <p>"제가 말하고 싶은 것은..."</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">이렇게 말하는 대신:</p>
-                        <p>"우리는 뭐 그냥 집중해야..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">이렇게 해보세요:</p>
-                        <p>"우리는 집중해야..."</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">이렇게 말하는 대신:</p>
-                        <p>"그 아 데이터를 보면..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">이렇게 해보세요:</p>
-                        <p>"데이터를 보면..."</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">이렇게 말하는 대신:</p>
-                        <p>"제 생각에는 음, 우리가..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">이렇게 해보세요:</p>
-                        <p>"제 생각에는 우리가..."</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>

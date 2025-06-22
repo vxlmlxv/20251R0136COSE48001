@@ -568,54 +568,7 @@ const ScriptFeedbackPage = () => {
                     </li>
                   </ul>
                 </div>
-                
-                {/* Quick Fixes */}
-                <div>
-                  <h3 className="font-medium mb-3">Common Replacements</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">Instead of:</p>
-                        <p>"So, um, what I'm trying to say is..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">Try:</p>
-                        <p>"What I mean is..."</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">Instead of:</p>
-                        <p>"We basically need to like focus on..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">Try:</p>
-                        <p>"We need to focus on..."</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">Instead of:</p>
-                        <p>"Actually, the data shows..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">Try:</p>
-                        <p>"The data shows..."</p>
-                      </div>
-                    </div>
-                    <div className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <p className="text-red-500 font-medium">Instead of:</p>
-                        <p>"I think, um, we should..."</p>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-green-600 font-medium">Try:</p>
-                        <p>"I believe we should..."</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                              </div>
             </CardContent>
           </Card>
         </TabsContent>
