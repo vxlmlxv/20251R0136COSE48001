@@ -125,9 +125,16 @@ public class ProjectController {
         @Parameter(hidden = true) Authentication authentication
     ) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Project project = projectService.getProjectById(id, userPrincipal.getId());
+        logger.info("User {} requesting project {}", userPrincipal.getId(), id);
         
-        return ResponseEntity.ok(new ProjectResponse(project));
+        try {
+            Project project = projectService.getProjectById(id, userPrincipal.getId());
+            logger.debug("Successfully retrieved project {} for user {}", id, userPrincipal.getId());
+            return ResponseEntity.ok(new ProjectResponse(project));
+        } catch (Exception e) {
+            logger.error("Failed to retrieve project {} for user {}: {}", id, userPrincipal.getId(), e.getMessage());
+            throw e;
+        }
     }
     
     @PostMapping
@@ -189,9 +196,17 @@ public class ProjectController {
         @Parameter(hidden = true) Authentication authentication
     ) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Project project = projectService.createProject(projectRequest, userPrincipal.getId());
+        logger.info("User {} creating new project: {}", userPrincipal.getId(), projectRequest.getTitle());
+        logger.debug("Project creation request details: {}", projectRequest);
         
-        return ResponseEntity.ok(new ProjectResponse(project));
+        try {
+            Project project = projectService.createProject(projectRequest, userPrincipal.getId());
+            logger.info("Successfully created project {} for user {}", project.getId(), userPrincipal.getId());
+            return ResponseEntity.ok(new ProjectResponse(project));
+        } catch (Exception e) {
+            logger.error("Failed to create project for user {}: {}", userPrincipal.getId(), e.getMessage(), e);
+            throw e;
+        }
     }
     
     @PutMapping("/{id}")

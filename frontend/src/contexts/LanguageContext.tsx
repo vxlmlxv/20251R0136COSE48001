@@ -11,7 +11,7 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
-  const [language, setLanguageState] = useState(i18n.language || 'en');
+  const [language, setLanguageState] = useState(i18n.language || 'ko');
 
   const availableLanguages = [
     { code: 'en', name: 'English (US)', nativeName: 'English' },

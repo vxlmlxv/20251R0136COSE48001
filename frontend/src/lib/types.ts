@@ -60,6 +60,7 @@ export interface Suggestion {
   projectId: string;
   sectionId: string;
   type: 'modify' | 'delete' | 'keep';
+  category?: 'audience-formality' | 'delivery' | 'clarity'; // Added for modify suggestions
   suggestedText?: string;
   rationale: string;
 }

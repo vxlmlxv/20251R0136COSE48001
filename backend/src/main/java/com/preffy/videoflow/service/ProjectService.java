@@ -42,22 +42,33 @@ public class ProjectService {
     private ScriptAnalysisService scriptAnalysisService;
     
     public List<Project> getProjectsByUserId(Long userId) {
+        logger.debug("Fetching projects for user: {}", userId);
         User user = userService.findById(userId);
-        return projectRepository.findByUserOrderByCreatedAtDesc(user);
+        List<Project> projects = projectRepository.findByUserOrderByCreatedAtDesc(user);
+        logger.info("Found {} projects for user {}", projects.size(), userId);
+        return projects;
     }
     
     public Project getProjectById(Long projectId, Long userId) {
+        logger.debug("Fetching project {} for user {}", projectId, userId);
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> {
+                    logger.warn("Project {} not found", projectId);
+                    return new RuntimeException("Project not found");
+                });
         
         if (!project.getUser().getId().equals(userId)) {
+            logger.warn("User {} attempted to access project {} owned by user {}", 
+                       userId, projectId, project.getUser().getId());
             throw new RuntimeException("Access denied");
         }
         
+        logger.debug("Successfully retrieved project {} for user {}", projectId, userId);
         return project;
     }
     
     public Project createProject(ProjectRequest request, Long userId) {
+        logger.info("Creating new project '{}' for user {}", request.getTitle(), userId);
         User user = userService.findById(userId);
         
         Project project = new Project();
@@ -75,7 +86,9 @@ public class ProjectService {
             project.setDomain(request.getDomain());
         }
         
-        return projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
+        logger.info("Successfully created project {} for user {}", savedProject.getId(), userId);
+        return savedProject;
     }
     
     /**

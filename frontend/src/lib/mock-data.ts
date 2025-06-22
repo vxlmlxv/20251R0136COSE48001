@@ -330,6 +330,7 @@ export const mockSuggestions: Suggestion[] = [
     projectId: 'project-1',
     sectionId: 'section-1',
     type: 'modify',
+    category: 'audience-formality',
     suggestedText: 'Good morning, team. I am excited to share our outstanding Q2 sales performance with you today. We not only met our targets but exceeded them by 15%, which represents a significant improvement from last quarter.',
     rationale: 'Using positive emotional language and combining related statements creates a stronger, more confident opening.'
   },
@@ -338,6 +339,7 @@ export const mockSuggestions: Suggestion[] = [
     projectId: 'project-1',
     sectionId: 'section-2',
     type: 'modify',
+    category: 'delivery',
     suggestedText: 'Let me highlight the key metrics that drove this exceptional performance. Our conversion rate increased by 8% compared to Q1, while customer acquisition costs decreased by 12%, demonstrating improved efficiency. Most notably, the average deal size grew by 22%, indicating we are successfully attracting higher-value clients.',
     rationale: 'Restructuring for better flow and emphasizing the positive outcomes with stronger connecting words.'
   },
@@ -353,6 +355,7 @@ export const mockSuggestions: Suggestion[] = [
     projectId: 'project-1',
     sectionId: 'section-4',
     type: 'modify',
+    category: 'clarity',
     suggestedText: 'While we achieved great success, we also navigated some challenges effectively. Supply chain disruptions initially affected our delivery times, but we proactively addressed this by diversifying our supplier base and implementing new tracking systems for better visibility.',
     rationale: 'Reframing challenges as opportunities demonstrates problem-solving capability and maintains positive momentum.'
   },
