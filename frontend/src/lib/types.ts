@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -49,16 +48,6 @@ export interface ScriptSection {
   sentences: string[];
 }
 
-export interface BehaviorEvent {
-  id: string;
-  projectId: string;
-  start: number;
-  end: number;
-  type: 'gesture' | 'facial' | 'posture';
-  category: string;
-  severity: 'low' | 'medium' | 'high';
-}
-
 export interface BadgeScore {
   badgeId: string;
   projectId: string;
@@ -73,4 +62,60 @@ export interface Suggestion {
   type: 'modify' | 'delete' | 'keep';
   suggestedText?: string;
   rationale: string;
+}
+
+// Body Language Analysis Types
+export interface BodyLanguageAnalysisRequest {
+  video_url: string;
+  project_id: string;
+}
+
+export interface BodyLanguageAnalysisResponse {
+  status: string;
+  results: {
+    gesture_analysis: {
+      total_gestures: number;
+      gesture_quality_score: number;
+      gesture_events: Array<{
+        timestamp: number;
+        type: string;
+        confidence: number;
+        description: string;
+      }>;
+    };
+    posture_analysis: {
+      average_posture_score: number;
+      posture_events: Array<{
+        timestamp: number;
+        posture_type: string;
+        confidence: number;
+        description: string;
+      }>;
+    };
+    facial_expression_analysis: {
+      smile_consistency: number;
+      eye_contact_score: number;
+      expression_events: Array<{
+        timestamp: number;
+        expression_type: string;
+        confidence: number;
+        description: string;
+      }>;
+    };
+    overall_score: number;
+    recommendations: string[];
+  };
+}
+
+export interface BehaviorEvent {
+  id: string;
+  projectId: string;
+  timestamp: number;
+  start: number;
+  end: number;
+  type: 'gesture' | 'posture' | 'facial';
+  category: string;
+  confidence: number;
+  description: string;
+  severity: 'low' | 'medium' | 'high';
 }

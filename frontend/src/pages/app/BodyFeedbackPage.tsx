@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 // Removed Tabs imports for unified view
 import { mockProjects, mockVideos, mockBadgeScores, mockBehaviorEvents } from '@/lib/mock-data';
-import { Project, Video, BadgeScore, BehaviorEvent } from '@/lib/types';
-import { AlertTriangle, Star, ArrowLeft, Hand, Smile, Eye, Users, Zap, Target, Play } from 'lucide-react';
+import { Project, Video, BadgeScore, BehaviorEvent, BodyLanguageAnalysisResponse } from '@/lib/types';
+import { analyzeBodyLanguage, checkBodyLanguageServiceHealth } from '@/services/body-language-service';
+import { toast } from '@/hooks/use-toast';
+import { AlertTriangle, Star, ArrowLeft, Hand, Smile, Eye, Users, Zap, Target, Play, Loader2, RefreshCw } from 'lucide-react';
 
 const BodyFeedbackPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -19,6 +21,12 @@ const BodyFeedbackPage = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
+  
+  // API Integration state
+  const [analysisResult, setAnalysisResult] = useState<BodyLanguageAnalysisResponse | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [serviceAvailable, setServiceAvailable] = useState<boolean | null>(null);
 
   // Helper function to get badge icon
   const getBadgeIcon = (badgeId: string) => {
@@ -87,7 +95,163 @@ const BodyFeedbackPage = () => {
     return <Zap className="h-4 w-4 text-white" />;
   };
 
+  // API Integration functions
+  const checkServiceHealth = async () => {
+    try {
+      const isAvailable = await checkBodyLanguageServiceHealth();
+      setServiceAvailable(isAvailable);
+      if (!isAvailable) {
+        toast({
+          title: "Service Unavailable",
+          description: "Body language analysis service is currently unavailable. Using mock data.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Health check failed:', error);
+      setServiceAvailable(false);
+    }
+  };
+
+  const performBodyLanguageAnalysis = async () => {
+    if (!video) {
+      toast({
+        title: "No Video Found",
+        description: "Please ensure a video is uploaded for this project.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      toast({
+        title: "Analysis Started",
+        description: "Body language analysis is in progress. This may take 3-5 minutes for video processing.",
+      });
+
+      const result = await analyzeBodyLanguage(video.url, projectId!);
+      setAnalysisResult(result);
+      
+      // Transform API response to our local state format
+      if (result.results) {
+        transformAnalysisToLocalData(result);
+      }
+
+      toast({
+        title: "Analysis Complete",
+        description: "Body language analysis has been completed successfully.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to analyze body language';
+      setAnalysisError(errorMessage);
+      
+      toast({
+        title: "Analysis Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Transform API response to local badge scores and behavior events
+  const transformAnalysisToLocalData = (result: BodyLanguageAnalysisResponse) => {
+    const newBadgeScores: BadgeScore[] = [];
+    const newBehaviorEvents: BehaviorEvent[] = [];
+
+    if (result.results.gesture_analysis) {
+      newBadgeScores.push({
+        badgeId: 'hand-gestures',
+        projectId: projectId!,
+        stars: Math.round(result.results.gesture_analysis.gesture_quality_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.gesture_analysis.total_gestures,
+      });
+
+      result.results.gesture_analysis.gesture_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `gesture-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 2, // Assume 2-second duration
+          type: 'gesture',
+          category: event.type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    if (result.results.posture_analysis) {
+      newBadgeScores.push({
+        badgeId: 'posture-alignment',
+        projectId: projectId!,
+        stars: Math.round(result.results.posture_analysis.average_posture_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.posture_analysis.posture_events.length,
+      });
+
+      result.results.posture_analysis.posture_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `posture-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 3, // Assume 3-second duration
+          type: 'posture',
+          category: event.posture_type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    if (result.results.facial_expression_analysis) {
+      newBadgeScores.push({
+        badgeId: 'smile-consistency',
+        projectId: projectId!,
+        stars: Math.round(result.results.facial_expression_analysis.smile_consistency / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.facial_expression_analysis.expression_events.filter(e => e.expression_type.includes('smile')).length,
+      });
+
+      newBadgeScores.push({
+        badgeId: 'eye-contact',
+        projectId: projectId!,
+        stars: Math.round(result.results.facial_expression_analysis.eye_contact_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.facial_expression_analysis.expression_events.filter(e => e.expression_type.includes('eye')).length,
+      });
+
+      result.results.facial_expression_analysis.expression_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `facial-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 1, // Assume 1-second duration
+          type: 'facial',
+          category: event.expression_type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    setBadgeScores(newBadgeScores);
+    setBehaviorEvents(newBehaviorEvents);
+  };
+
   useEffect(() => {
+    // Check service health first
+    checkServiceHealth();
+    
     // Simulate loading data from API
     setTimeout(() => {
       // Find project by ID
@@ -101,11 +265,11 @@ const BodyFeedbackPage = () => {
           setVideo(foundVideo);
         }
         
-        // Get badge scores for this project
+        // Get badge scores for this project (initially from mock data)
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
         setBadgeScores(projectBadgeScores);
         
-        // Get behavior events for this project
+        // Get behavior events for this project (initially from mock data)
         const projectEvents = mockBehaviorEvents.filter(be => be.projectId === projectId);
         setBehaviorEvents(projectEvents);
       }
@@ -179,15 +343,96 @@ const BodyFeedbackPage = () => {
   return (
     <div className="space-y-6">
       {/* Unified Body Language Feedback */}
-      <div className="flex items-center space-x-6">
-        <Link to={`/app/projects/${projectId}/overview`}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Overview
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-6">
+          <Link to={`/app/projects/${projectId}/overview`}>
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Overview
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold">Body Language Feedback</h1>
+        </div>
+        
+        {/* Analysis Controls */}
+        <div className="flex items-center space-x-4">
+          {/* Service Status Indicator */}
+          <div className="flex items-center space-x-2">
+            <div className={`w-2 h-2 rounded-full ${
+              serviceAvailable === true ? 'bg-green-500' :
+              serviceAvailable === false ? 'bg-red-500' : 'bg-yellow-500'
+            }`} />
+            <span className="text-sm text-gray-600">
+              {serviceAvailable === true ? 'Service Online' :
+               serviceAvailable === false ? 'Service Offline' : 'Checking...'}
+            </span>
+          </div>
+          
+          {/* Analysis Button */}
+          <Button
+            onClick={performBodyLanguageAnalysis}
+            disabled={isAnalyzing || !video || serviceAvailable === false}
+            className="bg-mint hover:bg-mint/90"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Zap className="mr-2 h-4 w-4" />
+                {analysisResult ? 'Re-analyze' : 'Analyze Body Language'}
+              </>
+            )}
           </Button>
-        </Link>
-        <h1 className="text-2xl font-bold">Body Language Feedback</h1>
+          
+          {/* Refresh Service Status */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={checkServiceHealth}
+            disabled={isAnalyzing}
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
+      {/* Analysis Status */}
+      {analysisError && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <p className="text-red-700">{analysisError}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {analysisResult && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-green-600" />
+              <p className="text-green-700">
+                Analysis completed! Overall score: {Math.round(analysisResult.results.overall_score)}%
+              </p>
+            </div>
+            {analysisResult.results.recommendations && analysisResult.results.recommendations.length > 0 && (
+              <div className="mt-3">
+                <p className="text-sm font-medium text-green-800 mb-2">AI Recommendations:</p>
+                <ul className="text-sm text-green-700 space-y-1">
+                  {analysisResult.results.recommendations.map((rec, index) => (
+                    <li key={index}>• {rec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
       {/* Main content: video + metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Video Player + Timeline */}

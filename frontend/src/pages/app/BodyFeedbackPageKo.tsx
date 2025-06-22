@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { mockProjects, mockVideos, mockBadgeScores, mockBehaviorEvents } from '@/lib/mock-data';
-import { Project, Video, BadgeScore, BehaviorEvent } from '@/lib/types';
-import { AlertTriangle, Star, ArrowLeft, Hand, Smile, Eye, Users, Zap, Target, Play } from 'lucide-react';
+import { Project, Video, BadgeScore, BehaviorEvent, BodyLanguageAnalysisResponse } from '@/lib/types';
+import { analyzeBodyLanguage, checkBodyLanguageServiceHealth } from '@/services/body-language-service';
+import { toast } from '@/hooks/use-toast';
+import { AlertTriangle, Star, ArrowLeft, Hand, Smile, Eye, Users, Zap, Target, Play, Loader2, RefreshCw } from 'lucide-react';
 
 const BodyFeedbackPageKo = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -17,6 +19,12 @@ const BodyFeedbackPageKo = () => {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
+  
+  // API Integration state
+  const [analysisResult, setAnalysisResult] = useState<BodyLanguageAnalysisResponse | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [serviceAvailable, setServiceAvailable] = useState<boolean | null>(null);
 
   // Helper function to get badge icon
   const getBadgeIcon = (badgeId: string) => {
@@ -102,7 +110,163 @@ const BodyFeedbackPageKo = () => {
     return <Zap className="h-4 w-4 text-white" />;
   };
 
+  // API Integration functions
+  const checkServiceHealth = async () => {
+    try {
+      const isAvailable = await checkBodyLanguageServiceHealth();
+      setServiceAvailable(isAvailable);
+      if (!isAvailable) {
+        toast({
+          title: "서비스 사용 불가",
+          description: "바디랭귀지 분석 서비스를 현재 사용할 수 없습니다. 모의 데이터를 사용합니다.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Health check failed:', error);
+      setServiceAvailable(false);
+    }
+  };
+
+  const performBodyLanguageAnalysis = async () => {
+    if (!video) {
+      toast({
+        title: "동영상을 찾을 수 없음",
+        description: "이 프로젝트에 동영상이 업로드되었는지 확인해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      toast({
+        title: "분석 시작",
+        description: "바디랭귀지 분석이 진행 중입니다. 비디오 처리에 3-5분 정도 소요될 수 있습니다.",
+      });
+
+      const result = await analyzeBodyLanguage(video.url, projectId!);
+      setAnalysisResult(result);
+      
+      // Transform API response to our local state format
+      if (result.results) {
+        transformAnalysisToLocalData(result);
+      }
+
+      toast({
+        title: "분석 완료",
+        description: "바디랭귀지 분석이 성공적으로 완료되었습니다.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      const errorMessage = error instanceof Error ? error.message : '바디랭귀지 분석에 실패했습니다';
+      setAnalysisError(errorMessage);
+      
+      toast({
+        title: "분석 실패",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Transform API response to local badge scores and behavior events
+  const transformAnalysisToLocalData = (result: BodyLanguageAnalysisResponse) => {
+    const newBadgeScores: BadgeScore[] = [];
+    const newBehaviorEvents: BehaviorEvent[] = [];
+
+    if (result.results.gesture_analysis) {
+      newBadgeScores.push({
+        badgeId: 'hand-gestures',
+        projectId: projectId!,
+        stars: Math.round(result.results.gesture_analysis.gesture_quality_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.gesture_analysis.total_gestures,
+      });
+
+      result.results.gesture_analysis.gesture_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `gesture-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 2,
+          type: 'gesture',
+          category: event.type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    if (result.results.posture_analysis) {
+      newBadgeScores.push({
+        badgeId: 'posture-alignment',
+        projectId: projectId!,
+        stars: Math.round(result.results.posture_analysis.average_posture_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.posture_analysis.posture_events.length,
+      });
+
+      result.results.posture_analysis.posture_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `posture-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 3,
+          type: 'posture',
+          category: event.posture_type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    if (result.results.facial_expression_analysis) {
+      newBadgeScores.push({
+        badgeId: 'smile-consistency',
+        projectId: projectId!,
+        stars: Math.round(result.results.facial_expression_analysis.smile_consistency / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.facial_expression_analysis.expression_events.filter(e => e.expression_type.includes('smile')).length,
+      });
+
+      newBadgeScores.push({
+        badgeId: 'eye-contact',
+        projectId: projectId!,
+        stars: Math.round(result.results.facial_expression_analysis.eye_contact_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.facial_expression_analysis.expression_events.filter(e => e.expression_type.includes('eye')).length,
+      });
+
+      result.results.facial_expression_analysis.expression_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `facial-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 1,
+          type: 'facial',
+          category: event.expression_type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    setBadgeScores(newBadgeScores);
+    setBehaviorEvents(newBehaviorEvents);
+  };
+
   useEffect(() => {
+    // Check service health first
+    checkServiceHealth();
+    
     // Simulate loading data from API
     setTimeout(() => {
       // Find project by ID
@@ -116,11 +280,11 @@ const BodyFeedbackPageKo = () => {
           setVideo(foundVideo);
         }
         
-        // Get badge scores for this project
+        // Get badge scores for this project (initially from mock data)
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
         setBadgeScores(projectBadgeScores);
         
-        // Get behavior events for this project
+        // Get behavior events for this project (initially from mock data)
         const projectEvents = mockBehaviorEvents.filter(be => be.projectId === projectId);
         setBehaviorEvents(projectEvents);
       }
@@ -195,15 +359,96 @@ const BodyFeedbackPageKo = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-6">
-        <Link to={`/app/projects/${projectId}/overview`}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            개요로 돌아가기
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-6">
+          <Link to={`/app/projects/${projectId}/overview`}>
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              개요로 돌아가기
+            </Button>
+          </Link>
+          <h1 className="text-2xl font-bold">바디 랭귀지 피드백</h1>
+        </div>
+        
+        {/* Analysis Controls */}
+        <div className="flex items-center space-x-4">
+          {/* Service Status Indicator */}
+          <div className="flex items-center space-x-2">
+            <div className={`w-2 h-2 rounded-full ${
+              serviceAvailable === true ? 'bg-green-500' :
+              serviceAvailable === false ? 'bg-red-500' : 'bg-yellow-500'
+            }`} />
+            <span className="text-sm text-gray-600">
+              {serviceAvailable === true ? '서비스 온라인' :
+               serviceAvailable === false ? '서비스 오프라인' : '확인 중...'}
+            </span>
+          </div>
+          
+          {/* Analysis Button */}
+          <Button
+            onClick={performBodyLanguageAnalysis}
+            disabled={isAnalyzing || !video || serviceAvailable === false}
+            className="bg-mint hover:bg-mint/90"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                분석 중...
+              </>
+            ) : (
+              <>
+                <Zap className="mr-2 h-4 w-4" />
+                {analysisResult ? '재분석' : '바디랭귀지 분석'}
+              </>
+            )}
           </Button>
-        </Link>
-        <h1 className="text-2xl font-bold">바디 랭귀지 피드백</h1>
+          
+          {/* Refresh Service Status */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={checkServiceHealth}
+            disabled={isAnalyzing}
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
+      {/* Analysis Status */}
+      {analysisError && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <p className="text-red-700">{analysisError}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {analysisResult && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-green-600" />
+              <p className="text-green-700">
+                분석 완료! 전체 점수: {Math.round(analysisResult.results.overall_score)}%
+              </p>
+            </div>
+            {analysisResult.results.recommendations && analysisResult.results.recommendations.length > 0 && (
+              <div className="mt-3">
+                <p className="text-sm font-medium text-green-800 mb-2">AI 추천사항:</p>
+                <ul className="text-sm text-green-700 space-y-1">
+                  {analysisResult.results.recommendations.map((rec, index) => (
+                    <li key={index}>• {rec}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
       
       {/* Main content: video + metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

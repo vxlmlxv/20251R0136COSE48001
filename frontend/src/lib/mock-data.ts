@@ -55,7 +55,7 @@ export const mockVideos: Video[] = [
   {
     id: 'video-1',
     projectId: 'project-1',
-    url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    url: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
     duration: 596,
     resolution: {
       width: 1280,

@@ -15,7 +15,7 @@ public class Project {
     @NotBlank
     private String title;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 65535)
     private String description;
     
     @ManyToOne(fetch = FetchType.LAZY)

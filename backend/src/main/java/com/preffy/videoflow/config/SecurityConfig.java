@@ -64,6 +64,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/health").permitAll()
+                .requestMatchers("/api/test/**").permitAll()  // Allow test endpoints
+                .requestMatchers("/api/videos/**").permitAll()  // Allow video endpoints
+                .requestMatchers("/api/projects/**").permitAll()  // Allow project endpoints
+                .requestMatchers("/api/users/**").permitAll()  // Allow user endpoints for testing
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()

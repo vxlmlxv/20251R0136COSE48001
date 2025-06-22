@@ -14,6 +14,9 @@ import { mockApiHandler } from "./lib/mock-api";
 import SignupPage from "./pages/public/SignupPage";
 import LoginPage from "./pages/public/LoginPage";
 
+// New pages
+import ProjectVideoPage from "./pages/app/ProjectVideoPage";
+
 // App pages - removed direct imports since they're now handled by LanguageRouter
 
 // Fallback
@@ -85,6 +88,7 @@ const App = () => {
                 <Route path="/app/projects/:projectId/overview" element={<RequireAuth><AppLayout><LanguageRouter page="project-overview" /></AppLayout></RequireAuth>} />
                 <Route path="/app/projects/:projectId/body-feedback" element={<RequireAuth><AppLayout><LanguageRouter page="body-feedback" /></AppLayout></RequireAuth>} />
                 <Route path="/app/projects/:projectId/script-feedback" element={<RequireAuth><AppLayout><LanguageRouter page="script-feedback" /></AppLayout></RequireAuth>} />
+                <Route path="/app/projects/:projectId/video" element={<RequireAuth><AppLayout><ProjectVideoPage /></AppLayout></RequireAuth>} />
                 <Route path="/app/profile" element={<RequireAuth><AppLayout><LanguageRouter page="profile" /></AppLayout></RequireAuth>} />
                 <Route path="/app/settings" element={<RequireAuth><AppLayout><LanguageRouter page="settings" /></AppLayout></RequireAuth>} />
                 

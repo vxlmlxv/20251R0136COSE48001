@@ -100,7 +100,7 @@ const ScriptFeedbackPage = () => {
         
         // Get script sections for this project
         const projectSections = mockScriptSections.filter(sec => sec.projectId === projectId);
-        setScriptSections(projectSections);
+        setScriptSections(projectSections);b
         setOriginalScriptSections(projectSections); // Store original for reset functionality
         
         // Get suggestions for this project
