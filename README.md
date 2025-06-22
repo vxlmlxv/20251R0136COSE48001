@@ -1,275 +1,171 @@
-# Preffy Video Flow
+# Preffy 🎥
 
-A modern video feedback platform built with **Spring Boot** and **React**, designed to help users analyze and improve their video presentations through AI-powered feedback.
+A modern **video presentation analysis platform** built with **Spring Boot** and **React**, designed to help users analyze and improve their video presentations through AI-powered feedback. The platform features cloud-native architecture with automated deployment, persistent storage, and scalable infrastructure.
 
-## 🏗️ Architecture
+## Live Production System
 
-### Backend (Spring Boot)
-- **Framework**: Spring Boot 3.5.0 with Java 22
-- **Database**: H2 in-memory database (development) / PostgreSQL (production)
-- **Authentication**: JWT-based authentication with Spring Security
-- **API**: RESTful API with comprehensive endpoints
-- **Build Tool**: Gradle
+### 🔗 **Deployed Services**
+- **Frontend**: [https://preffy-video-c76b5.web.app](https://preffy-video-c76b5.web.app) *(Firebase Hosting)*
+- **Backend API**: [https://preffy-backend-q7d754niaq-uc.a.run.app](https://preffy-backend-q7d754niaq-uc.a.run.app) *(Google Cloud Run)*
+- **API Health**: [https://preffy-backend-q7d754niaq-uc.a.run.app/api/health](https://preffy-backend-q7d754niaq-uc.a.run.app/api/health)
+- **API Documentation**: [Swagger/OpenAPI Spec](./swagger.yaml)
 
-### Frontend (React)
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **UI Components**: Shadcn/ui with Tailwind CSS
-- **State Management**: React Context API
-- **HTTP Client**: Axios
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Java 17+
-- Node.js 18+ 
-- npm
-- Firebase CLI (for deployment)
-
-### Development Setup
-
-1. **Install frontend dependencies**:
-```bash
-npm run install:all
-```
-
-2. **Start both servers**:
-```bash
-npm run dev
-```
-
-This will start:
-- Backend server at `http://localhost:8080`
-- Frontend server at `http://localhost:8081`
-
-## 🌐 Live Demo
-
-The application is deployed and accessible at:  
-**🔗 [https://preffy-video-c76b5.web.app](https://preffy-video-c76b5.web.app)**
-
-## 📦 Deployment
-
-### Firebase Hosting
-
-Deploy the frontend to Firebase hosting:
-
-```bash
-# Build and deploy
-npm run deploy
-
-# Deploy hosting only
-npm run deploy:hosting
-
-# Test locally before deployment
-npm run firebase:serve
-```
-
-**Note**: The frontend is configured to connect to a backend API. Update the `VITE_API_URL` in `.env.production` to point to your deployed backend when ready.
-
-### Manual Setup
-
-**Backend only**:
-```bash
-cd backend
-npm install
-npm run start:dev
-```
-
-**Frontend only**:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## 📡 API Endpoints
-
-### Users
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `PATCH /api/users/:id` - Update user
-- `DELETE /api/users/:id` - Delete user
-
-### Projects
-- `GET /api/projects` - Get projects (optional ?userId filter)
-- `GET /api/projects/:id` - Get project by ID
-- `POST /api/projects` - Create new project
-- `PATCH /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
-
-### Project Data
-- `GET /api/projects/:id/videos` - Get project videos
-- `GET /api/projects/:id/script-segments` - Get script segments
-- `GET /api/projects/:id/behavior-events` - Get behavior events
-- `GET /api/projects/:id/badge-scores` - Get badge scores
-- `GET /api/projects/:id/suggestions` - Get improvement suggestions
-
-### Health Check
-- `GET /health` - API health status
-
-## 🎯 Features
-
-### Body Feedback
-- **Gesture Analysis**: Tracks hand movements, pointing, fidgeting
-- **Posture Monitoring**: Detects slouching, head tilts, positioning
-- **Facial Expression**: Analyzes smiles, eye contact, expressions
-- **Visual Timeline**: Interactive timeline showing behavior events
-- **Badge System**: Star ratings for different presentation aspects
-
-### Script Feedback
-- **Content Analysis**: Structure and content suggestions
-- **Speech Patterns**: Filler word detection and timing
-- **Improvement Suggestions**: AI-generated recommendations
-- **Text Timeline**: Synchronized script segments with timing
-
-### Interactive Interface
-- **Tabbed Navigation**: Organized feedback categories
-- **Thumbnail Grid**: Video segment previews with icons
-- **Responsive Design**: Works on desktop and mobile
-- **Real-time Updates**: Live feedback as analysis completes
-
-## 🔧 Development Scripts
-
-### Root Level
-- `npm run dev` - Start both frontend and backend
-- `npm run build` - Build both applications
-- `npm run install:all` - Install all dependencies
-
-### Backend Specific
-- `npm run start:dev` - Development server with hot reload
-- `npm run build` - Build for production
-- `npm run start:prod` - Production server
-
-### Frontend Specific
-- `npm run dev` - Development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-
-## 🐳 Deployment
-
-### Using Docker Compose
-```bash
-docker-compose up --build
-```
-
-This will:
-- Build and start the backend on port 3002
-- Build and start the frontend on port 80
-- Set up networking between services
-
-### Manual Deployment
-
-**Backend**:
-```bash
-cd backend
-npm install
-npm run build
-npm run start:prod
-```
-
-**Frontend**:
-```bash
-cd frontend
-npm install
-npm run build
-# Serve the dist/ folder with your preferred web server
-```
-
-## 🛠️ Technology Stack
-
-### Backend
-- **NestJS** - Progressive Node.js framework
-- **TypeScript** - Type-safe JavaScript
-- **Class-validator** - Request validation
-- **Class-transformer** - Data transformation
-
-### Frontend
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Fast build tool
-- **Tailwind CSS** - Utility-first CSS
-- **shadcn/ui** - Modern UI components
-- **React Router** - Client-side routing
-- **React Query** - Server state management
-- **Lucide React** - Icon library
-
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Concurrently** - Run multiple scripts
-
-## 📁 Project Structure
-
-```
-backend/
-├── src/
-│   ├── controllers/     # API controllers
-│   ├── services/        # Business logic
-│   ├── dto/            # Data transfer objects
-│   ├── interfaces/     # TypeScript interfaces
-│   ├── data/           # Mock data
-│   └── main.ts         # Application entry point
-├── Dockerfile
-└── package.json
-
-frontend/
-├── src/
-│   ├── components/     # React components
-│   ├── pages/          # Page components
-│   ├── services/       # API service layer
-│   ├── lib/            # Utilities and types
-│   ├── hooks/          # Custom React hooks
-│   └── contexts/       # React contexts
-├── public/             # Static assets
-├── Dockerfile
-├── nginx.conf
-└── package.json
-```
-
-## 🔒 Environment Variables
-
-### Backend
-- `PORT` - Server port (default: 3002)
-- `NODE_ENV` - Environment mode
-
-### Frontend
-- `VITE_API_URL` - Backend API URL (default: http://localhost:3002/api)
-
-## 🧪 Testing
-
-```bash
-# Backend tests
-cd backend
-npm run test
-
-# Frontend tests (if configured)
-cd frontend
-npm run test
-```
-
-## 📈 Future Enhancements
-
-- [ ] Real video upload and processing
-- [ ] AI/ML integration for actual behavior analysis
-- [ ] User authentication and authorization
-- [ ] Database integration (PostgreSQL/MongoDB)
-- [ ] Real-time collaboration features
-- [ ] Export reports functionality
-- [ ] Advanced analytics dashboard
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License.
+### 🚀 **Production Features**
+- ✅ **User Registration & Authentication** (JWT-based)
+- ✅ **Video Upload & Storage** (Google Cloud Storage)
+- ✅ **Project Management** (Persistent Cloud SQL database)
+- ✅ **Multi-user Support** (Isolated user data)
+- ✅ **Auto-scaling Infrastructure** (Google Cloud Run)
+- ✅ **Automated CI/CD Deployment** (GitHub Actions)
 
 ---
 
-**Note**: This is currently a demonstration platform with mock data. For production use, integrate with actual video processing and AI analysis services.
+## �🏗️ **Architecture Overview**
+
+### **Backend (Spring Boot + Google Cloud)**
+- **Framework**: Spring Boot 3.x with Java 22
+- **Database**: Google Cloud SQL (MySQL) for production
+- **Storage**: Google Cloud Storage for video files
+- **Authentication**: JWT with Spring Security
+- **Deployment**: Google Cloud Run (containerized, auto-scaling)
+- **Build**: Gradle with Docker containerization
+
+### **Frontend (React + Firebase)**
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite for fast development
+- **UI**: Shadcn/ui components with Tailwind CSS
+- **State**: React Context API for authentication
+- **Hosting**: Firebase Hosting with global CDN
+- **API Integration**: Axios HTTP client
+
+### **Cloud Infrastructure**
+- **Compute**: Google Cloud Run (serverless containers)
+- **Database**: Google Cloud SQL (managed MySQL)
+- **Storage**: Google Cloud Storage (object storage)
+- **CI/CD**: GitHub Actions with automated deployment
+- **Monitoring**: Google Cloud Logging and Monitoring
+
+---
+
+## 📋 **Quick Start Guide**
+
+### **Prerequisites**
+- Java 22+
+- Node.js 18+
+- Google Cloud CLI (`gcloud`)
+- Docker (for containerization)
+- Git
+
+### **1. Clone Repository**
+```bash
+git clone https://github.com/your-username/preffy-video-flow.git
+cd preffy-video-flow
+```
+
+### **2. Backend Development**
+```bash
+cd backend
+./gradlew bootRun
+# Server starts at http://localhost:8080
+```
+
+### **3. Frontend Development**
+```bash
+cd frontend
+npm install
+npm run dev
+# Development server at http://localhost:8081
+```
+
+### **4. Full Stack Development**
+```bash
+# From project root
+npm run dev  # Starts both backend and frontend
+```
+
+---
+
+## 🌐 **API Documentation**
+
+### **Core Endpoints**
+
+#### **Authentication**
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/profile` - Get user profile
+
+#### **Projects**
+- `GET /api/projects` - List user projects
+- `POST /api/projects` - Create new project
+- `GET /api/projects/{id}` - Get project details
+- `PUT /api/projects/{id}` - Update project
+- `DELETE /api/projects/{id}` - Delete project
+
+#### **Videos**
+- `POST /api/videos/upload` - Upload video file
+- `GET /api/videos/project/{id}` - Get project videos
+- `GET /api/videos/{id}` - Get video details
+
+#### **Analysis & Feedback**
+- `GET /api/projects/{id}/script-segments` - Speech analysis
+- `GET /api/projects/{id}/posture-events` - Posture analysis
+- `GET /api/projects/{id}/suggestions` - AI suggestions
+
+### **Complete API Reference**
+📖 **[View Full OpenAPI/Swagger Specification](./swagger.yaml)**
+
+--
+
+## 🎯 **Key Features**
+
+### **User Management**
+- ✅ Secure user registration and authentication
+- ✅ JWT-based session management
+- ✅ Profile management and user isolation
+- ✅ Multi-user support with data separation
+
+### **Video Processing**
+- ✅ Direct video upload to cloud storage
+- ✅ Multiple video format support
+- ✅ Secure file access with signed URLs
+- ✅ Metadata extraction and storage
+
+### **Project Management**
+- ✅ Create and manage video projects
+- ✅ Project status tracking and updates
+- ✅ Persistent data storage in cloud database
+- ✅ User-specific project isolation
+
+### **Analysis & Feedback**
+- 🔄 Script segment analysis (framework ready)
+- 🔄 Posture and behavior detection (framework ready)
+- 🔄 AI-powered improvement suggestions (framework ready)
+- 🔄 Interactive feedback interface (framework ready)
+
+### **Infrastructure**
+- ✅ Cloud-native architecture
+- ✅ Auto-scaling and high availability
+- ✅ Automated deployment pipeline
+- ✅ Monitoring and logging
+- ✅ Security best practices
+
+---
+
+## 🤝 **Contributing**
+
+### **Development Workflow**
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and test locally
+4. Commit: `git commit -m 'Add amazing feature'`
+5. Push: `git push origin feature/amazing-feature`
+6. Open a Pull Request
+
+### **Code Standards**
+- Follow existing code style and patterns
+- Add tests for new functionality
+- Update documentation as needed
+- Ensure CI/CD pipeline passes
+
+
+---
