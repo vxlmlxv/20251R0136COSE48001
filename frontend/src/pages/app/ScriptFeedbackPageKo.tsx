@@ -227,7 +227,7 @@ const ScriptFeedbackPageKo = () => {
             {/* Tabs next to title */}
             <TabsList className="grid grid-cols-2 max-w-md">
               <TabsTrigger value="structure" className="px-4">
-                구조 및 내용
+                AI 피드백
               </TabsTrigger>
               <TabsTrigger value="habits" className="px-4">
                 음성 습관

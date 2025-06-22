@@ -1,0 +1,65 @@
+# H2 Database Configuration
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  
+  # JPA Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  
+  # Completely disable Google Cloud
+  cloud:
+    gcp:
+      sql:
+        enabled: false
+      credentials:
+        enabled: false
+      auto-configuration:
+        enabled: false
+      storage:
+        enabled: false
+      core:
+        enabled: false
+      project-id: ""
+  
+  # Disable auto-configurations that might try to connect to GCP
+  autoconfigure:
+    exclude:
+      - org.springframework.cloud.gcp.autoconfigure.core.GcpContextAutoConfiguration
+      - org.springframework.cloud.gcp.autoconfigure.storage.GcpStorageAutoConfiguration
+      - org.springframework.cloud.gcp.autoconfigure.sql.GcpCloudSqlAutoConfiguration
+
+# Application Storage Configuration
+app:
+  storage:
+    type: local
+    local:
+      path: ${java.io.tmpdir}/preffy-test-uploads
+    base-url: http://localhost:8080
+    gcs:
+      bucket: ""
+      folder: ""
+      project-id: ""
+
+# JWT Configuration
+jwt:
+  secret: testSecretKeyForJWTSigningInTestEnvironmentThatIsLongEnoughToMeetSecurityRequirements123456789012345678901234567890
+  expiration: 3600000
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework: WARN
+    org.hibernate: WARN
+    com.preffy: INFO
+    com.google.cloud: OFF
+    com.google.auth: OFF
