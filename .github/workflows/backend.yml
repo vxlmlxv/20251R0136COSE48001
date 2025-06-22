@@ -59,6 +59,7 @@ jobs:
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       SERVICE_NAME: preffy-backend
       REGION: us-central1
+      ARTIFACT_REGISTRY_REPO: preffy-docker-repo
     
     steps:
     - uses: actions/checkout@v4
@@ -96,15 +97,25 @@ jobs:
         project_id: ${{ env.PROJECT_ID }}
         
     - name: Configure Docker to use gcloud as a credential helper
-      run: gcloud auth configure-docker
+      run: |
+        gcloud auth configure-docker us-central1-docker.pkg.dev
+        
+    - name: Ensure Artifact Registry repository exists
+      run: |
+        gcloud artifacts repositories describe ${{ env.ARTIFACT_REGISTRY_REPO }} \
+          --location=${{ env.REGION }} || \
+        gcloud artifacts repositories create ${{ env.ARTIFACT_REGISTRY_REPO }} \
+          --location=${{ env.REGION }} \
+          --repository-format=docker \
+          --description="Docker repository for Preffy backend"
       
     - name: Build and push Docker image
       run: |
         cd backend
-        IMAGE_TAG="us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/<ARTIFACT_REGISTRY_REPO>/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+        IMAGE_TAG="us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
         echo "Building image: $IMAGE_TAG"
         docker build -t $IMAGE_TAG .
-        echo "Pushing image to GCR..."
+        echo "Pushing image to Artifact Registry..."
         docker push $IMAGE_TAG
         echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
         
