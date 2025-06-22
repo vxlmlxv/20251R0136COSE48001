@@ -329,7 +329,7 @@ const ScriptFeedbackPageKo = () => {
                     suggestions.map(suggestion => {
                       const isAccepted = acceptedSuggestions.includes(suggestion.id);
                       const isRejected = rejectedSuggestions.includes(suggestion.id);
-                      const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || '알 수 없는 섹션';
+                    //   const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || '알 수 없는 섹션';
                       const isProcessed = isAccepted || isRejected;
                       
                       return (
@@ -349,7 +349,7 @@ const ScriptFeedbackPageKo = () => {
                                 <span className="text-sm text-gray-600">
                                   {getSuggestionTypeKo(suggestion.type)} 제안
                                 </span>
-                                <span className="text-xs text-gray-500">• {sectionTitle}</span>
+                                {/* <span className="text-xs text-gray-500">• {sectionTitle}</span> */}
                                 {isAccepted && (
                                   <Badge className="bg-green-100 text-green-800 text-xs">
                                     <Check className="h-3 w-3 mr-1" />
@@ -386,7 +386,7 @@ const ScriptFeedbackPageKo = () => {
                                 <span className="text-sm font-medium text-gray-700">
                                   {getSuggestionTypeKo(suggestion.type)} 제안
                                 </span>
-                                <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span>
+                                {/* <span className="text-xs text-blue-600 font-bold">• {sectionTitle}</span> */}
                               </div>
                               
                               {suggestion.suggestedText && (
