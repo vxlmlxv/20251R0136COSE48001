@@ -22,8 +22,8 @@ const NewProjectPage = () => {
   // Project details
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [audience, setAudience] = useState<'general' | 'technical' | 'executive' | 'academic'>('general');
-  const [formality, setFormality] = useState<'casual' | 'neutral' | 'formal'>('neutral');
+  const [audience, setAudience] = useState<'general' | 'knowledgeable' | 'expert'>('general');
+  const [formality, setFormality] = useState<'informal' | 'neutral' | 'formal'>('neutral');
   const [domain, setDomain] = useState('');
   
   // Video upload
