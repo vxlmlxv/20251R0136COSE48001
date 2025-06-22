@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, ArrowRight, Upload, Check, FileVideo } from 'lucide-react';
+import { projectService } from '@/services/project-service';
+import { videoService } from '@/services/data-service';
 
 const NewProjectPage = () => {
   const navigate = useNavigate();
@@ -22,8 +24,8 @@ const NewProjectPage = () => {
   // Project details
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [audience, setAudience] = useState<'general' | 'knowledgeable' | 'expert'>('general');
-  const [formality, setFormality] = useState<'informal' | 'neutral' | 'formal'>('neutral');
+  const [audience, setAudience] = useState<'general' | 'technical' | 'executive' | 'academic'>('general');
+  const [formality, setFormality] = useState<'casual' | 'neutral' | 'formal'>('neutral');
   const [domain, setDomain] = useState('');
   
   // Video upload
@@ -72,30 +74,59 @@ const NewProjectPage = () => {
     }, 200);
   };
   
-  const handleSubmit = () => {
-    if (!isStep3Valid()) return;
+  const handleSubmit = async () => {
+    if (!isStep3Valid() || !selectedFile) return;
     
     setIsSubmitting(true);
     
-    // Simulate upload process
-    simulateUpload();
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Create the project first
       toast({
-        title: 'Project created successfully',
-        description: 'Your project has been created and is now being processed.',
+        title: 'Creating project...',
+        description: 'Setting up your project.',
+      });
+
+      const projectData = {
+        title,
+        description,
+        audience,
+        formality,
+        domain
+      };
+
+      const createdProject = await projectService.createProject(projectData);
+      
+      // Upload the video
+      toast({
+        title: 'Uploading video...',
+        description: 'Your video is being uploaded and processed.',
+      });
+
+      simulateUpload(); // Keep the progress simulation for UI feedback
+
+      const uploadedVideo = await videoService.uploadVideo(createdProject.id, selectedFile);
+      
+      toast({
+        title: 'Project created successfully!',
+        description: 'Your video has been uploaded and body language analysis has been automatically triggered.',
         variant: 'default',
       });
-      
-      setIsSubmitting(false);
-      
-      // Simulate waiting for backend processing
+
+      // Navigate to the feedback page to show analysis results
       setTimeout(() => {
-        // Navigate to the new project (using a mock ID for demo purposes)
-        navigate('/app/projects/project-new/overview');
+        navigate(`/app/projects/${createdProject.id}/feedback`);
       }, 1000);
-    }, 5000); // 5 seconds to simulate upload completion
+
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create project. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -171,7 +202,7 @@ const NewProjectPage = () => {
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label htmlFor="audience" className="required">Target Audience</Label>
-                <RadioGroup value={audience} onValueChange={(value) => setAudience(value as any)}>
+                <RadioGroup value={audience} onValueChange={(value) => setAudience(value as 'general' | 'technical' | 'executive' | 'academic')}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="general" id="audience-general" />
                     <Label htmlFor="audience-general">General</Label>
@@ -193,7 +224,7 @@ const NewProjectPage = () => {
               
               <div className="space-y-3">
                 <Label htmlFor="formality" className="required">Presentation Formality</Label>
-                <RadioGroup value={formality} onValueChange={(value) => setFormality(value as any)}>
+                <RadioGroup value={formality} onValueChange={(value) => setFormality(value as 'casual' | 'neutral' | 'formal')}>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="casual" id="formality-casual" />
                     <Label htmlFor="formality-casual">Casual</Label>

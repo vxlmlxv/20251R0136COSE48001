@@ -5,6 +5,8 @@ import com.preffy.videoflow.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,11 +15,16 @@ import java.util.Optional;
 @Service
 public class VideoService {
 
+    private static final Logger logger = LoggerFactory.getLogger(VideoService.class);
+
     @Autowired
     private VideoRepository videoRepository;
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private BodyLanguageAnalysisService bodyLanguageAnalysisService;
 
     public Video uploadVideo(String projectId, MultipartFile file) throws IOException {
         // Upload file to storage service
@@ -49,7 +56,18 @@ public class VideoService {
         video.setWidth(width);
         video.setHeight(height);
 
-        return videoRepository.save(video);
+        Video savedVideo = videoRepository.save(video);
+
+        // Automatically trigger body language analysis
+        try {
+            logger.info("Triggering automatic body language analysis for project {} after video upload", projectId);
+            bodyLanguageAnalysisService.triggerAnalysisAsync(projectId, savedVideo.getStorageUrl());
+        } catch (Exception e) {
+            logger.warn("Failed to trigger body language analysis for project {}: {}", projectId, e.getMessage());
+            // Don't fail the upload if analysis trigger fails
+        }
+
+        return savedVideo;
     }
 
     public List<Video> getVideosByProjectId(String projectId) {

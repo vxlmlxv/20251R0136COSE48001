@@ -6,8 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { mockProjects, mockVideos, mockScriptSections, mockSuggestions } from '@/lib/mock-data';
-import { Project, Video, ScriptSection, Suggestion } from '@/lib/types';
-import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, FileText, Repeat, BookOpen, Volume2, Target, Zap } from 'lucide-react';
+import { Project, Video, ScriptSection, Suggestion, BodyLanguageAnalysisResponse } from '@/lib/types';
+import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, FileText, Repeat, BookOpen, Volume2, Target, Zap, Loader2, Hand, Smile, Eye } from 'lucide-react';
+import { projectService } from '@/services/project-service';
+import { toast } from '@/hooks/use-toast';
 
 const ScriptFeedbackPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -17,9 +19,14 @@ const ScriptFeedbackPage = () => {
   const [originalScriptSections, setOriginalScriptSections] = useState<ScriptSection[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentTab, setCurrentTab] = useState<'structure' | 'habits'>('structure');
+  const [currentTab, setCurrentTab] = useState<'structure' | 'habits' | 'body-language'>('structure');
   const [acceptedSuggestions, setAcceptedSuggestions] = useState<string[]>([]);
   const [rejectedSuggestions, setRejectedSuggestions] = useState<string[]>([]);
+  
+  // Body language analysis state
+  const [bodyLanguageAnalysis, setBodyLanguageAnalysis] = useState<BodyLanguageAnalysisResponse | null>(null);
+  const [isLoadingBodyLanguage, setIsLoadingBodyLanguage] = useState(false);
+  const [bodyLanguageError, setBodyLanguageError] = useState<string | null>(null);
 
   // Fake filler word data
   const fillerWordStats = {
@@ -84,6 +91,49 @@ const ScriptFeedbackPage = () => {
     return colors[wordIndex % colors.length];
   };
 
+  // Load body language analysis
+  const loadBodyLanguageAnalysis = useCallback(async () => {
+    if (!projectId) return;
+    
+    setIsLoadingBodyLanguage(true);
+    setBodyLanguageError(null);
+    
+    try {
+      console.log('Loading body language analysis for project:', projectId);
+      const analysis = await projectService.getBodyLanguageAnalysis(projectId);
+      setBodyLanguageAnalysis(analysis);
+      
+      toast({
+        title: "Analysis Complete",
+        description: "Body language analysis results have been loaded.",
+      });
+    } catch (error) {
+      console.error('Failed to load body language analysis:', error);
+      setBodyLanguageError('Failed to load body language analysis. Analysis may still be in progress.');
+      
+      // Start polling for results if analysis is not ready
+      if (error instanceof Error && error.message.includes('not ready')) {
+        console.log('Analysis not ready, starting polling...');
+        projectService.pollForAnalysisResults(projectId, (results) => {
+          if (results) {
+            setBodyLanguageAnalysis(results);
+            setBodyLanguageError(null);
+            toast({
+              title: "Analysis Complete",
+              description: "Body language analysis results are now available.",
+            });
+          } else {
+            setBodyLanguageError('Analysis failed or timed out. Please try again later.');
+          }
+          setIsLoadingBodyLanguage(false);
+        });
+        return; // Don't set loading to false here since polling will handle it
+      }
+    } finally {
+      setIsLoadingBodyLanguage(false);
+    }
+  }, [projectId]);
+
   useEffect(() => {
     // Simulate loading data from API
     setTimeout(() => {
@@ -110,11 +160,14 @@ const ScriptFeedbackPage = () => {
         // Initialize "keep" suggestions as accepted by default
         const keepSuggestions = projectSuggestions.filter(sug => sug.type === 'keep').map(sug => sug.id);
         setAcceptedSuggestions(keepSuggestions);
+
+        // Load body language analysis
+        loadBodyLanguageAnalysis();
       }
       
       setIsLoading(false);
     }, 800);
-  }, [projectId]);
+  }, [projectId, loadBodyLanguageAnalysis]);
 
   // Function to apply accepted suggestions to script sections
   const applyAcceptedSuggestions = useCallback(() => {
@@ -230,12 +283,15 @@ const ScriptFeedbackPage = () => {
             </Link>
             <h1 className="text-2xl font-bold">Script Feedback</h1>
             {/* Tabs next to title */}
-            <TabsList className="grid grid-cols-2 max-w-md">
-              <TabsTrigger value="structure" className="px-4">
+            <TabsList className="grid grid-cols-3 max-w-lg">
+              <TabsTrigger value="structure" className="px-3 text-sm">
                 Structure & Content
               </TabsTrigger>
-              <TabsTrigger value="habits" className="px-4">
+              <TabsTrigger value="habits" className="px-3 text-sm">
                 Speech Habits
+              </TabsTrigger>
+              <TabsTrigger value="body-language" className="px-3 text-sm">
+                Body Language
               </TabsTrigger>
             </TabsList>
           </div>
@@ -569,6 +625,339 @@ const ScriptFeedbackPage = () => {
                   </ul>
                 </div>
                               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="body-language" className="mt-6 space-y-6">
+          {/* Body Language Analysis */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Hand className="h-5 w-5 mr-2 text-blue-600" />
+                Body Language Analysis
+              </CardTitle>
+              <CardDescription>AI-powered analysis of your gestures, posture, and facial expressions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingBodyLanguage ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600 mr-3" />
+                  <span className="text-gray-600">Analyzing body language...</span>
+                </div>
+              ) : bodyLanguageError ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex items-center mb-2">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+                    <span className="font-medium text-yellow-800">Analysis in Progress</span>
+                  </div>
+                  <p className="text-yellow-700">{bodyLanguageError}</p>
+                  <Button
+                    onClick={loadBodyLanguageAnalysis}
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                  >
+                    <Repeat className="h-4 w-4 mr-2" />
+                    Retry
+                  </Button>
+                </div>
+              ) : bodyLanguageAnalysis ? (
+                <div className="space-y-6">
+                  {/* Overall Score */}
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium text-gray-800">Overall Body Language Score</h3>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {bodyLanguageAnalysis.results.overall_score}/100
+                      </div>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" 
+                        style={{ width: `${bodyLanguageAnalysis.results.overall_score}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Analysis Sections */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Gesture Analysis */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center">
+                          <Hand className="h-4 w-4 mr-2 text-green-600" />
+                          Gestures
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Total Gestures</span>
+                            <span className="font-medium">{bodyLanguageAnalysis.results.gesture_analysis.total_gestures}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Quality Score</span>
+                            <span className="font-medium">{bodyLanguageAnalysis.results.gesture_analysis.gesture_quality_score}/100</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className="bg-green-500 h-1.5 rounded-full" 
+                              style={{ width: `${bodyLanguageAnalysis.results.gesture_analysis.gesture_quality_score}%` }}
+                            ></div>
+                          </div>
+                          {bodyLanguageAnalysis.results.gesture_analysis.gesture_events.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-xs text-gray-500 mb-2">Recent Events:</p>
+                              <div className="space-y-1">
+                                {bodyLanguageAnalysis.results.gesture_analysis.gesture_events.slice(0, 2).map((event, index) => (
+                                  <div key={index} className="text-xs bg-green-50 rounded p-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-medium">{event.type}</span>
+                                      <span className="text-gray-500">{formatTime(event.timestamp)}</span>
+                                    </div>
+                                    <p className="text-gray-600 mt-1">{event.description}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Posture Analysis */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center">
+                          <Eye className="h-4 w-4 mr-2 text-blue-600" />
+                          Posture
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Average Score</span>
+                            <span className="font-medium">{bodyLanguageAnalysis.results.posture_analysis.average_posture_score}/100</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-500 h-1.5 rounded-full" 
+                              style={{ width: `${bodyLanguageAnalysis.results.posture_analysis.average_posture_score}%` }}
+                            ></div>
+                          </div>
+                          {bodyLanguageAnalysis.results.posture_analysis.posture_events.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-xs text-gray-500 mb-2">Recent Events:</p>
+                              <div className="space-y-1">
+                                {bodyLanguageAnalysis.results.posture_analysis.posture_events.slice(0, 2).map((event, index) => (
+                                  <div key={index} className="text-xs bg-blue-50 rounded p-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-medium">{event.posture_type}</span>
+                                      <span className="text-gray-500">{formatTime(event.timestamp)}</span>
+                                    </div>
+                                    <p className="text-gray-600 mt-1">{event.description}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Facial Expression Analysis */}
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center">
+                          <Smile className="h-4 w-4 mr-2 text-purple-600" />
+                          Facial Expressions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Smile Consistency</span>
+                            <span className="font-medium">{bodyLanguageAnalysis.results.facial_expression_analysis.smile_consistency}/100</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Eye Contact</span>
+                            <span className="font-medium">{bodyLanguageAnalysis.results.facial_expression_analysis.eye_contact_score}/100</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className="bg-purple-500 h-1.5 rounded-full" 
+                              style={{ width: `${(bodyLanguageAnalysis.results.facial_expression_analysis.smile_consistency + bodyLanguageAnalysis.results.facial_expression_analysis.eye_contact_score) / 2}%` }}
+                            ></div>
+                          </div>
+                          {bodyLanguageAnalysis.results.facial_expression_analysis.expression_events.length > 0 && (
+                            <div className="mt-3">
+                              <p className="text-xs text-gray-500 mb-2">Recent Events:</p>
+                              <div className="space-y-1">
+                                {bodyLanguageAnalysis.results.facial_expression_analysis.expression_events.slice(0, 2).map((event, index) => (
+                                  <div key={index} className="text-xs bg-purple-50 rounded p-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-medium">{event.expression_type}</span>
+                                      <span className="text-gray-500">{formatTime(event.timestamp)}</span>
+                                    </div>
+                                    <p className="text-gray-600 mt-1">{event.description}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Recommendations */}
+                  {bodyLanguageAnalysis.results.recommendations.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center">
+                          <Zap className="h-4 w-4 mr-2 text-amber-600" />
+                          Recommendations
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {bodyLanguageAnalysis.results.recommendations.map((recommendation, index) => (
+                            <div key={index} className="flex items-start bg-amber-50 rounded-lg p-3">
+                              <div className="h-5 w-5 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mr-3 mt-0.5 flex-shrink-0 text-sm font-medium">
+                                {index + 1}
+                              </div>
+                              <p className="text-gray-700">{recommendation}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Timeline View */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Body Language Timeline</CardTitle>
+                      <CardDescription>Key moments throughout your presentation</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="relative">
+                        {video && (
+                          <div className="relative h-20 border rounded-lg overflow-hidden bg-gray-50">
+                            {/* Timeline markers */}
+                            <div className="absolute top-0 left-0 right-0 h-full">
+                              {[0, video.duration / 4, video.duration / 2, (3 * video.duration) / 4, video.duration].map((time, index) => (
+                                <div
+                                  key={index}
+                                  className="absolute top-0 h-full w-px bg-gray-300"
+                                  style={{ left: `${(time / video.duration) * 100}%` }}
+                                >
+                                  <div className="absolute -bottom-6 -translate-x-1/2 text-xs text-gray-500 font-mono">
+                                    {formatTime(time)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Body language events */}
+                            <div className="absolute top-2 w-full h-16">
+                              {/* Gesture events */}
+                              {bodyLanguageAnalysis.results.gesture_analysis.gesture_events.map((event, i) => (
+                                <div 
+                                  key={`gesture-${i}`}
+                                  className="absolute h-4 w-3 cursor-pointer hover:opacity-100 transition-opacity rounded-sm shadow-sm bg-green-500"
+                                  style={{
+                                    left: `${(event.timestamp / video.duration) * 100}%`,
+                                    top: '2px',
+                                    opacity: 0.8,
+                                    transform: 'translateX(-50%)'
+                                  }}
+                                  title={`Gesture: ${event.type} at ${formatTime(event.timestamp)}`}
+                                />
+                              ))}
+                              
+                              {/* Posture events */}
+                              {bodyLanguageAnalysis.results.posture_analysis.posture_events.map((event, i) => (
+                                <div 
+                                  key={`posture-${i}`}
+                                  className="absolute h-4 w-3 cursor-pointer hover:opacity-100 transition-opacity rounded-sm shadow-sm bg-blue-500"
+                                  style={{
+                                    left: `${(event.timestamp / video.duration) * 100}%`,
+                                    top: '20px',
+                                    opacity: 0.8,
+                                    transform: 'translateX(-50%)'
+                                  }}
+                                  title={`Posture: ${event.posture_type} at ${formatTime(event.timestamp)}`}
+                                />
+                              ))}
+                              
+                              {/* Expression events */}
+                              {bodyLanguageAnalysis.results.facial_expression_analysis.expression_events.map((event, i) => (
+                                <div 
+                                  key={`expression-${i}`}
+                                  className="absolute h-4 w-3 cursor-pointer hover:opacity-100 transition-opacity rounded-sm shadow-sm bg-purple-500"
+                                  style={{
+                                    left: `${(event.timestamp / video.duration) * 100}%`,
+                                    top: '38px',
+                                    opacity: 0.8,
+                                    transform: 'translateX(-50%)'
+                                  }}
+                                  title={`Expression: ${event.expression_type} at ${formatTime(event.timestamp)}`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Legend */}
+                        <div className="mt-6">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm text-gray-600">Legend:</span>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <span className="mr-4">Start: {video ? formatTime(0) : '0:00'}</span>
+                              <span>End: {video ? formatTime(video.duration) : '0:00'}</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-4 text-sm">
+                            <div className="flex items-center">
+                              <div className="w-4 h-4 mr-2 rounded bg-green-500 flex items-center justify-center">
+                                <Hand className="w-2.5 h-2.5 text-white" />
+                              </div>
+                              <span>Gestures</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="w-4 h-4 mr-2 rounded bg-blue-500 flex items-center justify-center">
+                                <Eye className="w-2.5 h-2.5 text-white" />
+                              </div>
+                              <span>Posture</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="w-4 h-4 mr-2 rounded bg-purple-500 flex items-center justify-center">
+                                <Smile className="w-2.5 h-2.5 text-white" />
+                              </div>
+                              <span>Expressions</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Hand className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600">No body language analysis available</p>
+                  <Button
+                    onClick={loadBodyLanguageAnalysis}
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                  >
+                    Start Analysis
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

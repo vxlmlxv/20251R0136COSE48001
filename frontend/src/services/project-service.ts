@@ -1,6 +1,5 @@
-
 import { api } from '@/lib/api-client';
-import { Project, Video } from '@/lib/types';
+import { Project, Video, BodyLanguageAnalysisResponse } from '@/lib/types';
 
 export const projectService = {
   /**
@@ -48,16 +47,15 @@ export const projectService = {
     
     // Simulate upload progress
     if (onProgress) {
+      let lastProgress = 0;
       const interval = setInterval(() => {
         const progress = Math.random() * 10;
-        onProgress(Math.min(progress + (onProgress as any).lastProgress || 0, 100));
-        if ((onProgress as any).lastProgress >= 100) {
+        lastProgress = Math.min(progress + lastProgress, 100);
+        onProgress(lastProgress);
+        if (lastProgress >= 100) {
           clearInterval(interval);
         }
       }, 200);
-      
-      // Store the last progress value
-      (onProgress as any).lastProgress = 0;
     }
     
     // Simulate API call for video upload
@@ -71,8 +69,28 @@ export const projectService = {
   /**
    * Get analysis results for a project
    */
-  getAnalysisResults: async (projectId: string): Promise<any> => {
+  getAnalysisResults: async (projectId: string): Promise<unknown> => {
     return await api.get(`/projects/${projectId}/analysis`);
+  },
+
+  /**
+   * Get body language analysis results for a project
+   */
+  getBodyLanguageAnalysis: async (projectId: string): Promise<BodyLanguageAnalysisResponse> => {
+    return await api.get(`/analysis/body-language/${projectId}`);
+  },
+
+  /**
+   * Check if body language analysis service is available
+   */
+  checkBodyLanguageServiceHealth: async (): Promise<boolean> => {
+    try {
+      const response = await api.get('/analysis/body-language/health');
+      return response.status === 'available';
+    } catch (error) {
+      console.error('Body language service health check failed:', error);
+      return false;
+    }
   },
   
   /**
@@ -96,5 +114,45 @@ export const projectService = {
     };
     
     checkStatus();
+  },
+
+  /**
+   * Poll for body language analysis results
+   */
+  pollForAnalysisResults: async (
+    projectId: string, 
+    callback: (results: BodyLanguageAnalysisResponse | null) => void,
+    maxAttempts: number = 30
+  ): Promise<void> => {
+    let attempts = 0;
+    
+    const checkResults = async () => {
+      try {
+        attempts++;
+        const results = await api.get(`/analysis/body-language/${projectId}`);
+        
+        if (results && results.status === 'completed') {
+          callback(results);
+          return;
+        }
+        
+        if (attempts < maxAttempts) {
+          setTimeout(checkResults, 5000); // Poll every 5 seconds
+        } else {
+          console.warn('Maximum polling attempts reached for analysis results');
+          callback(null);
+        }
+      } catch (error) {
+        console.error('Error polling for analysis results:', error);
+        
+        if (attempts < maxAttempts) {
+          setTimeout(checkResults, 10000); // Retry after 10 seconds on error
+        } else {
+          callback(null);
+        }
+      }
+    };
+    
+    checkResults();
   },
 };

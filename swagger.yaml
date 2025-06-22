@@ -674,20 +674,11 @@ components:
           type: string
           example: '1'
           description: Associated project ID
-        sectionName:
-          type: string
-          example: Introduction
-          description: Section name
         start:
           type: number
           format: double
           example: 10.5
           description: Start time in seconds
-        end:
-          type: number
-          format: double
-          example: 15.2
-          description: End time in seconds
         text:
           type: string
           example: Welcome to today's presentation

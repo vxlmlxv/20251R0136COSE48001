@@ -237,38 +237,6 @@ const ScriptFeedbackPageKo = () => {
         </div>
         
         <TabsContent value="structure" className="mt-6 space-y-6">
-          {/* Summary of Applied Changes */}
-          {acceptedSuggestions.length > 0 && (
-            <Card className="border-mint bg-mint/5">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center">
-                  <Zap className="h-4 w-4 mr-2 text-mint" />
-                  적용된 변경사항 요약
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {acceptedSuggestions.map(suggestionId => {
-                    const suggestion = suggestions.find(s => s.id === suggestionId);
-                    const section = scriptSections.find(s => s.id === suggestion?.sectionId);
-                    if (!suggestion || !section) return null;
-                    
-                    return (
-                      <Badge 
-                        key={suggestionId} 
-                        variant="outline" 
-                        className="bg-white border-mint text-mint"
-                      >
-                        {getSuggestionTypeIcon(suggestion.type)}
-                        <span className="ml-1">{getSuggestionTypeKo(suggestion.type)}</span>
-                        <span className="ml-1 text-gray-500">• {section.title}</span>
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Script Sections and Suggestions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

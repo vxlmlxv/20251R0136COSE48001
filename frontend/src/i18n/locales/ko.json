@@ -34,14 +34,14 @@
     "start_free": "무료로 시작하기",
     "learn_more": "자세히 알아보기",
     "how_preffy_helps": "Preffy가 도움을 주는 방법",
-    "how_preffy_subtitle": "우리의 AI가 발표 영상을 분석하여 실용적인 피드백을 제공합니다."
+    "how_preffy_subtitle": "AI가 발표 영상을 분석하여 실용적인 피드백을 제공합니다."
   },
   "features": {
     "title": "기능",
-    "subtitle": "발표를 개선하는 데 필요한 모든 것",
+    "subtitle": "발표 개선을 위한 종합적인 피드백",
     "body_language": {
       "title": "바디 랭귀지 분석",
-      "description": "자세, 제스처, 움직임 패턴에 대한 인사이트를 얻으세요"
+      "description": "나의 자세와 제스처를 객관적으로 분석해보세요 "
     },
     "facial_expressions": {
       "title": "표정 추적",
@@ -49,11 +49,11 @@
     },
     "script_feedback": {
       "title": "스크립트 및 음성 분석",
-      "description": "말하기 속도, 명확성, 내용 구조를 개선하세요"
+      "description": "목적과 청중에 맞게 대본을 개선하세요"
     },
     "ai_insights": {
       "title": "AI 기반 인사이트",
-      "description": "모범 사례를 바탕으로 개인화된 추천을 받으세요"
+      "description": "개인화된 추천을 받으세요"
     }
   },
   "pricing": {

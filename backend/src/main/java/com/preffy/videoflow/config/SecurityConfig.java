@@ -68,6 +68,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/videos/**").permitAll()  // Allow video endpoints
                 .requestMatchers("/api/projects/**").permitAll()  // Allow project endpoints
                 .requestMatchers("/api/users/**").permitAll()  // Allow user endpoints for testing
+                .requestMatchers("/api/analysis/**").permitAll()  // Allow analysis endpoints
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()
