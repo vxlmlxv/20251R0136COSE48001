@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 PROJECT_ID=${1:-"preffy-video-platform"}
-REGION=${2:-"us-west2"}
+REGION=${2:-"us-central1"}
 SERVICE_NAME="preffy-backend"
 REPOSITORY_NAME="preffy-video-flow"
 IMAGE_NAME="backend"

@@ -5,8 +5,8 @@ steps:
       'build',
       '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/preffy-video-flow/backend:$COMMIT_SHA',
       '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/preffy-video-flow/backend:latest',
-      '-f', '../Dockerfile',
-      '..'
+      '-f', 'Dockerfile',
+      '.'
     ]
     id: 'build-image'
 
