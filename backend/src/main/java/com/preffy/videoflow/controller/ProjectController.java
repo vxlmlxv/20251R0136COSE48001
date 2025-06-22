@@ -16,10 +16,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +34,8 @@ import java.util.stream.Collectors;
 @Tag(name = "Projects", description = "Video project management endpoints")
 @SecurityRequirement(name = "Bearer Authentication")
 public class ProjectController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
     
     @Autowired
     private ProjectService projectService;
@@ -259,5 +265,58 @@ public class ProjectController {
         projectService.deleteProject(id, userPrincipal.getId());
         
         return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping("/with-video")
+    @Operation(
+        summary = "Create Project with Video Upload",
+        description = "Create a new video project and upload video file. Automatically triggers body language and script analysis."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully created project and uploaded video. Analysis started in background.",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ProjectResponse.class)
+            )
+        ),
+        @ApiResponse(responseCode = "400", description = "Invalid request data or video file"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing JWT token")
+    })
+    public ResponseEntity<ProjectResponse> createProjectWithVideo(
+        @RequestParam("title") String title,
+        @RequestParam("description") String description,
+        @RequestParam(value = "domain", required = false) String domain,
+        @RequestParam(value = "audience", required = false) String audience,
+        @RequestParam(value = "formality", required = false) String formality,
+        @RequestParam("video") MultipartFile videoFile,
+        @Parameter(hidden = true) Authentication authentication
+    ) {
+        try {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            
+            // Validate video file
+            if (videoFile.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // Create project request
+            ProjectRequest projectRequest = new ProjectRequest();
+            projectRequest.setTitle(title);
+            projectRequest.setDescription(description);
+            projectRequest.setDomain(domain);
+            projectRequest.setAudience(audience);
+            projectRequest.setFormality(formality);
+            
+            // Create project with video upload (async analysis)
+            Project project = projectService.createProjectWithVideo(projectRequest, videoFile, userPrincipal.getId()).get();
+            
+            return ResponseEntity.ok(new ProjectResponse(project));
+            
+        } catch (Exception e) {
+            logger.error("Error creating project with video: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
