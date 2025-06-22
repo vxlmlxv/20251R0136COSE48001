@@ -1,10 +1,13 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import Features from './Features';
 
 const LandingPage = () => {
+  const { t } = useTranslation();
+  
   return (
     <div className="w-full">
       {/* Hero section */}
@@ -13,20 +16,20 @@ const LandingPage = () => {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 items-center">
             <div className="mb-12 lg:mb-0">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-jet tracking-tight mb-6">
-                Present with <span className="text-mint">confidence</span> 
+                {t('landing.hero_title')} <span className="text-mint">{t('landing.hero_title_accent')}</span> 
               </h1>
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8">
-                AI-powered feedback for your presentation videos. Improve your body language, facial expressions, and script in minutes.
+                {t('landing.hero_subtitle')}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/signup">
                   <Button size="lg" className="bg-mint hover:bg-mint/90 text-white">
-                    Start For Free
+                    {t('landing.start_free')}
                   </Button>
                 </Link>
                 <Link to="/features">
                   <Button size="lg" variant="outline">
-                    Learn More
+                    {t('landing.learn_more')}
                   </Button>
                 </Link>
               </div>
@@ -45,9 +48,9 @@ const LandingPage = () => {
       {/* Features Teaser */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">How Preffy Helps You</h2>
+          <h2 className="text-3xl font-bold mb-4">{t('landing.how_preffy_helps')}</h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Our AI analyzes your presentation videos and provides actionable feedback to help you improve.
+            {t('landing.how_preffy_subtitle')}
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">

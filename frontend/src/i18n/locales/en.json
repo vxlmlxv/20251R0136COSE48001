@@ -1,0 +1,172 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up",
+    "features": "Features",
+    "pricing": "Pricing"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "search_placeholder": "Search projects...",
+    "new_project": "New Project",
+    "sort_newest": "Newest",
+    "sort_oldest": "Oldest",
+    "no_projects": "No projects found",
+    "no_projects_description": "Get started by creating your first project",
+    "create_first_project": "Create your first project",
+    "status": {
+      "created": "Created",
+      "uploading": "Uploading",
+      "processing": "Processing",
+      "analyzed": "Analyzed",
+      "completed": "Completed"
+    }
+  },
+  "landing": {
+    "hero_title": "Present with",
+    "hero_title_accent": "confidence",
+    "hero_subtitle": "AI-powered feedback for your presentation videos. Improve your body language, facial expressions, and script in minutes.",
+    "start_free": "Start For Free",
+    "learn_more": "Learn More",
+    "how_preffy_helps": "How Preffy Helps You",
+    "how_preffy_subtitle": "Our AI analyzes your presentation videos and provides actionable feedback to help you improve."
+  },
+  "features": {
+    "title": "Features",
+    "subtitle": "Everything you need to improve your presentations",
+    "body_language": {
+      "title": "Body Language Analysis",
+      "description": "Get insights on your posture, gestures, and movement patterns"
+    },
+    "facial_expressions": {
+      "title": "Facial Expression Tracking",
+      "description": "Understand your facial expressions and emotional delivery"
+    },
+    "script_feedback": {
+      "title": "Script & Speech Analysis",
+      "description": "Improve your speaking pace, clarity, and content structure"
+    },
+    "ai_insights": {
+      "title": "AI-Powered Insights",
+      "description": "Receive personalized recommendations based on best practices"
+    }
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "subtitle": "Start free and upgrade as you grow",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "period": "forever",
+      "features": [
+        "1 project per month",
+        "Basic feedback",
+        "Standard support"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$29",
+      "period": "per month",
+      "features": [
+        "Unlimited projects",
+        "Advanced AI feedback",
+        "Priority support",
+        "Export reports"
+      ]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "price": "$99",
+      "period": "per month",
+      "features": [
+        "Everything in Pro",
+        "Team collaboration",
+        "Custom integrations",
+        "Dedicated support"
+      ]
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "preferences": "Preferences",
+    "subscription": "Subscription",
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize how Preffy looks and feels",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "animations": "Animations",
+      "enable_animations": "Enable animations",
+      "animations_description": "Control UI animations and transitions"
+    },
+    "language": {
+      "title": "Language & Region",
+      "description": "Set your preferred language and region settings",
+      "language_label": "Language"
+    },
+    "video": {
+      "title": "Video Playback",
+      "description": "Configure how videos play in the app",
+      "autoplay": "Autoplay videos",
+      "autoplay_description": "Automatically play videos when the page loads"
+    },
+    "plan": {
+      "title": "Current Plan",
+      "description": "Manage your subscription and billing",
+      "upgrade": "Upgrade",
+      "change_plan": "Change Plan",
+      "billing_cycle": "BILLING CYCLE",
+      "next_billing": "NEXT BILLING DATE",
+      "monthly": "Monthly"
+    },
+    "cancel": "Cancel",
+    "save_changes": "Save Changes",
+    "saving": "Saving...",
+    "preferences_updated": "Preferences updated",
+    "preferences_saved": "Your preferences have been saved successfully."
+  },
+  "auth": {
+    "welcome": "Welcome to Preffy",
+    "login_subtitle": "Sign in to your account to continue",
+    "signup_subtitle": "Create your account to get started",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "forgot_password": "Forgot your password?",
+    "no_account": "Don't have an account?",
+    "have_account": "Already have an account?",
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "creating_account": "Creating account...",
+    "signing_in": "Signing in..."
+  },
+  "projects": {
+    "new_project": "New Project",
+    "project_title": "Project Title",
+    "project_description": "Project Description",
+    "upload_video": "Upload Video",
+    "create_project": "Create Project",
+    "overview": "Project Overview",
+    "script_feedback": "Script Feedback",
+    "body_feedback": "Body Language Feedback"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "download": "Download",
+    "share": "Share"
+  }
+}

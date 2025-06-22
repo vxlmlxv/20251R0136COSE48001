@@ -1,0 +1,321 @@
+{
+  "navigation": {
+    "dashboard": "대시보드",
+    "projects": "프로젝트",
+    "settings": "설정",
+    "profile": "프로필",
+    "logout": "로그아웃",
+    "login": "로그인",
+    "signup": "회원가입",
+    "features": "기능",
+    "pricing": "요금제"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "search_placeholder": "프로젝트 검색...",
+    "new_project": "새 프로젝트",
+    "sort_newest": "최신순",
+    "sort_oldest": "오래된순",
+    "no_projects": "프로젝트를 찾을 수 없습니다",
+    "no_projects_description": "첫 번째 프로젝트를 만들어 시작하세요",
+    "create_first_project": "첫 번째 프로젝트 만들기",
+    "status": {
+      "created": "생성됨",
+      "uploading": "업로드 중",
+      "processing": "처리 중",
+      "analyzed": "분석 완료",
+      "completed": "완료됨"
+    }
+  },
+  "landing": {
+    "hero_title": "더욱 자신있게",
+    "hero_title_accent": "발표하세요",
+    "hero_subtitle": "AI 기반 발표 영상 피드백으로 몸짓 언어, 표정, 그리고 스크립트를 몇 분 안에 개선하세요.",
+    "start_free": "무료로 시작하기",
+    "learn_more": "자세히 알아보기",
+    "how_preffy_helps": "Preffy가 도움을 주는 방법",
+    "how_preffy_subtitle": "우리의 AI가 발표 영상을 분석하여 실용적인 피드백을 제공합니다."
+  },
+  "features": {
+    "title": "기능",
+    "subtitle": "발표를 개선하는 데 필요한 모든 것",
+    "body_language": {
+      "title": "바디 랭귀지 분석",
+      "description": "자세, 제스처, 움직임 패턴에 대한 인사이트를 얻으세요"
+    },
+    "facial_expressions": {
+      "title": "표정 추적",
+      "description": "표정과 감정 전달 방식을 이해하세요"
+    },
+    "script_feedback": {
+      "title": "스크립트 및 음성 분석",
+      "description": "말하기 속도, 명확성, 내용 구조를 개선하세요"
+    },
+    "ai_insights": {
+      "title": "AI 기반 인사이트",
+      "description": "모범 사례를 바탕으로 개인화된 추천을 받으세요"
+    }
+  },
+  "pricing": {
+    "title": "요금제 선택",
+    "subtitle": "무료로 시작하고 성장에 따라 업그레이드하세요",
+    "free": {
+      "name": "무료",
+      "price": "₩0",
+      "period": "영구무료",
+      "features": [
+        "월 1개 프로젝트",
+        "기본 피드백",
+        "표준 지원"
+      ]
+    },
+    "pro": {
+      "name": "프로",
+      "price": "₩39,000",
+      "period": "월",
+      "features": [
+        "무제한 프로젝트",
+        "고급 AI 피드백",
+        "우선 지원",
+        "보고서 내보내기"
+      ]
+    },
+    "enterprise": {
+      "name": "엔터프라이즈",
+      "price": "₩129,000",
+      "period": "월",
+      "features": [
+        "프로의 모든 기능",
+        "팀 협업",
+        "맞춤 통합",
+        "전담 지원"
+      ]
+    }
+  },
+  "settings": {
+    "title": "설정",
+    "preferences": "환경설정",
+    "subscription": "구독",
+    "appearance": {
+      "title": "화면",
+      "description": "Preffy의 모양과 느낌을 사용자 정의하세요",
+      "theme": "테마",
+      "light": "밝게",
+      "dark": "어둡게",
+      "system": "시스템",
+      "animations": "애니메이션",
+      "enable_animations": "애니메이션 활성화",
+      "animations_description": "UI 애니메이션과 전환 효과를 제어합니다"
+    },
+    "language": {
+      "title": "언어 및 지역",
+      "description": "선호하는 언어와 지역 설정을 지정하세요",
+      "language_label": "언어"
+    },
+    "video": {
+      "title": "동영상 재생",
+      "description": "앱에서 동영상이 재생되는 방식을 설정하세요",
+      "autoplay": "동영상 자동 재생",
+      "autoplay_description": "페이지가 로드될 때 동영상을 자동으로 재생합니다"
+    },
+    "plan": {
+      "title": "현재 요금제",
+      "description": "구독과 결제를 관리하세요",
+      "upgrade": "업그레이드",
+      "change_plan": "요금제 변경",
+      "billing_cycle": "결제 주기",
+      "next_billing": "다음 결제일",
+      "monthly": "월간"
+    },
+    "cancel": "취소",
+    "save_changes": "변경사항 저장",
+    "saving": "저장 중...",
+    "preferences_updated": "환경설정이 업데이트되었습니다",
+    "preferences_saved": "환경설정이 성공적으로 저장되었습니다."
+  },
+  "auth": {
+    "welcome": "Preffy에 오신 것을 환영합니다",
+    "login_subtitle": "계속하려면 계정에 로그인하세요",
+    "signup_subtitle": "시작하려면 계정을 만드세요",
+    "email": "이메일",
+    "password": "비밀번호",
+    "name": "이름",
+    "forgot_password": "비밀번호를 잊으셨나요?",
+    "no_account": "계정이 없으신가요?",
+    "have_account": "이미 계정이 있으신가요?",
+    "sign_in": "로그인",
+    "sign_up": "회원가입",
+    "creating_account": "계정 생성 중...",
+    "signing_in": "로그인 중..."
+  },
+  "projects": {
+    "new_project": "새 프로젝트",
+    "project_title": "프로젝트 제목",
+    "project_description": "프로젝트 설명",
+    "upload_video": "동영상 업로드",
+    "create_project": "프로젝트 생성",
+    "overview": "프로젝트 개요",
+    "script_feedback": "스크립트 피드백",
+    "body_feedback": "바디 랭귀지 피드백",
+    "project_not_found": "프로젝트를 찾을 수 없습니다",
+    "project_not_found_description": "찾고 있는 프로젝트가 존재하지 않거나 삭제되었습니다",
+    "return_to_dashboard": "대시보드로 돌아가기",
+    "analysis_in_progress": "분석 진행 중",
+    "analysis_description": "프레젠테이션 비디오를 분석하고 있습니다. 몇 분 정도 소요될 수 있습니다",
+    "processing": "처리 중...",
+    "estimated_time": "예상 남은 시간",
+    "presentation_video": "프레젠테이션 동영상",
+    "no_video_available": "동영상이 없습니다",
+    "project_summary": "프로젝트 요약",
+    "target_audience": "대상 청중",
+    "formality": "격식성",
+    "domain": "분야",
+    "created": "생성일",
+    "not_specified": "지정되지 않음",
+    "overall_assessment": "전체 평가",
+    "excellent": "우수",
+    "good": "좋음",
+    "average": "보통",
+    "needs_improvement": "개선 필요",
+    "based_on_criteria": "평가 기준",
+    "view_details": "세부사항 보기",
+    "duration": "재생 시간",
+    "resolution": "해상도",
+    "minutes": "분",
+    "seconds": "초"
+  },
+  "body_feedback": {
+    "title": "바디 랭귀지 피드백",
+    "back_to_overview": "개요로 돌아가기",
+    "hand_gestures": "손 제스처",
+    "posture_alignment": "자세 정렬",
+    "smile_consistency": "미소 일관성",
+    "eye_contact": "시선 처리",
+    "gestures": "제스처",
+    "posture": "자세",
+    "facial": "표정",
+    "key_moments": "주요 순간",
+    "click_to_jump": "클릭하여 이동",
+    "stars": "별점",
+    "feedback": {
+      "hand_gestures": {
+        "1": "손 움직임이 경직되고 부자연스럽게 보입니다.",
+        "2": "일부 제스처에 조화와 유연성이 부족합니다.",
+        "3": "괜찮은 손 제스처이지만 개선의 여지가 있습니다.",
+        "4": "자연스럽고 표현력 있는 손 움직임입니다.",
+        "5": "소통을 향상시키는 훌륭하고 목적 있는 제스처입니다."
+      },
+      "posture_alignment": {
+        "1": "전체적인 존재감에 영향을 주는 나쁜 자세입니다.",
+        "2": "더 나은 임팩트를 위해 자세에 상당한 개선이 필요합니다.",
+        "3": "사소한 조정이 필요한 적절한 자세입니다.",
+        "4": "자신감을 보여주는 좋은 자세입니다.",
+        "5": "강한 존재감을 보여주는 완벽한 자세입니다."
+      },
+      "smile_consistency": {
+        "1": "표정이 억지스럽거나 일관성이 없어 보입니다.",
+        "2": "미소가 더 자연스럽고 빈번해야 합니다.",
+        "3": "일반적으로 긍정적인 표정이지만 약간의 변화가 있습니다.",
+        "4": "전체적으로 따뜻하고 진실한 표정입니다.",
+        "5": "시청자들의 참여를 이끄는 뛰어난 표정 표현력입니다."
+      },
+      "eye_contact": {
+        "1": "제한적인 시선 처리로 청중과의 연결이 부족합니다.",
+        "2": "시선 처리가 더 일관되고 매력적일 수 있습니다.",
+        "3": "개선의 여지가 있는 합리적인 시선 처리입니다.",
+        "4": "좋은 관계를 구축하는 강한 시선 처리입니다.",
+        "5": "강력한 연결을 만드는 뛰어난 시선 처리입니다."
+      }
+    }
+  },
+  "script_feedback": {
+    "title": "스크립트 피드백",
+    "back_to_overview": "개요로 돌아가기",
+    "speech_analysis": "음성 분석",
+    "speech_patterns": "음성 패턴",
+    "content_structure": "내용 구조",
+    "delivery_metrics": "전달 지표",
+    "speaking_pace": "말하기 속도",
+    "volume_consistency": "음량 일관성",
+    "clarity": "명확성",
+    "filler_words": "군더더기 말",
+    "words_per_minute": "분당 단어 수",
+    "optimal_range": "최적 범위",
+    "total_words": "총 단어 수",
+    "unique_words": "고유 단어 수",
+    "vocabulary_richness": "어휘 풍부성",
+    "transcript": "대본",
+    "key_insights": "주요 인사이트",
+    "recommendations": "추천사항"
+  },
+  "new_project": {
+    "title": "새 프로젝트 만들기",
+    "step": "단계",
+    "of": "중",
+    "project_details": "프로젝트 세부사항",
+    "project_details_description": "프로젝트에 대한 기본 정보를 입력하세요",
+    "preferences": "선호사항",
+    "preferences_description": "청중과 발표 스타일을 선택하세요",
+    "video_upload": "동영상 업로드",
+    "video_upload_description": "분석할 프레젠테이션 동영상을 업로드하세요",
+    "project_title": "프로젝트 제목",
+    "project_title_placeholder": "프로젝트 제목을 입력하세요",
+    "project_description": "프로젝트 설명",
+    "project_description_placeholder": "이 프로젝트에 대해 간단히 설명하세요",
+    "target_audience": "대상 청중",
+    "target_audience_description": "주요 청중은 누구인가요?",
+    "general": "일반",
+    "technical": "기술적",
+    "executive": "경영진",
+    "academic": "학술",
+    "formality_level": "격식성 수준",
+    "formality_description": "발표의 어조는 어떠해야 하나요?",
+    "casual": "캐주얼",
+    "neutral": "중립",
+    "formal": "격식",
+    "domain_optional": "분야 (선택사항)",
+    "domain_placeholder": "예: 기술, 마케팅, 교육",
+    "upload_video": "동영상 업로드",
+    "drag_drop_video": "여기에 동영상 파일을 드래그하거나 클릭하여 업로드하세요",
+    "supported_formats": "지원 형식: MP4, MOV, AVI (최대 500MB)",
+    "selected_file": "선택된 파일",
+    "uploading": "업로딩 중...",
+    "upload_complete": "업로드 완료",
+    "back": "뒤로",
+    "next": "다음",
+    "create_project": "프로젝트 생성",
+    "creating_project": "프로젝트 생성 중...",
+    "project_created": "프로젝트가 성공적으로 생성되었습니다",
+    "project_created_description": "프로젝트가 생성되었으며 현재 처리 중입니다"
+  },
+  "profile": {
+    "title": "프로필",
+    "personal_info": "개인 정보",
+    "personal_info_description": "계정 정보를 업데이트하세요",
+    "full_name": "전체 이름",
+    "email_address": "이메일 주소",
+    "bio": "소개",
+    "bio_placeholder": "자신에 대해 간단히 소개하세요",
+    "account_stats": "계정 통계",
+    "total_projects": "총 프로젝트",
+    "total_videos": "총 동영상",
+    "hours_analyzed": "분석된 시간",
+    "member_since": "가입일",
+    "recent_activity": "최근 활동",
+    "no_recent_activity": "최근 활동이 없습니다",
+    "save_profile": "프로필 저장",
+    "profile_updated": "프로필이 업데이트되었습니다",
+    "profile_saved": "프로필이 성공적으로 저장되었습니다"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "close": "닫기",
+    "edit": "편집",
+    "delete": "삭제",
+    "view": "보기",
+    "download": "다운로드",
+    "share": "공유"
+  }
+}

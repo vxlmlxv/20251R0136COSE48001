@@ -1,12 +1,15 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Menu, X } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -27,21 +30,22 @@ export const Navbar = () => {
               </Link>
             </div> */}
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
+          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+            <LanguageSwitcher />
             {user ? (
               <div className="flex items-center space-x-4">
                 <Link to="/app/dashboard">
-                  <Button variant="outline">Dashboard</Button>
+                  <Button variant="outline">{t('navigation.dashboard')}</Button>
                 </Link>
-                <Button onClick={logout} variant="ghost">Logout</Button>
+                <Button onClick={logout} variant="ghost">{t('navigation.logout')}</Button>
               </div>
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/login">
-                  <Button variant="outline">Log In</Button>
+                  <Button variant="outline">{t('navigation.login')}</Button>
                 </Link>
                 <Link to="/signup">
-                  <Button>Sign Up</Button>
+                  <Button>{t('navigation.signup')}</Button>
                 </Link>
               </div>
             )}
@@ -68,7 +72,7 @@ export const Navbar = () => {
               className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Features
+              {t('navigation.features')}
             </Link>
             {user ? (
               <>
@@ -77,7 +81,7 @@ export const Navbar = () => {
                   className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  {t('navigation.dashboard')}
                 </Link>
                 <button
                   onClick={() => {
@@ -86,7 +90,7 @@ export const Navbar = () => {
                   }}
                   className="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                 >
-                  Logout
+                  {t('navigation.logout')}
                 </button>
               </>
             ) : (
@@ -96,14 +100,14 @@ export const Navbar = () => {
                   className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Log In
+                  {t('navigation.login')}
                 </Link>
                 <Link
                   to="/signup"
                   className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Sign Up
+                  {t('navigation.signup')}
                 </Link>
               </>
             )}

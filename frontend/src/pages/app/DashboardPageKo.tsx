@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -10,10 +9,15 @@ import { mockProjects } from '@/lib/mock-data';
 import { Project } from '@/lib/types';
 import { PlusCircle, Search, Clock, CheckCircle2, PlayCircle, FileVideo } from 'lucide-react';
 
-const DashboardPage = () => {
-  const { t } = useTranslation();
+const DashboardPageKo = () => {
+  const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  
+  // Force Korean language for this component
+  if (i18n.language !== 'ko') {
+    i18n.changeLanguage('ko');
+  }
   
   // Sort and filter projects
   let filteredProjects = [...mockProjects];
@@ -53,9 +57,9 @@ const DashboardPage = () => {
   const getStatusIcon = (status: Project['status']) => {
     switch (status) {
       case 'created':
-        return <FileVideo className="h-5 w-5 text-gray-400" />;
+        return <FileVideo className="h-5 w-5 text-gray-500" />;
       case 'uploading':
-        return <PlusCircle className="h-5 w-5 text-blue-500" />;
+        return <FileVideo className="h-5 w-5 text-blue-500" />;
       case 'processing':
         return <Clock className="h-5 w-5 text-yellow-500" />;
       case 'analyzed':
@@ -70,7 +74,7 @@ const DashboardPage = () => {
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('ko-KR', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -118,7 +122,7 @@ const DashboardPage = () => {
           </div>
           <h3 className="text-lg font-semibold mb-2">{t('dashboard.no_projects')}</h3>
           <p className="text-gray-500 mb-6">
-            {searchTerm ? 'Try a different search term' : t('dashboard.no_projects_description')}
+            {searchTerm ? '다른 검색어를 시도해보세요' : t('dashboard.no_projects_description')}
           </p>
           <Link to="/app/projects/new">
             <Button>
@@ -149,27 +153,22 @@ const DashboardPage = () => {
                     {project.audience.charAt(0).toUpperCase() + project.audience.slice(1)}
                   </Badge>
                   <Badge variant="secondary" className="text-xs font-normal">
-                    {project.formality.charAt(0).toUpperCase() + project.formality.slice(1)}
+                    {project.formality}
                   </Badge>
-                  {project.domain && (
-                    <Badge variant="secondary" className="text-xs font-normal">
-                      {project.domain.charAt(0).toUpperCase() + project.domain.slice(1)}
-                    </Badge>
-                  )}
                 </div>
               </CardContent>
-              <CardFooter className="pt-3 flex justify-between">
-                <div className="flex items-center text-gray-500 text-sm">
-                  {getStatusIcon(project.status)}
-                  <span className="ml-1">
-                    {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
-                  </span>
+              <CardFooter className="pt-2">
+                <div className="flex w-full justify-between items-center">
+                  <div className="flex items-center text-sm text-gray-500">
+                    {getStatusIcon(project.status)}
+                    <span className="ml-2 capitalize">{t(`dashboard.status.${project.status}`)}</span>
+                  </div>
+                  <Link to={`/app/projects/${project.id}/overview`}>
+                    <Button size="sm" variant="outline">
+                      {t('common.view')}
+                    </Button>
+                  </Link>
                 </div>
-                <Link to={`/app/projects/${project.id}/overview`}>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </Link>
               </CardFooter>
             </Card>
           ))}
@@ -179,4 +178,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default DashboardPageKo;

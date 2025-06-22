@@ -5,24 +5,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { LanguageRouter } from './components/LanguageRouter';
 import { useEffect } from "react";
 import { mockApiHandler } from "./lib/mock-api";
 
 // Public pages
-import LandingPage from "./pages/public/LandingPage";
-import FeaturesPage from "./pages/public/FeaturesPage";
-import PricingPage from "./pages/public/PricingPage";
 import SignupPage from "./pages/public/SignupPage";
 import LoginPage from "./pages/public/LoginPage";
 
-// App pages
-import DashboardPage from "./pages/app/DashboardPage";
-import NewProjectPage from "./pages/app/NewProjectPage";
-import ProjectOverviewPage from "./pages/app/ProjectOverviewPage";
-import BodyFeedbackPage from "./pages/app/BodyFeedbackPage";
-import ScriptFeedbackPage from "./pages/app/ScriptFeedbackPage";
-import ProfilePage from "./pages/app/ProfilePage";
-import SettingsPage from "./pages/app/SettingsPage";
+// App pages - removed direct imports since they're now handled by LanguageRouter
 
 // Fallback
 import NotFound from "./pages/NotFound";
@@ -72,35 +64,37 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
-              <Route path="/features" element={<PublicLayout><FeaturesPage /></PublicLayout>} />
-              <Route path="/pricing" element={<PublicLayout><PricingPage /></PublicLayout>} />
-              <Route path="/signup" element={<PublicLayout><SignupPage /></PublicLayout>} />
-              <Route path="/login" element={<PublicLayout><LoginPage /></PublicLayout>} />
-              
-              {/* App routes (authenticated) */}
-              <Route path="/app" element={<RequireAuth><AppLayout><DashboardPage /></AppLayout></RequireAuth>} />
-              <Route path="/app/dashboard" element={<RequireAuth><AppLayout><DashboardPage /></AppLayout></RequireAuth>} />
-              <Route path="/app/projects/new" element={<RequireAuth><AppLayout><NewProjectPage /></AppLayout></RequireAuth>} />
-              <Route path="/app/projects/:projectId/overview" element={<RequireAuth><AppLayout><ProjectOverviewPage /></AppLayout></RequireAuth>} />
-              <Route path="/app/projects/:projectId/body-feedback" element={<RequireAuth><AppLayout><BodyFeedbackPage /></AppLayout></RequireAuth>} />
-              <Route path="/app/projects/:projectId/script-feedback" element={<RequireAuth><AppLayout><ScriptFeedbackPage /></AppLayout></RequireAuth>} />
-              <Route path="/app/profile" element={<RequireAuth><AppLayout><ProfilePage /></AppLayout></RequireAuth>} />
-              <Route path="/app/settings" element={<RequireAuth><AppLayout><SettingsPage /></AppLayout></RequireAuth>} />
-              
-              {/* Fallback */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<PublicLayout><LanguageRouter page="landing" /></PublicLayout>} />
+                <Route path="/features" element={<PublicLayout><LanguageRouter page="features" /></PublicLayout>} />
+                <Route path="/pricing" element={<PublicLayout><LanguageRouter page="pricing" /></PublicLayout>} />
+                <Route path="/signup" element={<PublicLayout><SignupPage /></PublicLayout>} />
+                <Route path="/login" element={<PublicLayout><LoginPage /></PublicLayout>} />
+                
+                {/* App routes (authenticated) */}
+                <Route path="/app" element={<RequireAuth><AppLayout><LanguageRouter page="dashboard" /></AppLayout></RequireAuth>} />
+                <Route path="/app/dashboard" element={<RequireAuth><AppLayout><LanguageRouter page="dashboard" /></AppLayout></RequireAuth>} />
+                <Route path="/app/projects/new" element={<RequireAuth><AppLayout><LanguageRouter page="new-project" /></AppLayout></RequireAuth>} />
+                <Route path="/app/projects/:projectId/overview" element={<RequireAuth><AppLayout><LanguageRouter page="project-overview" /></AppLayout></RequireAuth>} />
+                <Route path="/app/projects/:projectId/body-feedback" element={<RequireAuth><AppLayout><LanguageRouter page="body-feedback" /></AppLayout></RequireAuth>} />
+                <Route path="/app/projects/:projectId/script-feedback" element={<RequireAuth><AppLayout><LanguageRouter page="script-feedback" /></AppLayout></RequireAuth>} />
+                <Route path="/app/profile" element={<RequireAuth><AppLayout><LanguageRouter page="profile" /></AppLayout></RequireAuth>} />
+                <Route path="/app/settings" element={<RequireAuth><AppLayout><LanguageRouter page="settings" /></AppLayout></RequireAuth>} />
+                
+                {/* Fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -14,11 +13,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/hooks/use-language';
 import { CreditCard, Globe, Moon, PaintBucket, Sun, Zap, Settings, Crown } from 'lucide-react';
 
-const SettingsPage = () => {
+const SettingsPageKo = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { language, setLanguage, availableLanguages } = useLanguage();
+  
+  // Force Korean language for this component
+  if (i18n.language !== 'ko') {
+    i18n.changeLanguage('ko');
+  }
   
   const [theme, setTheme] = useState('light');
   const [isAutoplayEnabled, setIsAutoplayEnabled] = useState(true);
@@ -45,23 +49,23 @@ const SettingsPage = () => {
       case 'pro':
         return {
           name: t('pricing.pro.name'),
-          price: '$29',
+          price: '₩39,000',
           billingCycle: 'monthly',
           nextBilling: '2025-06-20',
-          badge: <Badge className="bg-mint text-white">Active</Badge>
+          badge: <Badge className="bg-mint text-white">활성</Badge>
         };
       case 'enterprise':
         return {
           name: t('pricing.enterprise.name'),
-          price: '$99',
+          price: '₩129,000',
           billingCycle: 'monthly',
           nextBilling: '2025-06-20',
-          badge: <Badge className="bg-mint text-white">Active</Badge>
+          badge: <Badge className="bg-mint text-white">활성</Badge>
         };
       default:
         return {
           name: t('pricing.free.name'),
-          price: '$0',
+          price: '₩0',
           billingCycle: 'forever',
           nextBilling: 'Never',
           badge: <Badge variant="outline" className="bg-gray-100">{t('pricing.free.name')}</Badge>
@@ -166,7 +170,7 @@ const SettingsPage = () => {
                   });
                 }}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a language" />
+                    <SelectValue placeholder="언어를 선택하세요" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableLanguages.map((lang) => (
@@ -231,11 +235,11 @@ const SettingsPage = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <div className="flex items-center">
-                    <h3 className="text-xl font-semibold">{planDetails.name} Plan</h3>
+                    <h3 className="text-xl font-semibold">{planDetails.name} 플랜</h3>
                     <div className="ml-3">{planDetails.badge}</div>
                   </div>
                   <p className="text-gray-500 mt-1">
-                    {planDetails.price}/{planDetails.billingCycle === 'forever' ? planDetails.billingCycle : 'month'}
+                    {planDetails.price}/{planDetails.billingCycle === 'forever' ? '영구무료' : '월'}
                   </p>
                 </div>
                 {user?.plan !== 'enterprise' && (
@@ -254,83 +258,47 @@ const SettingsPage = () => {
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-500">{t('settings.plan.next_billing')}</h4>
-                      <p>{new Date(planDetails.nextBilling).toLocaleDateString()}</p>
+                      <p>{new Date(planDetails.nextBilling).toLocaleDateString('ko-KR')}</p>
                     </div>
                   </div>
                   
-                  <div className="mt-4 flex">
-                    <Button variant="outline" className="mr-2">Update Payment</Button>
-                    <Button variant="outline" className="text-red-600">Cancel Subscription</Button>
+                  <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="text-sm font-medium text-yellow-800">
+                          구독 관리
+                        </h3>
+                        <div className="mt-2 text-sm text-yellow-700">
+                          <p>
+                            언제든지 플랜을 변경하거나 취소할 수 있습니다. 취소하시면 현재 결제 주기가 끝날 때까지 모든 기능을 계속 사용하실 수 있습니다.
+                          </p>
+                        </div>
+                        <div className="mt-4">
+                          <div className="-mx-2 -my-1.5 flex">
+                            <Button variant="outline" size="sm" className="mr-2">
+                              플랜 변경
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              구독 취소
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
-          
-          {/* Plan Comparison */}
-          {user?.plan === 'free' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Compare Plans</CardTitle>
-                <CardDescription>
-                  See what you get with each plan
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-4 gap-4 pb-2 border-b">
-                    <div className="font-medium">Feature</div>
-                    <div className="font-medium text-center">Free</div>
-                    <div className="font-medium text-center">Pro</div>
-                    <div className="font-medium text-center">Enterprise</div>
-                  </div>
-                  
-                  <div className="grid grid-cols-4 gap-4 py-2 border-b">
-                    <div>Projects</div>
-                    <div className="text-center">2/month</div>
-                    <div className="text-center">Unlimited</div>
-                    <div className="text-center">Unlimited</div>
-                  </div>
-                  
-                  <div className="grid grid-cols-4 gap-4 py-2 border-b">
-                    <div>Video Length</div>
-                    <div className="text-center">5 min</div>
-                    <div className="text-center">30 min</div>
-                    <div className="text-center">60 min</div>
-                  </div>
-                  
-                  <div className="grid grid-cols-4 gap-4 py-2 border-b">
-                    <div>Body Language Analysis</div>
-                    <div className="text-center">Basic</div>
-                    <div className="text-center">Advanced</div>
-                    <div className="text-center">Advanced</div>
-                  </div>
-                  
-                  <div className="grid grid-cols-4 gap-4 py-2 border-b">
-                    <div>Facial Expression Analysis</div>
-                    <div className="text-center">—</div>
-                    <div className="text-center">✓</div>
-                    <div className="text-center">✓</div>
-                  </div>
-                  
-                  <div className="grid grid-cols-4 gap-4 py-2">
-                    <div>Storage History</div>
-                    <div className="text-center">30 days</div>
-                    <div className="text-center">1 year</div>
-                    <div className="text-center">Unlimited</div>
-                  </div>
-                </div>
-                
-                <div className="mt-6 flex justify-center">
-                  <Button>Upgrade Now</Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </TabsContent>
       </Tabs>
     </div>
   );
 };
 
-export default SettingsPage;
+export default SettingsPageKo;
