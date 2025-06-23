@@ -112,9 +112,9 @@ const NewProjectPageKo = () => {
         variant: 'default',
       });
 
-      // Navigate to the feedback page to show analysis results
+      // Navigate to the project overview page to show project details and uploaded video
       setTimeout(() => {
-        navigate(`/app/projects/${createdProject.id}/feedback`);
+        navigate(`/app/projects/${createdProject.id}`);
       }, 1000);
 
     } catch (error) {

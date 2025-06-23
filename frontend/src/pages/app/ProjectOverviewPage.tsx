@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockProjects, mockBadgeScores } from '@/lib/mock-data';
+import { projectService } from '@/services/project-service';
+import { projectService as dataProjectService } from '@/services/data-service';
+import { mockBadgeScores } from '@/lib/mock-data';
 import { Project, Video, BadgeScore } from '@/lib/types';
 import { Clock, Video as VideoIcon, AlertTriangle, CheckCircle, PlayCircle, Mic2 } from 'lucide-react';
 
@@ -19,35 +21,68 @@ const ProjectOverviewPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading data from API
-    setTimeout(() => {
-      // Find project by ID
-      const foundProject = mockProjects.find(p => p.id === projectId);
-      if (foundProject) {
+    const loadProjectData = async () => {
+      if (!projectId) return;
+      
+      try {
+        setIsLoading(true);
+        
+        // Load project data from API
+        const foundProject = await projectService.getProjectById(projectId);
         setProject(foundProject);
         
-        // Find video for this project
-        // Use demo.mp4 for all projects
-        const demoVideo: Video = {
-          id: `${projectId}-demo`,
-          projectId: projectId!,
-          url: '/demo-videos/demo.mp4',
-          duration: 596, // Demo video duration in seconds
-          resolution: {
-            width: 1280,
-            height: 720,
-          },
-        };
-        setVideo(demoVideo);
+        // Load videos for this project
+        try {
+          const projectVideos = await dataProjectService.getProjectVideos(projectId);
+          if (projectVideos.length > 0) {
+            setVideo(projectVideos[0]); // Use the first video
+          } else {
+            // If no videos found, create a demo video entry for display
+            const demoVideo: Video = {
+              id: `${projectId}-demo`,
+              projectId: projectId!,
+              url: '/demo-videos/demo.mp4',
+              duration: 596, // Demo video duration in seconds
+              resolution: {
+                width: 1280,
+                height: 720,
+              },
+            };
+            setVideo(demoVideo);
+          }
+        } catch (videoError) {
+          console.log('No videos found for project, using demo video');
+          // Fallback to demo video if API call fails
+          const demoVideo: Video = {
+            id: `${projectId}-demo`,
+            projectId: projectId!,
+            url: '/demo-videos/demo.mp4',
+            duration: 596,
+            resolution: {
+              width: 1280,
+              height: 720,
+            },
+          };
+          setVideo(demoVideo);
+        }
         
-        // Get badge scores for this project
+        // Get badge scores for this project (using mock data for now)
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
         setBadgeScores(projectBadgeScores);
+        
+      } catch (error) {
+        console.error('Failed to load project data:', error);
+        setProject(null);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    }, 800);
-    
+    };
+
+    loadProjectData();
+  }, [projectId]);
+
+  // Processing progress effect - separate useEffect for processing simulation
+  useEffect(() => {
     // If project is processing, simulate progress updates
     if (project?.status === 'processing') {
       const interval = setInterval(() => {
@@ -72,7 +107,7 @@ const ProjectOverviewPage = () => {
       
       return () => clearInterval(interval);
     }
-  }, [projectId, project?.status]);
+  }, [project?.status, processingProgress]);
 
   // Helper to get average badge score
   const getAverageBadgeScore = () => {
@@ -215,13 +250,13 @@ const ProjectOverviewPage = () => {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Target Audience</h3>
                   <p className="mt-1">
-                    {project.audience.charAt(0).toUpperCase() + project.audience.slice(1)}
+                    {project.audience ? project.audience.charAt(0).toUpperCase() + project.audience.slice(1) : 'General'}
                   </p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">Formality</h3>
                   <p className="mt-1">
-                    {project.formality.charAt(0).toUpperCase() + project.formality.slice(1)}
+                    {project.formality ? project.formality.charAt(0).toUpperCase() + project.formality.slice(1) : 'Neutral'}
                   </p>
                 </div>
                 <div>
@@ -237,6 +272,35 @@ const ProjectOverviewPage = () => {
                   </p>
                 </div>
               </div>
+              
+              {/* Project Status Information */}
+              {(project.status === 'created' || project.status === 'uploading') && (
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Project Status</h3>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-blue-900">Project Setup Complete</h4>
+                        <p className="text-sm text-blue-700">
+                          Your project has been successfully created and your video has been uploaded.
+                        </p>
+                        <div className="text-sm text-blue-700">
+                          <p className="font-medium">Configured Settings:</p>
+                          <ul className="list-disc list-inside space-y-1 mt-1">
+                            <li>Target Audience: {project.audience ? project.audience.charAt(0).toUpperCase() + project.audience.slice(1) : 'General'}</li>
+                            <li>Formality: {project.formality ? project.formality.charAt(0).toUpperCase() + project.formality.slice(1) : 'Neutral'}</li>
+                            {project.domain && <li>Domain: {project.domain.charAt(0).toUpperCase() + project.domain.slice(1)}</li>}
+                          </ul>
+                        </div>
+                        <p className="text-sm text-blue-700 mt-2">
+                          Once analysis begins, you'll be able to view feedback on this page.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {/* Overall Score (visible once analysis is complete) */}
               {(project.status === 'analyzed' || project.status === 'completed') && (

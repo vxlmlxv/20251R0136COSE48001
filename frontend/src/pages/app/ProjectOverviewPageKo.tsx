@@ -4,7 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockProjects, mockBadgeScores } from '@/lib/mock-data';
+import { projectService } from '@/services/project-service';
+import { projectService as dataProjectService } from '@/services/data-service';
+import { mockBadgeScores } from '@/lib/mock-data';
 import { Project, Video, BadgeScore } from '@/lib/types';
 import { Clock, Video as VideoIcon, AlertTriangle, CheckCircle, PlayCircle, Mic2 } from 'lucide-react';
 
@@ -18,35 +20,68 @@ const ProjectOverviewPageKo = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading data from API
-    setTimeout(() => {
-      // Find project by ID
-      const foundProject = mockProjects.find(p => p.id === projectId);
-      if (foundProject) {
+    const loadProjectData = async () => {
+      if (!projectId) return;
+      
+      try {
+        setIsLoading(true);
+        
+        // Load project data from API
+        const foundProject = await projectService.getProjectById(projectId);
         setProject(foundProject);
         
-        // Find video for this project
-        // Use demo.mp4 for all projects
-        const demoVideo: Video = {
-          id: `${projectId}-demo`,
-          projectId: projectId!,
-          url: '/demo-videos/demo.mp4',
-          duration: 596, // Demo video duration in seconds
-          resolution: {
-            width: 1280,
-            height: 720,
-          },
-        };
-        setVideo(demoVideo);
+        // Load videos for this project
+        try {
+          const projectVideos = await dataProjectService.getProjectVideos(projectId);
+          if (projectVideos.length > 0) {
+            setVideo(projectVideos[0]); // Use the first video
+          } else {
+            // If no videos found, create a demo video entry for display
+            const demoVideo: Video = {
+              id: `${projectId}-demo`,
+              projectId: projectId!,
+              url: '/demo-videos/demo.mp4',
+              duration: 596, // Demo video duration in seconds
+              resolution: {
+                width: 1280,
+                height: 720,
+              },
+            };
+            setVideo(demoVideo);
+          }
+        } catch (videoError) {
+          console.log('No videos found for project, using demo video');
+          // Fallback to demo video if API call fails
+          const demoVideo: Video = {
+            id: `${projectId}-demo`,
+            projectId: projectId!,
+            url: '/demo-videos/demo.mp4',
+            duration: 596,
+            resolution: {
+              width: 1280,
+              height: 720,
+            },
+          };
+          setVideo(demoVideo);
+        }
         
-        // Get badge scores for this project
+        // Get badge scores for this project (using mock data for now)
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
         setBadgeScores(projectBadgeScores);
+        
+      } catch (error) {
+        console.error('Failed to load project data:', error);
+        setProject(null);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    }, 800);
-    
+    };
+
+    loadProjectData();
+  }, [projectId]);
+
+  // Processing progress effect - separate useEffect for processing simulation
+  useEffect(() => {
     // If project is processing, simulate progress updates
     if (project?.status === 'processing') {
       const interval = setInterval(() => {
@@ -255,19 +290,19 @@ const ProjectOverviewPageKo = () => {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">대상 청중</h3>
                   <p className="mt-1">
-                    {getAudienceKo(project.audience)}
+                    {project.audience ? getAudienceKo(project.audience) : '일반'}
                   </p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">격식성</h3>
                   <p className="mt-1">
-                    {getFormalityKo(project.formality)}
+                    {project.formality ? getFormalityKo(project.formality) : '중립'}
                   </p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500">분야</h3>
                   <p className="mt-1">
-                    {project.domain ? project.domain : '지정되지 않음'}
+                    {project.domain || '지정되지 않음'}
                   </p>
                 </div>
                 <div>
@@ -277,6 +312,35 @@ const ProjectOverviewPageKo = () => {
                   </p>
                 </div>
               </div>
+              
+              {/* Project Status Information */}
+              {(project.status === 'created' || project.status === 'uploading') && (
+                <div className="mt-6 border-t pt-4">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">프로젝트 상태</h3>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-blue-900">프로젝트 설정 완료</h4>
+                        <p className="text-sm text-blue-700">
+                          프로젝트가 성공적으로 생성되었고 동영상이 업로드되었습니다.
+                        </p>
+                        <div className="text-sm text-blue-700">
+                          <p className="font-medium">설정된 옵션:</p>
+                          <ul className="list-disc list-inside space-y-1 mt-1">
+                            <li>대상 청중: {project.audience ? getAudienceKo(project.audience) : '일반'}</li>
+                            <li>격식성: {project.formality ? getFormalityKo(project.formality) : '중립'}</li>
+                            {project.domain && <li>분야: {project.domain}</li>}
+                          </ul>
+                        </div>
+                        <p className="text-sm text-blue-700 mt-2">
+                          분석이 시작되면 이 페이지에서 피드백을 확인할 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {/* Overall Score (visible once analysis is complete) */}
               {(project.status === 'analyzed' || project.status === 'completed') && (
