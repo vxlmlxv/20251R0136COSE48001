@@ -19,6 +19,21 @@ check_port() {
     return 0
 }
 
+# Function to setup shared storage
+setup_shared_storage() {
+    echo -e "${BLUE}Setting up shared storage...${NC}"
+    
+    # Create shared storage directory
+    SHARED_STORAGE="/tmp/preffy-shared-storage"
+    mkdir -p "$SHARED_STORAGE/videos"
+    
+    # Create Docker volume directory to match the shared storage
+    echo -e "${BLUE}Creating Docker volume for shared storage...${NC}"
+    docker volume create preffy_uploads >/dev/null 2>&1 || true
+    
+    echo -e "${GREEN}✅ Shared storage configured at: $SHARED_STORAGE${NC}"
+}
+
 # Function to wait for service
 wait_for_service() {
     local url=$1
@@ -53,6 +68,9 @@ check_port 3306 || echo -e "${YELLOW}MySQL port 3306 is in use${NC}"
 check_port 8080 || echo -e "${YELLOW}Backend port 8080 is in use${NC}"
 check_port 8081 || echo -e "${YELLOW}Frontend port 8081 is in use${NC}"
 check_port 8000 || echo -e "${YELLOW}FastAPI port 8000 is in use${NC}"
+
+# Setup shared storage
+setup_shared_storage
 
 # Start Docker services
 echo -e "${BLUE}Starting Docker services...${NC}"

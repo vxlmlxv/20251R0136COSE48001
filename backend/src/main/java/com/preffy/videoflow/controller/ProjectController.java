@@ -5,6 +5,7 @@ import com.preffy.videoflow.dto.ProjectResponse;
 import com.preffy.videoflow.model.Project;
 import com.preffy.videoflow.security.UserPrincipal;
 import com.preffy.videoflow.service.ProjectService;
+import com.preffy.videoflow.service.FastApiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,6 +41,9 @@ public class ProjectController {
     
     @Autowired
     private ProjectService projectService;
+    
+    @Autowired
+    private FastApiService fastApiService;
     
     @GetMapping
     @Operation(
@@ -332,6 +337,76 @@ public class ProjectController {
         } catch (Exception e) {
             logger.error("Error creating project with video: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @PostMapping("/{projectId}/start-analysis")
+    @Operation(
+        summary = "Start AI Analysis",
+        description = "Trigger AI analysis for video in the project using FastAPI service"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Analysis started successfully"),
+        @ApiResponse(responseCode = "404", description = "Project not found"),
+        @ApiResponse(responseCode = "400", description = "No video found in project")
+    })
+    public ResponseEntity<?> startAnalysis(
+        @PathVariable Long projectId,
+        @Parameter(hidden = true) Authentication authentication
+    ) {
+        try {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            
+            // Get project and verify ownership
+            Project project = projectService.getProjectById(projectId, userPrincipal.getId());
+            if (project == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            if (project.getVideoPath() == null || project.getVideoPath().isEmpty()) {
+                return ResponseEntity.badRequest().body("No video found in project");
+            }
+            
+            // Start analysis with FastAPI
+            Map<String, Object> result = fastApiService.startVideoAnalysis(
+                project.getVideoPath(), 
+                projectId.toString()
+            );
+            
+            return ResponseEntity.ok(result);
+            
+        } catch (Exception e) {
+            logger.error("Error starting analysis: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Failed to start analysis: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{projectId}/analysis-status")
+    @Operation(
+        summary = "Get Analysis Status",
+        description = "Get current status of AI analysis for the project"
+    )
+    public ResponseEntity<?> getAnalysisStatus(
+        @PathVariable Long projectId,
+        @Parameter(hidden = true) Authentication authentication
+    ) {
+        try {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            
+            // Verify project ownership
+            Project project = projectService.getProjectById(projectId, userPrincipal.getId());
+            if (project == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Map<String, Object> status = fastApiService.getAnalysisStatus(projectId.toString());
+            return ResponseEntity.ok(status);
+            
+        } catch (Exception e) {
+            logger.error("Error getting analysis status: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Failed to get analysis status: " + e.getMessage());
         }
     }
 }

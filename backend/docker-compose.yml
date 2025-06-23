@@ -46,14 +46,16 @@ services:
     environment:
       - PYTHONPATH=/app
       - DATABASE_URL=mysql+pymysql://preffyuser:preffypass123@mysql:3306/preffydb
+      - BACKEND_URL=http://host.docker.internal:8080
+      - STORAGE_PATH=/app/shared-storage
     ports:
       - "8000:8000"
     volumes:
       - ../fastapi:/app  # Mount your FastAPI code here
-      - preffy_uploads:/app/uploads
+      - preffy_uploads:/app/shared-storage  # Shared storage with backend
     command: >
       sh -c "
-        pip install fastapi uvicorn pymysql cryptography sqlalchemy python-multipart opencv-python numpy &&
+        pip install fastapi uvicorn pymysql cryptography sqlalchemy python-multipart opencv-python numpy requests &&
         uvicorn main:app --host 0.0.0.0 --port 8000 --reload
       "
     depends_on:

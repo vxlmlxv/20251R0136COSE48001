@@ -1,11 +1,14 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 import uuid
 import json
-from typing import List, Dict, Any
+import requests
+from typing import List, Dict, Any, Optional
 import logging
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +28,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Storage configuration
+STORAGE_PATH = os.getenv("STORAGE_PATH", "/app/shared-storage")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://host.docker.internal:8080")
+
+# Ensure storage directory exists
+os.makedirs(STORAGE_PATH, exist_ok=True)
+os.makedirs(f"{STORAGE_PATH}/videos", exist_ok=True)
 
 # Data models
 class AnalysisRequest(BaseModel):
@@ -163,13 +174,20 @@ async def process_video_analysis(video_url: str, project_id: str):
     try:
         # Update progress
         analysis_results[project_id]["progress"] = 25
-        analysis_results[project_id]["status"] = "analyzing_speech"
+        analysis_results[project_id]["status"] = "downloading_video"
         
-        # Mock video download and processing
-        # In production, download video from video_url
-        video_path = f"/tmp/video_{project_id}.mp4"
+        # Get video file path from URL or direct access
+        video_path = get_video_file_path(video_url)
+        if not video_path or not os.path.exists(video_path):
+            logger.error(f"Video file not found: {video_path}")
+            analysis_results[project_id]["status"] = "failed"
+            analysis_results[project_id]["message"] = "Video file not accessible"
+            return
+
+        logger.info(f"Processing video: {video_path}")
         
         # Analyze speech
+        analysis_results[project_id]["status"] = "analyzing_speech"
         script_segments = analyze_speech(video_path)
         analysis_results[project_id]["script_segments"] = [seg.dict() for seg in script_segments]
         analysis_results[project_id]["progress"] = 50
@@ -195,6 +213,26 @@ async def process_video_analysis(video_url: str, project_id: str):
         logger.error(f"Error in analysis: {e}")
         analysis_results[project_id]["status"] = "failed"
         analysis_results[project_id]["message"] = str(e)
+
+def get_video_file_path(video_url: str) -> Optional[str]:
+    """Get local file path from video URL"""
+    try:
+        # Extract filename from URL
+        # Expected format: http://localhost:8080/api/videos/stream/filename.ext
+        if "/stream/" in video_url:
+            filename = video_url.split("/stream/")[-1]
+            video_path = os.path.join(STORAGE_PATH, "videos", filename)
+            return video_path
+        
+        # If it's a direct filename
+        if not video_url.startswith("http"):
+            video_path = os.path.join(STORAGE_PATH, "videos", video_url)
+            return video_path
+            
+        return None
+    except Exception as e:
+        logger.error(f"Error extracting video path: {e}")
+        return None
 
 @app.get("/analysis/{project_id}/status")
 async def get_analysis_status(project_id: str):
@@ -238,12 +276,13 @@ async def upload_file(file: UploadFile = File(...)):
     """Upload video file for analysis"""
     try:
         # Create uploads directory if it doesn't exist
-        os.makedirs("/app/uploads", exist_ok=True)
+        videos_dir = os.path.join(STORAGE_PATH, "videos")
+        os.makedirs(videos_dir, exist_ok=True)
         
         # Generate unique filename
         file_extension = os.path.splitext(file.filename)[1]
         unique_filename = f"{uuid.uuid4()}{file_extension}"
-        file_path = f"/app/uploads/{unique_filename}"
+        file_path = os.path.join(videos_dir, unique_filename)
         
         # Save file
         with open(file_path, "wb") as buffer:
@@ -254,11 +293,49 @@ async def upload_file(file: UploadFile = File(...)):
             "filename": unique_filename,
             "original_filename": file.filename,
             "file_path": file_path,
-            "file_size": len(content)
+            "file_size": len(content),
+            "url": f"http://localhost:8000/videos/{unique_filename}"
         }
     
     except Exception as e:
         logger.error(f"Error uploading file: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/videos/{filename}")
+async def get_video(filename: str):
+    """Serve video files"""
+    try:
+        video_path = os.path.join(STORAGE_PATH, "videos", filename)
+        if not os.path.exists(video_path):
+            raise HTTPException(status_code=404, detail="Video not found")
+        
+        return FileResponse(
+            video_path,
+            media_type="video/mp4",
+            headers={"Accept-Ranges": "bytes"}
+        )
+    except Exception as e:
+        logger.error(f"Error serving video: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/videos/{filename}/info")
+async def get_video_info(filename: str):
+    """Get video file information"""
+    try:
+        video_path = os.path.join(STORAGE_PATH, "videos", filename)
+        if not os.path.exists(video_path):
+            raise HTTPException(status_code=404, detail="Video not found")
+        
+        stat = os.stat(video_path)
+        return {
+            "filename": filename,
+            "size": stat.st_size,
+            "created": stat.st_ctime,
+            "modified": stat.st_mtime,
+            "exists": True
+        }
+    except Exception as e:
+        logger.error(f"Error getting video info: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

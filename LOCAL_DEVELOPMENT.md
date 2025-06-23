@@ -170,23 +170,91 @@ cat .env.local
 4. **Monitor Logs**: Use log commands to debug issues
 5. **Stop Services**: Press Ctrl+C or `npm run stop`
 
-## API Testing
+## Video Analysis Workflow
 
-You can test the API using:
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **curl** commands
-- **Postman** or similar tools
+Here's how the complete video analysis workflow works:
 
-Example curl command:
+### 1. Upload Video and Create Project
 ```bash
-# Health check
-curl http://localhost:8080/api/health
-
-# Register user
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","email":"test@example.com","password":"password123","fullName":"Test User"}'
+# Using curl to create project with video
+curl -X POST http://localhost:8080/api/projects/with-video \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -F "title=My Presentation" \
+  -F "description=Test presentation analysis" \
+  -F "audience=GENERAL" \
+  -F "formality=NEUTRAL" \
+  -F "domain=technology" \
+  -F "video=@/path/to/your/video.mp4"
 ```
+
+### 2. Start AI Analysis
+```bash
+# Trigger FastAPI analysis
+curl -X POST http://localhost:8080/api/projects/{projectId}/start-analysis \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### 3. Monitor Analysis Progress
+```bash
+# Check analysis status
+curl http://localhost:8080/api/projects/{projectId}/analysis-status \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### 4. Get Analysis Results
+
+**Script Segments:**
+```bash
+curl http://localhost:8080/api/projects/{projectId}/script-segments \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Posture Events:**
+```bash
+curl http://localhost:8080/api/projects/{projectId}/posture-events \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Improvement Suggestions:**
+```bash
+curl http://localhost:8080/api/projects/{projectId}/suggestions \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+## Video Access Methods
+
+Your system provides multiple ways to access uploaded videos:
+
+### 1. Backend Streaming (Primary)
+- **URL**: `http://localhost:8080/api/videos/stream/{filename}`
+- **Usage**: Web browser playback, frontend video player
+- **Features**: Supports range requests, proper MIME types
+
+### 2. FastAPI Direct Access (AI Analysis)
+- **URL**: `http://localhost:8000/videos/{filename}`
+- **Usage**: AI processing, analysis services
+- **Features**: Direct file access for OpenCV and other AI libraries
+
+### 3. Shared Storage
+- **Location**: `/tmp/preffy-shared-storage/videos/`
+- **Usage**: Both backend and FastAPI can access the same files
+- **Benefits**: No file copying, fast processing
+
+## Storage Architecture
+
+```
+/tmp/preffy-shared-storage/
+├── videos/
+│   ├── uuid1.mp4  # User uploaded video
+│   ├── uuid2.mp4  # Another video
+│   └── ...
+└── temp/          # Temporary processing files
+```
+
+**Docker Volume Mapping:**
+- Backend: `/tmp/preffy-shared-storage` → Local storage
+- FastAPI: `/app/shared-storage` → Same Docker volume
+- Database: Stores filename and metadata
 
 ## Next Steps
 
