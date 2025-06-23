@@ -3,12 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { VideoPlayerWithThumbnails } from '@/components/ui/VideoPlayerWithThumbnails';
 // Removed Tabs imports for unified view
-import { mockProjects, mockVideos, mockBadgeScores, mockBehaviorEvents } from '@/lib/mock-data';
+import { mockProjects, mockBadgeScores, mockBehaviorEvents } from '@/lib/mock-data';
 import { Project, Video, BadgeScore, BehaviorEvent, BodyLanguageAnalysisResponse } from '@/lib/types';
 import { analyzeBodyLanguage, checkBodyLanguageServiceHealth } from '@/services/body-language-service';
 import { toast } from '@/hooks/use-toast';
-import { AlertTriangle, Star, ArrowLeft, Hand, Smile, Eye, Users, Zap, Target, Play, Loader2, RefreshCw } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Eye, TrendingDown, User, Hand, ArrowRight, Zap, Target, Play, Loader2, RefreshCw } from 'lucide-react';
 
 const BodyFeedbackPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -31,66 +32,44 @@ const BodyFeedbackPage = () => {
   // Helper function to get badge icon
   const getBadgeIcon = (badgeId: string) => {
     switch (badgeId) {
-      case 'hand-gestures':
-        return <Hand className="h-5 w-5 text-blue-600" />;
-      case 'posture-alignment':
-        return <Users className="h-5 w-5 text-green-600" />;
-      case 'smile-consistency':
-        return <Smile className="h-5 w-5 text-yellow-600" />;
       case 'eye-contact':
-        return <Eye className="h-5 w-5 text-purple-600" />;
+        return <Eye className="h-5 w-5 text-blue-600" />;
+      case 'body-stability':
+        return <TrendingDown className="h-5 w-5 text-green-600" />;
+      case 'head-posture':
+        return <User className="h-5 w-5 text-yellow-600" />;
+      case 'self-touching':
+        return <Hand className="h-5 w-5 text-purple-600" />;
+      case 'facing-away':
+        return <ArrowRight className="h-5 w-5 text-red-600" />;
       default:
         return <Target className="h-5 w-5 text-gray-600" />;
     }
   };
 
-  // Helper function to get feedback text for badges
-  const getBadgeFeedback = (badgeId: string, stars: number) => {
-    const feedbackMap: { [key: string]: { [key: number]: string } } = {
-      'hand-gestures': {
-        1: 'Hand movements appear stiff and unnatural.',
-        2: 'Some gestures lack coordination and fluidity.',
-        3: 'Decent hand gestures with room for improvement.',
-        4: 'Natural and expressive hand movements.',
-        5: 'Excellent, purposeful gestures that enhance communication.'
-      },
-      'posture-alignment': {
-        1: 'Poor posture affecting overall presence.',
-        2: 'Posture needs significant improvement for better impact.',
-        3: 'Adequate posture with minor adjustments needed.',
-        4: 'Good posture that projects confidence.',
-        5: 'Perfect posture demonstrating strong presence.'
-      },
-      'smile-consistency': {
-        1: 'Facial expressions appear forced or inconsistent.',
-        2: 'Smiles need to be more natural and frequent.',
-        3: 'Generally positive expressions with some variation.',
-        4: 'Warm and genuine facial expressions throughout.',
-        5: 'Exceptional facial expressiveness that engages viewers.'
-      },
-      'eye-contact': {
-        1: 'Limited eye contact reducing connection with audience.',
-        2: 'Eye contact could be more consistent and engaging.',
-        3: 'Reasonable eye contact with room for improvement.',
-        4: 'Strong eye contact that builds good rapport.',
-        5: 'Outstanding eye contact creating powerful connections.'
-      }
+  // Helper function to get feedback text for badges - single description per criteria
+  const getBadgeFeedback = (badgeId: string, totalEvents: number) => {
+    const feedbackMap: { [key: string]: string } = {
+      'eye-contact': 'Eye contact is crucial for building connection with your audience. Maintain direct eye contact with the camera or audience to project confidence. Looking down or away frequently can indicate nervousness or lack of confidence.',
+      'body-stability': 'Stable body posture projects professionalism and trustworthiness. Excessive swaying or movement can reveal nervousness, so focus on maintaining calm and controlled posture throughout your presentation.',
+      'head-posture': 'Natural head positioning demonstrates your professionalism as a presenter. Rather than frequent tilting or unnatural movements, maintain consistent and stable head posture for better impact.',
+      'self-touching': 'Touching your face or head during presentations can indicate nervousness or anxiety. Practice conscious control of hand movements and use natural gestures to project more confidence.',
+      'facing-away': 'Facing your audience is fundamental to communication and connection. Instead of turning away or looking sideways, always maintain a forward-facing position toward your audience or camera to create strong engagement.'
     };
     
-    return feedbackMap[badgeId]?.[stars] || 'Performance assessment available.';
+    return feedbackMap[badgeId] || 'Feedback available for presentation skill improvement.';
   };
   const getEventIcon = (type: string, category: string) => {
-    if (type === 'gesture') {
+    if (type === 'eye-contact') {
+      return <Eye className="h-4 w-4 text-white" />;
+    } else if (type === 'body-stability') {
+      return <TrendingDown className="h-4 w-4 text-white" />;
+    } else if (type === 'head-posture') {
+      return <User className="h-4 w-4 text-white" />;
+    } else if (type === 'self-touching') {
       return <Hand className="h-4 w-4 text-white" />;
-    } else if (type === 'posture') {
-      return <Users className="h-4 w-4 text-white" />;
-    } else if (type === 'facial') {
-      if (category.includes('smile')) {
-        return <Smile className="h-4 w-4 text-white" />;
-      } else if (category.includes('eye')) {
-        return <Eye className="h-4 w-4 text-white" />;
-      }
-      return <Smile className="h-4 w-4 text-white" />;
+    } else if (type === 'facing-away') {
+      return <ArrowRight className="h-4 w-4 text-white" />;
     }
     return <Zap className="h-4 w-4 text-white" />;
   };
@@ -165,22 +144,22 @@ const BodyFeedbackPage = () => {
     const newBadgeScores: BadgeScore[] = [];
     const newBehaviorEvents: BehaviorEvent[] = [];
 
-    if (result.results.gesture_analysis) {
+    if (result.results.eye_contact_analysis) {
       newBadgeScores.push({
-        badgeId: 'hand-gestures',
+        badgeId: 'eye-contact',
         projectId: projectId!,
-        stars: Math.round(result.results.gesture_analysis.gesture_quality_score / 20) as 1 | 2 | 3 | 4 | 5,
-        totalEvents: result.results.gesture_analysis.total_gestures,
+        stars: Math.round(result.results.eye_contact_analysis.eye_contact_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.eye_contact_analysis.eye_contact_events.length,
       });
 
-      result.results.gesture_analysis.gesture_events.forEach((event, index) => {
+      result.results.eye_contact_analysis.eye_contact_events.forEach((event, index) => {
         newBehaviorEvents.push({
-          id: `gesture-${index}`,
+          id: `eye-contact-${index}`,
           projectId: projectId!,
           timestamp: event.timestamp,
           start: event.timestamp,
           end: event.timestamp + 2, // Assume 2-second duration
-          type: 'gesture',
+          type: 'eye-contact',
           category: event.type,
           confidence: event.confidence,
           description: event.description,
@@ -189,22 +168,46 @@ const BodyFeedbackPage = () => {
       });
     }
 
-    if (result.results.posture_analysis) {
+    if (result.results.body_stability_analysis) {
       newBadgeScores.push({
-        badgeId: 'posture-alignment',
+        badgeId: 'body-stability',
         projectId: projectId!,
-        stars: Math.round(result.results.posture_analysis.average_posture_score / 20) as 1 | 2 | 3 | 4 | 5,
-        totalEvents: result.results.posture_analysis.posture_events.length,
+        stars: Math.round(result.results.body_stability_analysis.body_stability_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.body_stability_analysis.body_stability_events.length,
       });
 
-      result.results.posture_analysis.posture_events.forEach((event, index) => {
+      result.results.body_stability_analysis.body_stability_events.forEach((event, index) => {
         newBehaviorEvents.push({
-          id: `posture-${index}`,
+          id: `body-stability-${index}`,
           projectId: projectId!,
           timestamp: event.timestamp,
           start: event.timestamp,
           end: event.timestamp + 3, // Assume 3-second duration
-          type: 'posture',
+          type: 'body-stability',
+          category: event.stability_type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    if (result.results.head_posture_analysis) {
+      newBadgeScores.push({
+        badgeId: 'head-posture',
+        projectId: projectId!,
+        stars: Math.round(result.results.head_posture_analysis.head_posture_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.head_posture_analysis.head_posture_events.length,
+      });
+
+      result.results.head_posture_analysis.head_posture_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `head-posture-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 1, // Assume 1-second duration
+          type: 'head-posture',
           category: event.posture_type,
           confidence: event.confidence,
           description: event.description,
@@ -213,30 +216,47 @@ const BodyFeedbackPage = () => {
       });
     }
 
-    if (result.results.facial_expression_analysis) {
+    if (result.results.self_touching_analysis) {
       newBadgeScores.push({
-        badgeId: 'smile-consistency',
+        badgeId: 'self-touching',
         projectId: projectId!,
-        stars: Math.round(result.results.facial_expression_analysis.smile_consistency / 20) as 1 | 2 | 3 | 4 | 5,
-        totalEvents: result.results.facial_expression_analysis.expression_events.filter(e => e.expression_type.includes('smile')).length,
+        stars: Math.round(result.results.self_touching_analysis.self_touching_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.self_touching_analysis.self_touching_events.length,
       });
 
-      newBadgeScores.push({
-        badgeId: 'eye-contact',
-        projectId: projectId!,
-        stars: Math.round(result.results.facial_expression_analysis.eye_contact_score / 20) as 1 | 2 | 3 | 4 | 5,
-        totalEvents: result.results.facial_expression_analysis.expression_events.filter(e => e.expression_type.includes('eye')).length,
-      });
-
-      result.results.facial_expression_analysis.expression_events.forEach((event, index) => {
+      result.results.self_touching_analysis.self_touching_events.forEach((event, index) => {
         newBehaviorEvents.push({
-          id: `facial-${index}`,
+          id: `self-touching-${index}`,
           projectId: projectId!,
           timestamp: event.timestamp,
           start: event.timestamp,
           end: event.timestamp + 1, // Assume 1-second duration
-          type: 'facial',
-          category: event.expression_type,
+          type: 'self-touching',
+          category: event.touching_type,
+          confidence: event.confidence,
+          description: event.description,
+          severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
+        });
+      });
+    }
+
+    if (result.results.facing_away_analysis) {
+      newBadgeScores.push({
+        badgeId: 'facing-away',
+        projectId: projectId!,
+        stars: Math.round(result.results.facing_away_analysis.facing_away_score / 20) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.facing_away_analysis.facing_away_events.length,
+      });
+
+      result.results.facing_away_analysis.facing_away_events.forEach((event, index) => {
+        newBehaviorEvents.push({
+          id: `facing-away-${index}`,
+          projectId: projectId!,
+          timestamp: event.timestamp,
+          start: event.timestamp,
+          end: event.timestamp + 2, // Assume 2-second duration
+          type: 'facing-away',
+          category: event.facing_type,
           confidence: event.confidence,
           description: event.description,
           severity: event.confidence > 0.8 ? 'high' : event.confidence > 0.5 ? 'medium' : 'low',
@@ -259,11 +279,18 @@ const BodyFeedbackPage = () => {
       if (foundProject) {
         setProject(foundProject);
         
-        // Find video for this project
-        const foundVideo = mockVideos.find(v => v.projectId === projectId);
-        if (foundVideo) {
-          setVideo(foundVideo);
-        }
+        // Use demo.mp4 for all projects
+        const demoVideo: Video = {
+          id: `${projectId}-demo`,
+          projectId: projectId!,
+          url: '/demo-videos/demo.mp4',
+          duration: 596, // Demo video duration in seconds
+          resolution: {
+            width: 1280,
+            height: 720,
+          },
+        };
+        setVideo(demoVideo);
         
         // Get badge scores for this project (initially from mock data)
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
@@ -280,12 +307,11 @@ const BodyFeedbackPage = () => {
 
   // Helper: get color for an event based on its type/category
   const getEventMetricColor = (event: BehaviorEvent) => {
-    if (event.type === 'gesture') return '#2563EB'; // blue-600
-    if (event.type === 'posture') return '#16A34A'; // green-600
-    if (event.type === 'facial') {
-      if (event.category.includes('smile')) return '#CA8A04'; // yellow-600
-      if (event.category.includes('eye')) return '#7C3AED'; // purple-600
-    }
+    if (event.type === 'eye-contact') return '#2563EB'; // blue-600
+    if (event.type === 'body-stability') return '#16A34A'; // green-600
+    if (event.type === 'head-posture') return '#CA8A04'; // yellow-600
+    if (event.type === 'self-touching') return '#7C3AED'; // purple-600
+    if (event.type === 'facing-away') return '#DC2626'; // red-600
     return '#64748B'; // gray-500
   };
 
@@ -437,28 +463,20 @@ const BodyFeedbackPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Video Player + Timeline */}
         <div className="lg:col-span-2">
-          <Card>
-            <CardContent className="p-4 relative">
-              <div className="aspect-video bg-gray-100 rounded-md overflow-hidden relative">
-                {video ? (
-                  <>
-                    <video
-                      ref={ref => setVideoRef(ref)}
-                      src={video.url}
-                      controls
-                      className="w-full h-full object-contain"
-                      poster="https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                      onTimeUpdate={e => setCurrentTime(e.currentTarget.currentTime)}
-                    />
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <p className="text-gray-500">No video available</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {video && (
+            <VideoPlayerWithThumbnails
+              src={video.url}
+              keyMoments={behaviorEvents.map(event => ({
+                id: event.id,
+                timestamp: event.timestamp,
+                title: event.category,
+                type: event.type
+              }))}
+              autoGenerateThumbnails={true}
+              thumbnailCount={15}
+              onTimeUpdate={setCurrentTime}
+            />
+          )}
         </div>
         {/* Performance Metrics */}
         <div>
@@ -481,20 +499,14 @@ const BodyFeedbackPage = () => {
                             .join(' ')}
                         </h3>
                       </div>
-                      <div className="flex">
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <Star
-                            key={star}
-                            size={16}
-                            className={
-                              star <= badge.stars ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                            }
-                          />
-                        ))}
+                      <div className="bg-gray-100 px-3 py-1 rounded-full">
+                        <span className="text-sm font-medium text-gray-700">
+                          {badge.totalEvents} times detected
+                        </span>
                       </div>
                     </div>
                     <p className="text-sm text-gray-600 mt-2">
-                      {getBadgeFeedback(badge.badgeId, badge.stars)}
+                      {getBadgeFeedback(badge.badgeId, badge.totalEvents)}
                     </p>
                   </div>
                 ))}

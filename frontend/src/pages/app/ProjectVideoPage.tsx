@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { VideoUpload } from '@/components/ui/VideoUpload';
-import { ArrowLeft, Play, Loader2, RefreshCw, AlertTriangle, Star, Hand, Smile, Eye, Users, Target } from 'lucide-react';
+import { ArrowLeft, Play, Loader2, RefreshCw, AlertTriangle, Star, Hand, Eye, Target, TrendingDown, User, ArrowRight } from 'lucide-react';
 import { projectService, videoService, initializeTestData } from '@/services/data-service';
 import { analyzeBodyLanguage, checkBodyLanguageServiceHealth } from '@/services/body-language-proxy';
 import { Video, BodyLanguageAnalysisResponse, BadgeScore, BehaviorEvent } from '@/lib/types';
@@ -85,7 +85,7 @@ const ProjectVideoPage = () => {
     const newVideo: Video = {
       id: uploadedVideo.id.toString(),
       projectId: uploadedVideo.projectId,
-      url: `http://localhost:8080${uploadedVideo.storageUrl}`,
+      url: uploadedVideo.storageUrl,
       duration: uploadedVideo.duration,
       resolution: {
         width: uploadedVideo.width || 1280,
@@ -154,21 +154,48 @@ const ProjectVideoPage = () => {
     const newBadgeScores: BadgeScore[] = [];
     const newBehaviorEvents: BehaviorEvent[] = [];
 
-    if (result.results.gesture_analysis) {
+    if (result.results.eye_contact_analysis) {
       newBadgeScores.push({
-        badgeId: 'hand-gestures',
+        badgeId: 'eye-contact',
         projectId: projectId!,
-        stars: Math.min(5, Math.max(1, Math.round(result.results.gesture_analysis.gesture_quality_score * 5))) as 1 | 2 | 3 | 4 | 5,
-        totalEvents: result.results.gesture_analysis.total_gestures,
+        stars: Math.min(5, Math.max(1, Math.round(result.results.eye_contact_analysis.eye_contact_score / 20))) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.eye_contact_analysis.eye_contact_events?.length || 0,
       });
     }
 
-    if (result.results.posture_analysis) {
+    if (result.results.body_stability_analysis) {
       newBadgeScores.push({
-        badgeId: 'posture-alignment',
+        badgeId: 'body-stability',
         projectId: projectId!,
-        stars: Math.min(5, Math.max(1, Math.round(result.results.posture_analysis.average_posture_score * 5))) as 1 | 2 | 3 | 4 | 5,
-        totalEvents: result.results.posture_analysis.posture_events?.length || 0,
+        stars: Math.min(5, Math.max(1, Math.round(result.results.body_stability_analysis.body_stability_score / 20))) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.body_stability_analysis.body_stability_events?.length || 0,
+      });
+    }
+
+    if (result.results.head_posture_analysis) {
+      newBadgeScores.push({
+        badgeId: 'head-posture',
+        projectId: projectId!,
+        stars: Math.min(5, Math.max(1, Math.round(result.results.head_posture_analysis.head_posture_score / 20))) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.head_posture_analysis.head_posture_events?.length || 0,
+      });
+    }
+
+    if (result.results.self_touching_analysis) {
+      newBadgeScores.push({
+        badgeId: 'self-touching',
+        projectId: projectId!,
+        stars: Math.min(5, Math.max(1, Math.round(result.results.self_touching_analysis.self_touching_score / 20))) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.self_touching_analysis.self_touching_events?.length || 0,
+      });
+    }
+
+    if (result.results.facing_away_analysis) {
+      newBadgeScores.push({
+        badgeId: 'facing-away',
+        projectId: projectId!,
+        stars: Math.min(5, Math.max(1, Math.round(result.results.facing_away_analysis.facing_away_score / 20))) as 1 | 2 | 3 | 4 | 5,
+        totalEvents: result.results.facing_away_analysis.facing_away_events?.length || 0,
       });
     }
 
@@ -180,14 +207,16 @@ const ProjectVideoPage = () => {
   // Helper functions for badge display
   const getBadgeIcon = (badgeId: string) => {
     switch (badgeId) {
-      case 'hand-gestures':
-        return <Hand className="h-5 w-5 text-blue-600" />;
-      case 'posture-alignment':
-        return <Users className="h-5 w-5 text-green-600" />;
-      case 'smile-consistency':
-        return <Smile className="h-5 w-5 text-yellow-600" />;
       case 'eye-contact':
-        return <Eye className="h-5 w-5 text-purple-600" />;
+        return <Eye className="h-5 w-5 text-blue-600" />;
+      case 'body-stability':
+        return <TrendingDown className="h-5 w-5 text-green-600" />;
+      case 'head-posture':
+        return <User className="h-5 w-5 text-yellow-600" />;
+      case 'self-touching':
+        return <Hand className="h-5 w-5 text-purple-600" />;
+      case 'facing-away':
+        return <ArrowRight className="h-5 w-5 text-red-600" />;
       default:
         return <Target className="h-5 w-5 text-gray-600" />;
     }
@@ -195,33 +224,40 @@ const ProjectVideoPage = () => {
 
   const getBadgeFeedback = (badgeId: string, stars: number) => {
     const feedbackMap: { [key: string]: { [key: number]: string } } = {
-      'hand-gestures': {
-        1: 'Try using more purposeful hand movements to emphasize key points.',
-        2: 'Your hand gestures are developing. Consider being more deliberate with movements.',
-        3: 'Good use of hand gestures! They support your message effectively.',
-        4: 'Excellent hand gesture control. Your movements enhance your presentation.',
-        5: 'Outstanding gestures! Your hand movements perfectly complement your speech.',
-      },
-      'posture-alignment': {
-        1: 'Focus on standing tall and maintaining good posture throughout.',
-        2: 'Your posture shows some confidence. Work on consistency.',
-        3: 'Good posture! You appear confident and engaged.',
-        4: 'Excellent posture. You project strong presence and authority.',
-        5: 'Perfect posture! You command attention with your confident stance.',
-      },
-      'smile-consistency': {
-        1: 'Try to smile more naturally and at appropriate moments.',
-        2: 'Your smiles are occasional. Consider smiling more to connect with audience.',
-        3: 'Good use of smiles! They help create a positive atmosphere.',
-        4: 'Excellent smile timing. You use facial expressions very effectively.',
-        5: 'Perfect smile consistency! Your expressions are warm and engaging.',
-      },
       'eye-contact': {
         1: 'Practice making more eye contact with your audience.',
         2: 'Your eye contact is developing. Try to engage more with viewers.',
         3: 'Good eye contact! You connect well with your audience.',
         4: 'Excellent eye contact. You maintain strong audience engagement.',
         5: 'Perfect eye contact! You create strong connection with viewers.',
+      },
+      'body-stability': {
+        1: 'Focus on maintaining stable body positioning throughout your presentation.',
+        2: 'Your body stability shows improvement but needs more consistency.',
+        3: 'Good body stability! You appear confident and grounded.',
+        4: 'Excellent body control. You project strong, stable presence.',
+        5: 'Perfect body stability! You command attention with your poised stance.',
+      },
+      'head-posture': {
+        1: 'Work on maintaining natural and consistent head positioning.',
+        2: 'Your head posture needs attention for better professional appearance.',
+        3: 'Good head posture! You appear engaged and attentive.',
+        4: 'Excellent head positioning. You project confidence and focus.',
+        5: 'Perfect head posture! Your positioning enhances your professional presence.',
+      },
+      'self-touching': {
+        1: 'Try to minimize face and head touching behaviors during presentation.',
+        2: 'Occasional self-touching detected. Work on maintaining composed gestures.',
+        3: 'Good self-control! Minimal distracting behaviors observed.',
+        4: 'Excellent gesture control. You maintain professional composure.',
+        5: 'Perfect self-control! No distracting behaviors detected.',
+      },
+      'facing-away': {
+        1: 'Maintain consistent audience engagement by facing forward more often.',
+        2: 'Your audience engagement shows improvement but needs more consistency.',
+        3: 'Good audience facing! You maintain reasonable connection with viewers.',
+        4: 'Excellent audience engagement. You consistently face your audience.',
+        5: 'Perfect audience connection! You maintain strong visual engagement throughout.',
       },
     };
 

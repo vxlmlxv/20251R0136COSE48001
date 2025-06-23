@@ -1,4 +1,5 @@
 import { Project, Video } from '@/lib/types';
+import { demoService } from './demo-service';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -55,7 +56,7 @@ export const projectService = {
     return videos.map((video: VideoResponse) => ({
       id: video.id.toString(),
       projectId: video.projectId,
-      url: `http://localhost:8080${video.storageUrl}`,
+      url: video.storageUrl, // Use direct path instead of localhost URL
       duration: video.duration,
       resolution: {
         width: video.width || 1280,
@@ -68,21 +69,8 @@ export const projectService = {
 // Video Service
 export const videoService = {
   async uploadVideo(projectId: string, file: File) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('projectId', projectId);
-
-    const response = await fetch(`${API_BASE_URL}/videos/upload`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Upload failed');
-    }
-
-    return response.json();
+    // Use demo service for consistent demo video usage
+    return await demoService.simulateVideoUpload(projectId, file);
   },
 
   async getVideo(videoId: string) {

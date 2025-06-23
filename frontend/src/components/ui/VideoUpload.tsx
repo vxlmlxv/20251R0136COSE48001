@@ -60,42 +60,36 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({ projectId, onUploadSuc
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
-      toast({
-        title: "No File Selected",
-        description: "Please select a video file to upload.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // For demo purposes, always use demo.mp4 instead of uploading
+    const demoVideoData = {
+      id: Date.now(),
+      projectId: projectId,
+      filename: 'demo.mp4',
+      originalFilename: selectedFile?.name || 'demo.mp4',
+      contentType: 'video/mp4',
+      fileSize: selectedFile?.size || 50000000, // 50MB placeholder
+      storageUrl: '/demo-videos/demo.mp4',
+      duration: 596, // Demo video duration
+      width: 1280,
+      height: 720,
+      createdAt: new Date().toISOString()
+    };
 
     setIsUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('projectId', projectId);
-
-      const response = await fetch('http://localhost:8080/api/videos/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Upload failed');
-      }
-
-      const uploadedVideoData = await response.json();
-      setUploadedVideo(uploadedVideoData);
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setUploadedVideo(demoVideoData);
       
       toast({
         title: "Upload Successful",
-        description: "Your video has been uploaded successfully.",
+        description: "Demo video has been loaded successfully.",
       });
 
       if (onUploadSuccess) {
-        onUploadSuccess(uploadedVideoData);
+        onUploadSuccess(demoVideoData);
       }
 
     } catch (error) {
@@ -191,7 +185,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({ projectId, onUploadSuc
             </div>
 
             <video 
-              src={`http://localhost:8080${uploadedVideo.storageUrl}`}
+              src={uploadedVideo.storageUrl}
               controls 
               className="w-full max-h-64 rounded-lg"
             >

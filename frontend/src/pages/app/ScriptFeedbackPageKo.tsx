@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { VideoPlayerWithThumbnails } from '@/components/ui/VideoPlayerWithThumbnails';
 import { mockProjects, mockVideos, mockScriptSections, mockSuggestions } from '@/lib/mock-data';
 import { Project, Video, ScriptSection, Suggestion } from '@/lib/types';
 import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, Repeat, Zap } from 'lucide-react';
@@ -25,7 +26,7 @@ const ScriptFeedbackPageKo = () => {
   const fillerWordStats = {
     '음': { count: 12, timestamp: [17.5, 32.1, 56.8, 72.3, 89.5, 103.2, 125.7, 147.2, 168.9, 184.2, 205.5, 230.1] },
     '그': { count: 8, timestamp: [25.3, 49.7, 78.2, 96.5, 142.8, 178.4, 211.6, 247.9] },
-    '뭐': { count: 5, timestamp: [39.2, 85.7, 132.5, 189.3, 236.8] },
+    '근데': { count: 5, timestamp: [39.2, 85.7, 132.5, 189.3, 236.8] },
     '이제': { count: 4, timestamp: [62.4, 114.7, 158.3, 217.5] },
   };
 
@@ -90,11 +91,18 @@ const ScriptFeedbackPageKo = () => {
       if (foundProject) {
         setProject(foundProject);
         
-        // Find video for this project
-        const foundVideo = mockVideos.find(v => v.projectId === projectId);
-        if (foundVideo) {
-          setVideo(foundVideo);
-        }
+        // Use demo.mp4 for all projects
+        const demoVideo: Video = {
+          id: `${projectId}-demo`,
+          projectId: projectId!,
+          url: '/demo-videos/demo.mp4',
+          duration: 596, // Demo video duration in seconds
+          resolution: {
+            width: 1280,
+            height: 720,
+          },
+        };
+        setVideo(demoVideo);
         
         // Get script sections for this project
         const projectSections = mockScriptSections.filter(sec => sec.projectId === projectId);
@@ -238,14 +246,14 @@ const ScriptFeedbackPageKo = () => {
         <TabsContent value="structure" className="mt-6 space-y-6">
 
           {/* Script Sections and Suggestions */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Script Sentences and Suggestions */}
             <Card className="lg:col-span-1">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                   <div>
-                    <CardTitle className="text-lg">프레젠테이션 스크립트</CardTitle>
-                    <CardDescription>문장별로 정리된 내용</CardDescription>
+                    <CardTitle className="text-lg">프레젠테이션 대본</CardTitle>
+                    <CardDescription>AI가 추출한 발표 스크립트입니다.</CardDescription>
                   </div>
                   {acceptedSuggestions.length > 0 && (
                     <Button
@@ -264,7 +272,7 @@ const ScriptFeedbackPageKo = () => {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="max-h-[500px] overflow-y-auto">
+              <CardContent className="max-h-[700px] overflow-y-auto">
                 <div className="space-y-3">
                   {scriptSections.map(section => 
                     section.sentences.map((sentence, sentenceIndex) => {
@@ -275,6 +283,11 @@ const ScriptFeedbackPageKo = () => {
                         s.type === 'modify'
                       );
                       
+                      // Calculate start time for this sentence
+                      // Assuming each sentence is evenly distributed within the section's time range
+                      const sectionDuration = section.endTime - section.startTime;
+                      const sentenceStart = section.startTime + (sentenceIndex * sectionDuration / section.sentences.length);
+                      
                       return (
                         <div 
                           key={`${section.id}-${sentenceIndex}`} 
@@ -284,7 +297,7 @@ const ScriptFeedbackPageKo = () => {
                         >
                           <div className="flex justify-between items-start mb-2">
                             <Badge variant="outline" className="bg-gray-50 text-gray-600 text-xs">
-                              문장 {sentenceIndex + 1}
+                              {formatTime(sentenceStart)}
                             </Badge>
                             {hasModifications && (
                               <Badge variant="outline" className="bg-mint/20 text-mint border-mint text-xs">
@@ -309,12 +322,12 @@ const ScriptFeedbackPageKo = () => {
             </Card>
             
             {/* AI Suggestions - Only Modify Type */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-1">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">AI 수정 제안사항</CardTitle>
-                <CardDescription>스크립트 개선을 위한 수정 추천</CardDescription>
+                <CardDescription>발표 개선을 위한 수정 추천</CardDescription>
               </CardHeader>
-              <CardContent className="max-h-[500px] overflow-y-auto">
+              <CardContent className="max-h-[700px] overflow-y-auto">
                 <div className="space-y-4">
                   {/* Filter to only show modify suggestions */}
                   {suggestions.filter(s => s.type === 'modify').length > 0 ? (
@@ -328,7 +341,7 @@ const ScriptFeedbackPageKo = () => {
                           key={suggestion.id} 
                           className={`border rounded-lg transition-all duration-300 ${
                             isProcessed 
-                              ? 'p-2 bg-gray-50 border-gray-200' 
+                              ? 'p-4 bg-gray-50 border-gray-200' 
                               : `p-4 ${getSuggestionCategoryColor(suggestion.category)}`
                           }`}
                         >
@@ -441,14 +454,43 @@ const ScriptFeedbackPageKo = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Video Player Section */}
+          {video && (
+            <div>
+              <VideoPlayerWithThumbnails
+                src={video.url}
+                keyMoments={[
+                  // Add key moments based on script sections
+                  ...scriptSections.map((section, index) => ({
+                    id: section.id,
+                    timestamp: section.startTime,
+                    title: `섹션 ${index + 1}`,
+                    type: '스크립트'
+                  })),
+                  // Add filler word moments
+                  ...Object.entries(fillerWordStats).flatMap(([word, stats]) =>
+                    stats.timestamp.slice(0, 3).map((time, index) => ({
+                      id: `filler-${word}-${index}`,
+                      timestamp: time,
+                      title: `"${word}" 사용`,
+                      type: '불필요한 어구'
+                    }))
+                  )
+                ]}
+                autoGenerateThumbnails={true}
+                thumbnailCount={12}
+              />
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="habits" className="mt-6 space-y-6">
           {/* Speech Habits Analysis */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">군더더기 말 분석</CardTitle>
-              <CardDescription>프레젠테이션에서 자주 사용된 군더더기 말 식별</CardDescription>
+              <CardTitle className="text-lg">불필요한 어구 분석</CardTitle>
+              <CardDescription>발표에서 자주 사용된 불필요한 어구 식별</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -467,10 +509,10 @@ const ScriptFeedbackPageKo = () => {
                 
                 {/* Timeline of Filler Words */}
                 <div>
-                  <h3 className="font-medium mb-3">군더더기 말 타임라인</h3>
+                  <h3 className="font-medium mb-3">불필요한 어구 타임라인</h3>
                   <div className="relative">
                     {/* Timeline container with better visibility */}
-                    <div className="relative h-16 border rounded-lg overflow-hidden bg-gray-50">
+                    <div className="relative h-16 border rounded-lg overflow-hidden bg-gray-50 mb-6">
                       {/* Timestamp markers */}
                       <div className="absolute top-0 left-0 right-0 h-full">
                         {video && [0, video.duration / 4, video.duration / 2, (3 * video.duration) / 4, video.duration].map((time, index) => (
@@ -510,6 +552,12 @@ const ScriptFeedbackPageKo = () => {
                         </div>
                       ))}
                     </div>
+                    
+                    {/* Timeline labels */}
+                    <div className="flex justify-between text-xs text-gray-500 font-mono px-1">
+                      <span>00:00</span>
+                      <span>02:35</span>
+                    </div>
                   </div>
                 </div>
                 
@@ -522,7 +570,7 @@ const ScriptFeedbackPageKo = () => {
                   <ul className="space-y-2 text-gray-700">
                     <li className="flex items-start">
                       <div className="h-5 w-5 rounded-full bg-mint/20 flex items-center justify-center text-mint mr-2 mt-0.5 flex-shrink-0">1</div>
-                      <p>군더더기 말 대신 잠시 멈추는 연습을 하세요. 짧은 침묵이 "음"이나 "그"보다 더 강력합니다.</p>
+                      <p>불필요한 음성적 잉여 표현 대신 잠시 멈추는 연습을 해보세요. 짧은 침묵은 "음", "어"와 같은 습관어보다 훨씬 더 강력한 인상을 줄 수 있답니다.</p>
                     </li>
                     <li className="flex items-start">
                       <div className="h-5 w-5 rounded-full bg-mint/20 flex items-center justify-center text-mint mr-2 mt-0.5 flex-shrink-0">2</div>

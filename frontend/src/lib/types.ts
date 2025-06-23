@@ -42,9 +42,8 @@ export interface ScriptSegment {
 export interface ScriptSection {
   id: string;
   projectId: string;
-  title: string;
-  start: number;
-  end: number;
+  startTime: number;
+  endTime: number;
   sentences: string[];
 }
 
@@ -74,31 +73,47 @@ export interface BodyLanguageAnalysisRequest {
 export interface BodyLanguageAnalysisResponse {
   status: string;
   results: {
-    gesture_analysis: {
-      total_gestures: number;
-      gesture_quality_score: number;
-      gesture_events: Array<{
+    eye_contact_analysis: {
+      eye_contact_score: number;
+      eye_contact_events: Array<{
         timestamp: number;
         type: string;
         confidence: number;
         description: string;
       }>;
     };
-    posture_analysis: {
-      average_posture_score: number;
-      posture_events: Array<{
+    body_stability_analysis: {
+      body_stability_score: number;
+      body_stability_events: Array<{
+        timestamp: number;
+        stability_type: string;
+        confidence: number;
+        description: string;
+      }>;
+    };
+    head_posture_analysis: {
+      head_posture_score: number;
+      head_posture_events: Array<{
         timestamp: number;
         posture_type: string;
         confidence: number;
         description: string;
       }>;
     };
-    facial_expression_analysis: {
-      smile_consistency: number;
-      eye_contact_score: number;
-      expression_events: Array<{
+    self_touching_analysis: {
+      self_touching_score: number;
+      self_touching_events: Array<{
         timestamp: number;
-        expression_type: string;
+        touching_type: string;
+        confidence: number;
+        description: string;
+      }>;
+    };
+    facing_away_analysis: {
+      facing_away_score: number;
+      facing_away_events: Array<{
+        timestamp: number;
+        facing_type: string;
         confidence: number;
         description: string;
       }>;
@@ -114,9 +129,10 @@ export interface BehaviorEvent {
   timestamp: number;
   start: number;
   end: number;
-  type: 'gesture' | 'posture' | 'facial';
+  type: 'eye-contact' | 'body-stability' | 'head-posture' | 'self-touching' | 'facing-away';
   category: string;
   confidence: number;
   description: string;
   severity: 'low' | 'medium' | 'high';
 }
+

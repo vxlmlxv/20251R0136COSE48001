@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, ArrowRight, Upload, Check, FileVideo } from 'lucide-react';
 import { projectService } from '@/services/project-service';
-import { videoService } from '@/services/data-service';
+import { demoService } from '@/services/demo-service';
 
 const NewProjectPage = () => {
   const navigate = useNavigate();
@@ -96,7 +96,7 @@ const NewProjectPage = () => {
 
       const createdProject = await projectService.createProject(projectData);
       
-      // Upload the video
+      // Use demo service instead of real upload
       toast({
         title: 'Uploading video...',
         description: 'Your video is being uploaded and processed.',
@@ -104,7 +104,7 @@ const NewProjectPage = () => {
 
       simulateUpload(); // Keep the progress simulation for UI feedback
 
-      const uploadedVideo = await videoService.uploadVideo(createdProject.id, selectedFile);
+      const uploadedVideo = await demoService.simulateVideoUpload(createdProject.id, selectedFile);
       
       toast({
         title: 'Project created successfully!',

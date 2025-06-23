@@ -158,6 +158,55 @@
     "script_feedback": "Script Feedback",
     "body_feedback": "Body Language Feedback"
   },
+  "body_feedback": {
+    "title": "Body Language Feedback",
+    "back_to_overview": "Back to Overview",
+    "eye_contact": "Eye Contact",
+    "body_stability": "Body Stability",
+    "head_posture": "Head Posture",
+    "self_touching": "Self Touching",
+    "facing_away": "Facing Away",
+    "key_moments": "Key Moments",
+    "click_to_jump": "Click to jump",
+    "stars": "stars",
+    "feedback": {
+      "eye_contact": {
+        "1": "Limited eye contact reducing connection with audience.",
+        "2": "Eye contact could be more consistent and engaging.",
+        "3": "Reasonable eye contact with room for improvement.",
+        "4": "Strong eye contact that builds good rapport.",
+        "5": "Outstanding eye contact creating powerful connections."
+      },
+      "body_stability": {
+        "1": "Body instability is distracting and affects presence.",
+        "2": "Body stability needs improvement for better impact.",
+        "3": "Adequate body stability with minor adjustments needed.",
+        "4": "Good body stability that projects confidence.",
+        "5": "Perfect body stability demonstrating strong presence."
+      },
+      "head_posture": {
+        "1": "Head posture appears unnatural and distracting.",
+        "2": "Head posture lacks consistency and needs attention.",
+        "3": "Decent head posture with room for improvement.",
+        "4": "Natural and stable head posture.",
+        "5": "Perfect head posture creating professional impression."
+      },
+      "self_touching": {
+        "1": "Frequent face/head touching indicates nervousness.",
+        "2": "Occasional self-touching behavior needs attention.",
+        "3": "Moderate self-touching behavior that could be reduced.",
+        "4": "Minimal self-touching showing good control.",
+        "5": "Excellent self-control with no distracting behaviors."
+      },
+      "facing_away": {
+        "1": "Frequently facing away disconnects from audience.",
+        "2": "Occasional facing away behavior needs improvement.",
+        "3": "Adequate audience facing with room for consistency.",
+        "4": "Mostly faces audience creating good connection.",
+        "5": "Perfect audience engagement and eye contact."
+      }
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

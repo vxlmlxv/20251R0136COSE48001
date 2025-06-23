@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockProjects, mockVideos, mockBadgeScores } from '@/lib/mock-data';
+import { mockProjects, mockBadgeScores } from '@/lib/mock-data';
 import { Project, Video, BadgeScore } from '@/lib/types';
 import { Clock, Video as VideoIcon, AlertTriangle, CheckCircle, PlayCircle, Mic2 } from 'lucide-react';
 
@@ -26,10 +26,18 @@ const ProjectOverviewPageKo = () => {
         setProject(foundProject);
         
         // Find video for this project
-        const foundVideo = mockVideos.find(v => v.projectId === projectId);
-        if (foundVideo) {
-          setVideo(foundVideo);
-        }
+        // Use demo.mp4 for all projects
+        const demoVideo: Video = {
+          id: `${projectId}-demo`,
+          projectId: projectId!,
+          url: '/demo-videos/demo.mp4',
+          duration: 596, // Demo video duration in seconds
+          resolution: {
+            width: 1280,
+            height: 720,
+          },
+        };
+        setVideo(demoVideo);
         
         // Get badge scores for this project
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
@@ -274,7 +282,7 @@ const ProjectOverviewPageKo = () => {
               {(project.status === 'analyzed' || project.status === 'completed') && (
                 <div className="mt-6 border-t pt-4">
                   <h3 className="text-sm font-medium text-gray-500 mb-2">전체 평가</h3>
-                  <div className="flex items-center">
+                  <div className="flex items-center mb-4">
                     <div className="bg-mint/10 w-16 h-16 rounded-full flex items-center justify-center mr-4">
                       <span className="text-2xl font-bold text-mint">{getAverageBadgeScore()}</span>
                     </div>
@@ -287,57 +295,53 @@ const ProjectOverviewPageKo = () => {
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Feedback Buttons */}
+                  <div className="grid grid-cols-1 gap-3">
+                    {/* Body Language Feedback */}
+                    <Link to={`/app/projects/${project.id}/body-feedback`}>
+                      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                        <CardContent className="p-4">
+                          <div className="flex items-start">
+                            <div className="bg-purple-100 p-2 rounded-full mr-3">
+                              <PlayCircle className="h-4 w-4 text-purple-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-base mb-1">바디 랭귀지 피드백</h4>
+                              <p className="text-gray-600 text-xs mb-2">
+                                제스처, 자세, 표정 분석
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                    
+                    {/* Script Feedback */}
+                    <Link to={`/app/projects/${project.id}/script-feedback`}>
+                      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                        <CardContent className="p-4">
+                          <div className="flex items-start">
+                            <div className="bg-blue-100 p-2 rounded-full mr-3">
+                              <Mic2 className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-base mb-1">스크립트 피드백</h4>
+                              <p className="text-gray-600 text-xs mb-2">
+                                음성, 명확성 분석
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
-      
-      {/* Feedback Sections (visible once processing is complete) */}
-      {(project.status === 'analyzed' || project.status === 'completed') && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Body Language Feedback */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                  <PlayCircle className="h-6 w-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">바디 랭귀지 피드백</h3>
-                  <p className="text-gray-600 mb-4">
-                    제스처, 자세, 표정에 대한 분석입니다.
-                  </p>
-                  <Link to={`/app/projects/${project.id}/body-feedback`}>
-                    <Button variant="outline" className="w-full">세부사항 보기</Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Script Feedback */}
-          <Card className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start">
-                <div className="bg-blue-100 p-3 rounded-full mr-4">
-                  <Mic2 className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">스크립트 피드백</h3>
-                  <p className="text-gray-600 mb-4">
-                    음성, 군더더기 말, 메시지 명확성에 대한 분석입니다.
-                  </p>
-                  <Link to={`/app/projects/${project.id}/script-feedback`}>
-                    <Button variant="outline" className="w-full">세부사항 보기</Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };

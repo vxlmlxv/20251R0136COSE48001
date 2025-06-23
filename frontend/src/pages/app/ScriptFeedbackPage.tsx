@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { mockProjects, mockVideos, mockScriptSections, mockSuggestions } from '@/lib/mock-data';
+import { mockProjects, mockScriptSections, mockSuggestions } from '@/lib/mock-data';
+import { demoService } from '@/services/demo-service';
+import { VideoPlayerWithThumbnails } from '@/components/ui/VideoPlayerWithThumbnails';
 import { Project, Video, ScriptSection, Suggestion, BodyLanguageAnalysisResponse } from '@/lib/types';
 import { AlertTriangle, ArrowLeft, Check, X, HelpCircle, MessageCircle, Mic2, FileText, Repeat, BookOpen, Volume2, Target, Zap, Loader2, Hand, Smile, Eye } from 'lucide-react';
 import { projectService } from '@/services/project-service';
@@ -179,11 +181,9 @@ const ScriptFeedbackPage = () => {
       if (foundProject) {
         setProject(foundProject);
         
-        // Find video for this project
-        const foundVideo = mockVideos.find(v => v.projectId === projectId);
-        if (foundVideo) {
-          setVideo(foundVideo);
-        }
+        // Always use demo video for all projects
+        const demoVideo = demoService.createDemoVideo(projectId || '');
+        setVideo(demoVideo);
         
         // Get script sections for this project
         const projectSections = mockScriptSections.filter(sec => sec.projectId === projectId);
@@ -393,7 +393,7 @@ const ScriptFeedbackPage = () => {
                             )}
                           </div>
                           <Badge variant="outline" className="bg-gray-50">
-                            {formatTime(section.start)} - {formatTime(section.end)}
+                            {formatTime(section.startTime)} - {formatTime(section.endTime)}
                           </Badge>
                         </div>
                         <div className="space-y-2">
@@ -429,7 +429,7 @@ const ScriptFeedbackPage = () => {
                     suggestions.map(suggestion => {
                       const isAccepted = acceptedSuggestions.includes(suggestion.id);
                       const isRejected = rejectedSuggestions.includes(suggestion.id);
-                      const sectionTitle = scriptSections.find(s => s.id === suggestion.sectionId)?.title || 'Unknown Section';
+                      const sectionTitle = `Section ${suggestion.sectionId}`;
                       const isProcessed = isAccepted || isRejected;
                       
                       return (
@@ -546,6 +546,41 @@ const ScriptFeedbackPage = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Video Player Section */}
+          {video && (
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="text-lg">Video Player</CardTitle>
+                <CardDescription>Review your presentation with thumbnails for key moments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <VideoPlayerWithThumbnails
+                  src={video.url}
+                  keyMoments={[
+                    // Add key moments based on script sections
+                    ...scriptSections.map((section, index) => ({
+                      id: section.id,
+                      timestamp: section.startTime,
+                      title: `Section ${index + 1}`,
+                      type: 'script'
+                    })),
+                    // Add filler word moments based on the analysis
+                    ...Object.entries(fillerWordStats).flatMap(([word, stats]) =>
+                      stats.timestamp.slice(0, 3).map((time, index) => ({
+                        id: `filler-${word}-${index}`,
+                        timestamp: time,
+                        title: `"${word}" usage`,
+                        type: 'filler'
+                      }))
+                    )
+                  ]}
+                  autoGenerateThumbnails={true}
+                  thumbnailCount={12}
+                />
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
         
         <TabsContent value="habits" className="mt-6 space-y-6">

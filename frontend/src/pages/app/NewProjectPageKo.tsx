@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft, ArrowRight, Upload, Check, FileVideo } from 'lucide-react';
+import { projectService } from '@/services/project-service';
+import { demoService } from '@/services/demo-service';
 
 const NewProjectPageKo = () => {
   const navigate = useNavigate();
@@ -72,30 +74,59 @@ const NewProjectPageKo = () => {
     }, 200);
   };
   
-  const handleSubmit = () => {
-    if (!isStep3Valid()) return;
+  const handleSubmit = async () => {
+    if (!isStep3Valid() || !selectedFile) return;
     
     setIsSubmitting(true);
     
-    // Simulate upload process
-    simulateUpload();
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Create the project first
       toast({
-        title: '프로젝트가 성공적으로 생성되었습니다',
-        description: '프로젝트가 생성되었으며 현재 처리 중입니다.',
+        title: '프로젝트 생성 중...',
+        description: '프로젝트를 설정하고 있습니다.',
+      });
+
+      const projectData = {
+        title,
+        description,
+        audience,
+        formality,
+        domain
+      };
+
+      const createdProject = await projectService.createProject(projectData);
+      
+      // Use demo service instead of real upload
+      toast({
+        title: '비디오 업로드 중...',
+        description: '비디오가 업로드되고 처리되고 있습니다.',
+      });
+
+      simulateUpload(); // Keep the progress simulation for UI feedback
+
+      const uploadedVideo = await demoService.simulateVideoUpload(createdProject.id, selectedFile);
+      
+      toast({
+        title: '프로젝트가 성공적으로 생성되었습니다!',
+        description: '비디오가 업로드되었으며 바디랭귀지 분석이 자동으로 시작되었습니다.',
         variant: 'default',
       });
-      
-      setIsSubmitting(false);
-      
-      // Simulate waiting for backend processing
+
+      // Navigate to the feedback page to show analysis results
       setTimeout(() => {
-        // Navigate to the new project (using a mock ID for demo purposes)
-        navigate('/app/projects/project-new/overview');
+        navigate(`/app/projects/${createdProject.id}/feedback`);
       }, 1000);
-    }, 5000); // 5 seconds to simulate upload completion
+
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      toast({
+        title: '오류',
+        description: '프로젝트 생성에 실패했습니다. 다시 시도해주세요.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Helper functions for Korean labels

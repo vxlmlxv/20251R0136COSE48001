@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { mockProjects, mockVideos, mockBadgeScores } from '@/lib/mock-data';
+import { mockProjects, mockBadgeScores } from '@/lib/mock-data';
 import { Project, Video, BadgeScore } from '@/lib/types';
 import { Clock, Video as VideoIcon, AlertTriangle, CheckCircle, PlayCircle, Mic2 } from 'lucide-react';
 
@@ -27,10 +27,18 @@ const ProjectOverviewPage = () => {
         setProject(foundProject);
         
         // Find video for this project
-        const foundVideo = mockVideos.find(v => v.projectId === projectId);
-        if (foundVideo) {
-          setVideo(foundVideo);
-        }
+        // Use demo.mp4 for all projects
+        const demoVideo: Video = {
+          id: `${projectId}-demo`,
+          projectId: projectId!,
+          url: '/demo-videos/demo.mp4',
+          duration: 596, // Demo video duration in seconds
+          resolution: {
+            width: 1280,
+            height: 720,
+          },
+        };
+        setVideo(demoVideo);
         
         // Get badge scores for this project
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
