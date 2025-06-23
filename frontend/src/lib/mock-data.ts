@@ -362,30 +362,6 @@ export const mockBehaviorEvents: BehaviorEvent[] = [
     description: 'Quick body adjustment',
     severity: 'low'
   },
-  {
-    id: 'event-project4-sway-9',
-    projectId: 'project-4',
-    timestamp: 41.9, // frame 1257 / 30fps
-    start: 41.9,
-    end: 42.2, // frame 1266 / 30fps (0.2s duration)
-    type: 'body-stability',
-    category: '좌우로 몸 흔들기',
-    confidence: 0.71,
-    description: 'Minimal body movement',
-    severity: 'low'
-  },
-  {
-    id: 'event-project4-sway-10',
-    projectId: 'project-4',
-    timestamp: 44.7, // frame 1341 / 30fps
-    start: 44.7,
-    end: 57.2, // frame 1716 / 30fps (6.3s duration)
-    type: 'body-stability',
-    category: '좌우로 몸 흔들기',
-    confidence: 0.88,
-    description: 'Extended unstable posture',
-    severity: 'high'
-  }
 
 
 ];
@@ -424,37 +400,37 @@ export const mockBadgeScores: BadgeScore[] = [
     totalEvents: 0
   },
 
-  // Project-4 badge scores based on real API analysis
+  // Project 4 - testvideo.mp4 with specified detections
   {
     badgeId: 'eye-contact',
     projectId: 'project-4',
     stars: 5,
-    totalEvents: 0 // no eye contact issues detected
+    totalEvents: 0,
   },
   {
     badgeId: 'body-stability',
     projectId: 'project-4',
-    stars: 1,
-    totalEvents: 10 // 10 body sway events detected (18.4s total duration)
+    stars: 2, // Lower score due to 4 detections
+    totalEvents: 4,
   },
   {
     badgeId: 'head-posture',
     projectId: 'project-4',
     stars: 5,
-    totalEvents: 0 // no head posture issues detected
+    totalEvents: 0,
   },
   {
     badgeId: 'self-touching',
     projectId: 'project-4',
     stars: 5,
-    totalEvents: 0 // no self-touching events detected in this API result
+    totalEvents: 0,
   },
   {
     badgeId: 'facing-away',
     projectId: 'project-4',
-    stars: 5,
-    totalEvents: 0 // no facing away events detected
-  }
+    stars: 4, // Good score with only 1 detection
+    totalEvents: 1,
+  },
 ];
 
 // Mock suggestions
