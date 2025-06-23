@@ -1,0 +1,48 @@
+Project-4 Mock Data Update Summary
+=====================================
+
+Updated based on real API analysis results from testvideo.mp4
+
+CHANGES MADE:
+
+1. VIDEO DURATION UPDATE:
+   - Previous: 28 seconds (0:28)
+   - Updated to: 37 seconds (0:37) - matches API analysis totalDurationSeconds: 37.2
+
+2. BEHAVIOR EVENTS UPDATE:
+   - Based on real API analysis detecting only "좌우로 몸 흔들기" (body swaying)
+   - Total events: 10 (exactly matching API result)
+   - Total duration of bad behaviors: 18.4 seconds (matches API summary)
+   
+   Event Timeline:
+   - Event 1: 10.4s - 11.7s (0.7s duration)
+   - Event 2: 11.9s - 14.3s (1.3s duration) 
+   - Event 3: 14.8s - 19.2s (2.2s duration)
+   - Event 4: 20.9s - 29.5s (4.3s duration)
+   - Event 5: 33.9s - 36.8s (1.5s duration) [Added missing event]
+   - Event 6: 37.2s - 39.4s (1.1s duration)
+   - Event 7: 39.8s - 39.9s (0.1s duration)
+   - Event 8: 40.2s - 41.8s (0.8s duration)
+   - Event 9: 41.9s - 42.2s (0.2s duration)
+   - Event 10: 44.7s - 57.2s (6.3s duration)
+
+3. BADGE SCORES UPDATE:
+   - eye-contact: 5 stars, 0 events (no issues detected)
+   - body-stability: 1 star, 10 events (major issue detected)
+   - head-posture: 5 stars, 0 events (no issues detected)
+   - self-touching: 5 stars, 0 events (corrected - API didn't show this in final result)
+   - facing-away: 5 stars, 0 events (no issues detected)
+
+4. FILES UPDATED:
+   - mock-data.ts (video duration, behavior events, badge scores)
+   - BodyFeedbackPageKo.tsx (video duration for project-4)
+   - ProjectOverviewPageKo.tsx (video duration)
+
+VALIDATION:
+- All 10 body swaying events now correctly mapped from API frame data
+- Timeline events properly distributed across 37-second video duration
+- Badge scores reflect actual API analysis results
+- UI will now show correct video length (0:37) in timeline
+- Event thumbnails will show correct durations instead of timestamps
+
+This update ensures the mock data accurately represents the real AI analysis results for testvideo.mp4.

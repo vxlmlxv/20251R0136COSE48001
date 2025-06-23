@@ -96,7 +96,7 @@ const ScriptFeedbackPageKo = () => {
           id: `${projectId}-demo`,
           projectId: projectId!,
           url: '/demo-videos/demo.mp4',
-          duration: 596, // Demo video duration in seconds
+          duration: 53, // Demo video actual duration in seconds (0:53)
           resolution: {
             width: 1280,
             height: 720,
@@ -455,34 +455,6 @@ const ScriptFeedbackPageKo = () => {
             </Card>
           </div>
 
-          {/* Video Player Section */}
-          {video && (
-            <div>
-              <VideoPlayerWithThumbnails
-                src={video.url}
-                keyMoments={[
-                  // Add key moments based on script sections
-                  ...scriptSections.map((section, index) => ({
-                    id: section.id,
-                    timestamp: section.startTime,
-                    title: `섹션 ${index + 1}`,
-                    type: '스크립트'
-                  })),
-                  // Add filler word moments
-                  ...Object.entries(fillerWordStats).flatMap(([word, stats]) =>
-                    stats.timestamp.slice(0, 3).map((time, index) => ({
-                      id: `filler-${word}-${index}`,
-                      timestamp: time,
-                      title: `"${word}" 사용`,
-                      type: '불필요한 어구'
-                    }))
-                  )
-                ]}
-                autoGenerateThumbnails={true}
-                thumbnailCount={12}
-              />
-            </div>
-          )}
         </TabsContent>
         
         <TabsContent value="habits" className="mt-6 space-y-6">

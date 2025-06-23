@@ -1,7 +1,7 @@
 import { BodyLanguageAnalysisRequest, BodyLanguageAnalysisResponse } from '../lib/types';
 
 // Body Language Analysis API Base URL
-const BODY_LANGUAGE_API_BASE = 'http://moonsvr.com:8000';
+const BODY_LANGUAGE_API_BASE = 'http://localhost:8000';
 
 /**
  * Analyzes body language from a video URL
@@ -30,7 +30,7 @@ export async function analyzeBodyLanguage(videoUrl: string, projectId: string): 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
 
-    const response = await fetch(`${BODY_LANGUAGE_API_BASE}/analysis/action`, {
+    const response = await fetch(`${BODY_LANGUAGE_API_BASE}/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

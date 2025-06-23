@@ -54,24 +54,29 @@ const BodyFeedbackPageKo = () => {
   // Korean feedback messages - single description per criteria
   const getBadgeFeedback = (badgeId: string, totalEvents: number) => {
     const feedbackMap: { [key: string]: string } = {
-      'eye-contact': '시선 처리는 청중과의 연결을 만드는 중요한 요소입니다.',
-      'body-stability': '안정적인 몸의 자세는 전문적이고 신뢰할 수 있는 인상을 줍니다.',
-      'head-posture': '고개를 자주 기울이거나 움직이는 것보다는 일관되고 안정적인 자세를 유지하는 것이 좋습니다.',
-      'self-touching': '발표 중 얼굴이나 머리를 만지는 행동은 긴장감이나 불안감을 나타낼 수 있습니다.',
-      'facing-away': '돌아서거나 옆을 보는 것보다는 항상 청중 또는 카메라를 향해 정면을 유지하여 강한 연결감을 만들어보세요.'
+      'eye-contact': 
+        '청중과의 소통을 위해 적절한 시선 유지가 중요합니다.',
+      'body-stability': 
+        '안정적인 자세로 자신감 있는 모습을 보여주는 것이 좋습니다.',
+      'head-posture': 
+        '고개를 자주 기울이는 것은 생각에 잠기거나 불확실함을 나타낼 수 있습니다.',
+      'self-touching': 
+        '머리나 얼굴을 만지는 행동은 긴장이나 불안감을 나타낼 수 있습니다.',
+      'facing-away': 
+        '가능한 한 청중을 향해 서서 직접적인 소통을 유지하는 것이 효과적입니다.'
     };
     
     return feedbackMap[badgeId] || '발표 기술 향상을 위한 피드백입니다.';
   };
 
   const getEventIcon = (type: string, category: string) => {
-    if (type === 'eye-contact') {
+    if (type === 'eye-contact' || category === '시선을 아래로') {
       return <Eye className="h-4 w-4 text-white" />;
-    } else if (type === 'body-stability') {
+    } else if (type === 'body-stability' || category === '좌우로 몸 흔들기') {
       return <TrendingDown className="h-4 w-4 text-white" />;
-    } else if (type === 'head-posture') {
+    } else if (type === 'head-posture' || category === '고개 기울이기') {
       return <User className="h-4 w-4 text-white" />;
-    } else if (type === 'self-touching') {
+    } else if (type === 'self-touching' || category === '머리나 얼굴 긁기') {
       return <Hand className="h-4 w-4 text-white" />;
     } else if (type === 'facing-away') {
       return <ArrowRight className="h-4 w-4 text-white" />;
@@ -82,13 +87,20 @@ const BodyFeedbackPageKo = () => {
   // Korean badge name mapping
   const getBadgeName = (badgeId: string) => {
     const nameMap: { [key: string]: string } = {
-      'eye-contact': '시선 처리',
-      'body-stability': '몸 안정성',
-      'head-posture': '고개 자세',
-      'self-touching': '얼굴 혹은 머리 만지기',
+      'eye-contact': '시선을 아래로',
+      'body-stability': '좌우로 몸 흔들기',
+      'head-posture': '고개 기울이기',
+      'self-touching': '머리나 얼굴 긁기',
       'facing-away': '뒤돌아서기'
     };
     return nameMap[badgeId] || badgeId;
+  };
+
+  // Get color for event count label based on number of events
+  const getEventCountColor = (count: number) => {
+    if (count <= 2) return 'bg-green-100 text-green-700';
+    if (count <= 4) return 'bg-yellow-100 text-yellow-700';
+    return 'bg-red-100 text-red-700';
   };
 
   // API Integration functions
@@ -116,12 +128,51 @@ const BodyFeedbackPageKo = () => {
     setAnalysisError(null);
 
     try {
-      const result = await analyzeBodyLanguage(video.url, projectId!);
-      setAnalysisResult(result);
+      console.log('Starting body language analysis...');
+      console.log('Video URL:', video.url);
+      console.log('Project ID:', projectId);
       
-      if (result.results) {
-        transformAnalysisToLocalData(result);
+      // Use the publicly accessible video URL based on the project's video
+      let publicVideoUrl: string;
+      if (projectId === 'project-4') {
+        // Project-4 uses testvideo.mp4
+        publicVideoUrl = "https://7b2d-163-152-3-142.ngrok-free.app/testvideo.mp4";
+      } else {
+        // All other projects use demo.mp4
+        publicVideoUrl = "https://7b2d-163-152-3-142.ngrok-free.app/demo-videos/demo.mp4";
       }
+      
+      console.log('Using public video URL for analysis:', publicVideoUrl);
+      
+      toast({
+        title: "분석 시작",
+        description: "실제 비디오의 바디 랭귀지 분석을 시작합니다. 잠시만 기다려주세요.",
+        variant: "default",
+      });
+
+      const result = await analyzeBodyLanguage(publicVideoUrl, projectId!);
+      console.log('Raw API result:', result);
+      
+      // The API returns a different format, so we need to handle it properly
+      transformRealApiToLocalData(result as unknown as { 
+        projectId?: string; 
+        totalBadPostures?: number; 
+        totalDurationSeconds?: number;
+        detectedActions?: Array<{
+          actionName: string;
+          periods?: Array<{
+            startFrame?: number;
+            endFrame?: number;
+            durationSeconds?: number;
+          }>;
+          summary?: {
+            totalDurationSeconds?: number;
+            occurrenceCount?: number;
+          };
+        }>;
+      });
+      
+      console.log('Analysis completed successfully:', result);
 
       toast({
         title: "분석 완료",
@@ -132,6 +183,13 @@ const BodyFeedbackPageKo = () => {
       console.error('Analysis failed:', error);
       const errorMessage = error instanceof Error ? error.message : '바디 랭귀지 분석에 실패했습니다';
       setAnalysisError(errorMessage);
+      
+      console.log('Error details:', {
+        error: error,
+        message: errorMessage,
+        videoUrl: video.url,
+        projectId: projectId
+      });
       
       toast({
         title: "분석 실패",
@@ -272,6 +330,132 @@ const BodyFeedbackPageKo = () => {
     setBehaviorEvents(newBehaviorEvents);
   };
 
+  // Transform real API response to local badge scores and behavior events
+  const transformRealApiToLocalData = (result: { 
+    projectId?: string; 
+    totalBadPostures?: number; 
+    totalDurationSeconds?: number;
+    detectedActions?: Array<{
+      actionName: string;
+      periods?: Array<{
+        startFrame?: number;
+        endFrame?: number;
+        durationSeconds?: number;
+      }>;
+      summary?: {
+        totalDurationSeconds?: number;
+        occurrenceCount?: number;
+      };
+    }>;
+  }) => {
+    const newBadgeScores: BadgeScore[] = [];
+    const newBehaviorEvents: BehaviorEvent[] = [];
+
+    if (result.detectedActions && Array.isArray(result.detectedActions)) {
+      result.detectedActions.forEach((action, actionIndex: number) => {
+        const actionName = action.actionName;
+        
+        // Map Korean action names to our badge types
+        let badgeType: 'eye-contact' | 'body-stability' | 'head-posture' | 'self-touching' | 'facing-away' | null = null;
+        let eventType: 'eye-contact' | 'body-stability' | 'head-posture' | 'self-touching' | 'facing-away' | null = null;
+        
+        if (actionName === '좌우로 몸 흔들기') {
+          badgeType = 'body-stability';
+          eventType = 'body-stability';
+        } else if (actionName === '시선을 아래로') {
+          badgeType = 'eye-contact';
+          eventType = 'eye-contact';
+        } else if (actionName === '고개 기울이기') {
+          badgeType = 'head-posture';
+          eventType = 'head-posture';
+        } else if (actionName === '머리나 얼굴 긁기') {
+          badgeType = 'self-touching';
+          eventType = 'self-touching';
+        } else if (actionName === '뒤돌아서기') {
+          badgeType = 'facing-away';
+          eventType = 'facing-away';
+        }
+
+        if (badgeType && eventType && action.periods && Array.isArray(action.periods)) {
+          // Create badge score
+          const totalEvents = action.summary?.occurrenceCount || action.periods.length;
+          const totalDuration = action.summary?.totalDurationSeconds || 0;
+          
+          // Calculate stars based on performance (fewer bad behaviors = more stars)
+          let stars = 5;
+          if (totalEvents > 0) {
+            if (totalDuration > 10) stars = 1;
+            else if (totalDuration > 5) stars = 2;
+            else if (totalDuration > 2) stars = 3;
+            else stars = 4;
+          }
+
+          newBadgeScores.push({
+            badgeId: badgeType,
+            projectId: projectId!,
+            stars: stars as 1 | 2 | 3 | 4 | 5,
+            totalEvents: totalEvents,
+          });
+
+          // Create behavior events for each period
+          action.periods.forEach((period, periodIndex: number) => {
+            const startTime = (period.startFrame || 0) / 30; // Assuming 30fps
+            const endTime = (period.endFrame || 0) / 30;
+            
+            newBehaviorEvents.push({
+              id: `${eventType}-${actionIndex}-${periodIndex}`,
+              projectId: projectId!,
+              timestamp: startTime,
+              start: startTime,
+              end: endTime,
+              type: eventType,
+              category: actionName,
+              confidence: 0.85, // Default confidence
+              description: `Detected ${actionName} behavior`,
+              severity: totalDuration > 5 ? 'high' : totalDuration > 2 ? 'medium' : 'low',
+            });
+          });
+        }
+      });
+    }
+
+    // Add default scores for undetected behaviors
+    const detectedBadgeTypes = newBadgeScores.map(b => b.badgeId);
+    const allBadgeTypes: Array<'eye-contact' | 'body-stability' | 'head-posture' | 'self-touching' | 'facing-away'> = 
+      ['eye-contact', 'body-stability', 'head-posture', 'self-touching', 'facing-away'];
+    
+    allBadgeTypes.forEach(badgeType => {
+      if (!detectedBadgeTypes.includes(badgeType)) {
+        newBadgeScores.push({
+          badgeId: badgeType,
+          projectId: projectId!,
+          stars: 5, // Perfect score for undetected behaviors
+          totalEvents: 0,
+        });
+      }
+    });
+
+    setBadgeScores(newBadgeScores);
+    setBehaviorEvents(newBehaviorEvents);
+    
+    // Set a mock analysis result for display
+    setAnalysisResult({
+      results: {
+        overall_score: Math.max(100 - (result.totalBadPostures || 0) * 10, 50),
+        recommendations: [
+          "실제 API 분석이 완료되었습니다.",
+          `총 ${result.totalBadPostures || 0}개의 개선 가능한 행동이 감지되었습니다.`,
+          "감지된 행동 패턴을 개선하여 더 나은 발표 기술을 개발하세요."
+        ],
+        eye_contact_analysis: null,
+        body_stability_analysis: null,
+        head_posture_analysis: null,
+        self_touching_analysis: null,
+        facing_away_analysis: null,
+      }
+    } as BodyLanguageAnalysisResponse);
+  };
+
   useEffect(() => {
     checkServiceHealth();
     
@@ -280,18 +464,34 @@ const BodyFeedbackPageKo = () => {
       if (foundProject) {
         setProject(foundProject);
         
-        // Use demo.mp4 for all projects
-        const demoVideo: Video = {
-          id: `${projectId}-demo`,
-          projectId: projectId!,
-          url: '/demo-videos/demo.mp4',
-          duration: 596, // Demo video duration in seconds
-          resolution: {
-            width: 1280,
-            height: 720,
-          },
-        };
-        setVideo(demoVideo);
+        // Use the appropriate video for each project
+        let videoForProject: Video;
+        if (projectId === 'project-4') {
+          // Project-4 uses testvideo.mp4
+          videoForProject = {
+            id: `${projectId}-video`,
+            projectId: projectId!,
+            url: '/testvideo.mp4',
+            duration: 37, // testvideo.mp4 actual duration based on API analysis (37.2s)
+            resolution: {
+              width: 1280,
+              height: 720,
+            },
+          };
+        } else {
+          // All other projects use demo.mp4
+          videoForProject = {
+            id: `${projectId}-demo`,
+            projectId: projectId!,
+            url: '/demo-videos/demo.mp4',
+            duration: 53, // Demo video actual duration in seconds (0:53)
+            resolution: {
+              width: 1280,
+              height: 720,
+            },
+          };
+        }
+        setVideo(videoForProject);
         
         const projectBadgeScores = mockBadgeScores.filter(bs => bs.projectId === projectId);
         setBadgeScores(projectBadgeScores);
@@ -341,10 +541,10 @@ const BodyFeedbackPageKo = () => {
 
   // Helper: get color for an event based on its type/category
   const getEventMetricColor = (event: BehaviorEvent) => {
-    if (event.type === 'eye-contact') return '#2563EB'; // blue-600
-    if (event.type === 'body-stability') return '#16A34A'; // green-600
-    if (event.type === 'head-posture') return '#CA8A04'; // yellow-600
-    if (event.type === 'self-touching') return '#7C3AED'; // purple-600
+    if (event.type === 'eye-contact' || event.category === '시선을 아래로') return '#2563EB'; // blue-600
+    if (event.type === 'body-stability' || event.category === '좌우로 몸 흔들기') return '#16A34A'; // green-600
+    if (event.type === 'head-posture' || event.category === '고개 기울이기') return '#CA8A04'; // yellow-600
+    if (event.type === 'self-touching' || event.category === '머리나 얼굴 긁기') return '#7C3AED'; // purple-600
     if (event.type === 'facing-away') return '#DC2626'; // red-600
     return '#64748B'; // gray-500
   };
@@ -480,7 +680,7 @@ const BodyFeedbackPageKo = () => {
   const filteredEvents = behaviorEvents;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 px-8 pb-4">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-6">
@@ -611,29 +811,29 @@ const BodyFeedbackPageKo = () => {
 
         {/* Performance Metrics - Now takes 2/5 of the space */}
         <div className="lg:col-span-2">
-          <Card className="h-fit">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">성과 지표</CardTitle>
-              <CardDescription>바디 랭귀지 종합 평가</CardDescription>
+          <Card className="h-full">
+            <CardHeader className="pb-1">
+              <CardTitle className="text-base">성과 지표</CardTitle>
+              <CardDescription className="text-sm">바디 랭귀지 종합 평가</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="p-3">
+              <div className="space-y-2 overflow-y-auto max-h-[400px]">
                 {filteredBadges.map(badge => (
-                  <div key={badge.badgeId} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex items-center space-x-3">
+                  <div key={badge.badgeId} className="border rounded-lg p-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="flex items-center space-x-2">
                         {getBadgeIcon(badge.badgeId)}
-                        <h3 className="font-medium">
+                        <h3 className="font-medium text-sm">
                           {getBadgeName(badge.badgeId)}
                         </h3>
                       </div>
-                      <div className="bg-gray-100 px-3 py-1 rounded-full">
-                        <span className="text-sm font-medium text-gray-700">
+                      <div className={`px-2 py-0.5 rounded-full ${getEventCountColor(badge.totalEvents)}`}>
+                        <span className="text-xs font-medium">
                           {badge.totalEvents}회 감지
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-xs text-gray-600 mt-1 leading-relaxed">
                       {getBadgeFeedback(badge.badgeId, badge.totalEvents)}
                     </p>
                   </div>
@@ -753,7 +953,7 @@ const BodyFeedbackPageKo = () => {
                 {/* Thumbnail info */}
                 <div className="mt-2">
                   <p className="font-medium text-xs truncate">
-                    {`${event.category} (${formatTime(event.start)})`}
+                    {`${event.category} (${formatTime(event.end - event.start)})`}
                   </p>
                 </div>
               </div>

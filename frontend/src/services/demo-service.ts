@@ -15,7 +15,7 @@ export const demoService = {
       id: `${projectId}-demo`,
       projectId: projectId,
       url: '/demo-videos/demo.mp4',
-      duration: 596, // Demo video duration in seconds (9:56)
+      duration: 53, // Demo video actual duration in seconds (0:53)
       resolution: {
         width: 1280,
         height: 720,
@@ -50,7 +50,7 @@ export const demoService = {
       contentType: 'video/mp4',
       fileSize: file?.size || 50000000, // 50MB placeholder
       storageUrl: '/demo-videos/demo.mp4',
-      duration: 596,
+      duration: 53, // Updated to actual demo video duration (0:53)
       width: 1280,
       height: 720,
       createdAt: new Date().toISOString()
@@ -111,7 +111,7 @@ export const demoService = {
   getDemoVideoMetadata: () => {
     return {
       filename: 'demo.mp4',
-      duration: 596,
+      duration: 53, // Updated to actual demo video duration (0:53)
       resolution: { width: 1280, height: 720 },
       format: 'MP4',
       size: '~50MB',

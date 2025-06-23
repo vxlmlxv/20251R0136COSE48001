@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { mockProjects, mockBadgeScores } from '@/lib/mock-data';
 import { Project, Video, BadgeScore } from '@/lib/types';
+import { VideoThumbnailGenerator, Thumbnail } from '@/lib/thumbnail-generator';
 import { Clock, Video as VideoIcon, AlertTriangle, CheckCircle, PlayCircle, Mic2 } from 'lucide-react';
 
 const ProjectOverviewPageKo = () => {
@@ -16,8 +17,16 @@ const ProjectOverviewPageKo = () => {
   const [processingProgress, setProcessingProgress] = useState(0);
   const [remainingTime, setRemainingTime] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Thumbnail generation state
+  const thumbnailGeneratorRef = useRef<VideoThumbnailGenerator | null>(null);
+  const [videoThumbnail, setVideoThumbnail] = useState<Thumbnail | null>(null);
+  const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false);
 
   useEffect(() => {
+    // Initialize thumbnail generator
+    thumbnailGeneratorRef.current = new VideoThumbnailGenerator();
+    
     // Simulate loading data from API
     setTimeout(() => {
       // Find project by ID
@@ -26,17 +35,18 @@ const ProjectOverviewPageKo = () => {
         setProject(foundProject);
         
         // Find video for this project
-        // Use demo.mp4 for all projects
+        // Use testvideo.mp4 for all projects
         const demoVideo: Video = {
           id: `${projectId}-demo`,
           projectId: projectId!,
-          url: '/demo-videos/demo.mp4',
-          duration: 596, // Demo video duration in seconds
+          url: '/testvideo.mp4',
+          duration: 37, // Test video actual duration based on API analysis (37.2s)
           resolution: {
             width: 1280,
             height: 720,
           },
         };
+        
         setVideo(demoVideo);
         
         // Get badge scores for this project
@@ -47,7 +57,40 @@ const ProjectOverviewPageKo = () => {
       setIsLoading(false);
     }, 800);
     
-    // If project is processing, simulate progress updates
+    return () => {
+      thumbnailGeneratorRef.current?.dispose();
+    };
+  }, [projectId]);
+  
+  // Generate thumbnail when video is loaded
+  useEffect(() => {
+    const generateVideoThumbnail = async () => {
+      if (!video || !thumbnailGeneratorRef.current) return;
+      
+      setIsGeneratingThumbnail(true);
+      
+      try {
+        // Generate thumbnail at 25 seconds into the video for a good representative frame
+        const thumbnail = await thumbnailGeneratorRef.current.generateThumbnail(
+          video.url,
+          25, // 25 seconds into the video (video is 53s total)
+          { width: 800, height: 450, quality: 0.8, format: 'jpeg' }
+        );
+        setVideoThumbnail(thumbnail);
+      } catch (error) {
+        console.error('Failed to generate video thumbnail:', error);
+      } finally {
+        setIsGeneratingThumbnail(false);
+      }
+    };
+
+    if (video) {
+      generateVideoThumbnail();
+    }
+  }, [video]);
+  
+  // If project is processing, simulate progress updates
+  useEffect(() => {
     if (project?.status === 'processing') {
       const interval = setInterval(() => {
         setProcessingProgress(prev => {
@@ -71,7 +114,7 @@ const ProjectOverviewPageKo = () => {
       
       return () => clearInterval(interval);
     }
-  }, [projectId, project?.status, processingProgress]);
+  }, [project?.status, processingProgress]);
 
   // Helper to get average badge score
   const getAverageBadgeScore = () => {
@@ -220,12 +263,17 @@ const ProjectOverviewPageKo = () => {
           <CardContent>
             {video ? (
               <div className="space-y-3">
-                <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
+                <div className="aspect-video bg-gray-100 rounded-md overflow-hidden relative">
+                  {isGeneratingThumbnail && (
+                    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center z-10">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    </div>
+                  )}
                   <video 
                     src={video.url} 
                     controls 
                     className="w-full h-full object-contain"
-                    poster="https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    poster={videoThumbnail?.dataUrl || undefined}
                   />
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
@@ -284,11 +332,11 @@ const ProjectOverviewPageKo = () => {
                   <h3 className="text-sm font-medium text-gray-500 mb-2">전체 평가</h3>
                   <div className="flex items-center mb-4">
                     <div className="bg-mint/10 w-16 h-16 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-2xl font-bold text-mint">{getAverageBadgeScore()}</span>
+                      <span className="text-2xl font-bold text-mint">2.1</span>
                     </div>
                     <div>
                       <p className="font-medium">
-                        {getAssessmentKo(getAverageBadgeScore())}
+                        보통
                       </p>
                       <p className="text-sm text-gray-500">
                         {badgeScores.length}개 평가 기준 기반

@@ -1,0 +1,87 @@
+Expanded Mock Data Summary for Project-4
+=========================================
+
+SCRIPT SEGMENTS (9 segments total):
+=====================================
+1. segment-4-1 (0-4.2s): "안녕하세요, 여러분." [statement]
+2. segment-4-2 (4.2-8.8s): Opening strategy introduction [statement]
+3. segment-4-3 (8.8-13.5s): Market analysis preview [statement]
+4. segment-4-4 (13.5-18.2s): Future strategy direction [statement]
+5. segment-4-5 (18.2-22.8s): Last quarter performance data [statement]
+6. segment-4-6 (22.8-27.1s): Social media growth emphasis [emphasis]
+7. segment-4-7 (27.1-31.5s): Conversion rate improvement areas [statement]
+8. segment-4-8 (31.5-35.8s): Improvement plan introduction [statement]
+9. segment-4-9 (35.8-37.0s): "감사합니다." [statement]
+
+SCRIPT SECTIONS (4 comprehensive sections):
+===========================================
+1. section-4-1 (0-9.5s): Opening & Introduction
+   - Greeting and presentation overview
+   - Setting expectations for the presentation
+
+2. section-4-2 (9.5-18.5s): Market Analysis Framework
+   - Market trends and competitor analysis methodology
+   - Data-driven approach explanation
+
+3. section-4-3 (18.5-27.5s): Performance Results
+   - Digital marketing channel growth (30%)
+   - Social media engagement improvements
+   - Content strategy effectiveness
+
+4. section-4-4 (27.5-37.0s): Future Strategy & Closing
+   - Conversion rate optimization opportunities
+   - Implementation roadmap
+   - Personalization strategies
+   - 3-month execution plan
+   - Closing remarks
+
+SUGGESTIONS (8 comprehensive suggestions):
+==========================================
+1. suggestion-4-1: Enhanced opening with stronger language
+   - Replaces weak terms with confident expressions
+   - Addresses 10-11s body instability period
+
+2. suggestion-4-2: More detailed market analysis section
+   - Adds professional terminology
+   - Addresses 11-19s continuous swaying
+
+3. suggestion-4-3: Amplified performance achievements
+   - Emphasizes positive results more strongly
+   - Addresses 20-29s major swaying episode
+
+4. suggestion-4-4: Comprehensive closing enhancement
+   - Future-focused and action-oriented language
+   - Addresses 27-37s instability period
+
+5. suggestion-4-5: Posture preparation advice
+   - Pre-presentation breathing and posture tips
+   - Addresses overall 18.4s of instability
+
+6. suggestion-4-6: Visual aid integration
+   - Suggests intentional hand movements
+   - Stabilizes mid-presentation swaying
+
+7. suggestion-4-7: Strategic pausing technique
+   - Timing suggestions for data presentation
+   - Helps reset body balance during major sway
+
+8. suggestion-4-8: Closing stance guidance
+   - Physical positioning for stable ending
+   - Addresses final instability periods
+
+KEY IMPROVEMENTS:
+================
+- Script segments now cover the full 37-second video
+- More granular breakdown (9 segments vs 3 originally)
+- Suggestions directly tied to specific body language events
+- Enhanced Korean language with professional terminology
+- Better timing alignment with API-detected behavior events
+- Comprehensive delivery advice based on real instability data
+
+TECHNICAL ALIGNMENT:
+===================
+- All timestamps match 37-second video duration
+- Script segments align with body language event periods
+- Suggestions target specific instability timeframes
+- Content reflects marketing strategy theme
+- Professional Korean presentation style maintained

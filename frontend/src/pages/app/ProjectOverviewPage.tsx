@@ -32,7 +32,7 @@ const ProjectOverviewPage = () => {
           id: `${projectId}-demo`,
           projectId: projectId!,
           url: '/demo-videos/demo.mp4',
-          duration: 596, // Demo video duration in seconds
+          duration: 53, // Demo video actual duration in seconds (0:53)
           resolution: {
             width: 1280,
             height: 720,

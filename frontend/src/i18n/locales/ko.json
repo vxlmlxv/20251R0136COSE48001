@@ -30,7 +30,7 @@
   "landing": {
     "hero_title": "자신감있는 발표",
     "hero_title_accent": "프레피와 함께",
-    "hero_subtitle": "AI 기반 발표 영상 피드백으로 몸짓 언어, 표정, 그리고 스크립트를 몇 분 안에 개선하세요.",
+    "hero_subtitle": "AI 기반 발표 영상 피드백으로 빠르게 발전하세요.",
     "start_free": "무료로 시작하기",
     "learn_more": "자세히 알아보기",
     "how_preffy_helps": "Preffy가 도움을 주는 방법",
@@ -187,10 +187,10 @@
   "body_feedback": {
     "title": "바디 랭귀지 피드백",
     "back_to_overview": "개요로 돌아가기",
-    "eye_contact": "시선 처리",
-    "body_stability": "몸 안정성",
-    "head_posture": "고개 자세",
-    "self_touching": "얼굴 만지기",
+    "eye_contact": "시선을 아래로",
+    "body_stability": "좌우로 신체 흔들기",
+    "head_posture": "고개 기울이기",
+    "self_touching": "얼굴이나 머리 만지기",
     "facing_away": "뒤돌아서기",
     "key_moments": "주요 순간",
     "click_to_jump": "클릭하여 이동",

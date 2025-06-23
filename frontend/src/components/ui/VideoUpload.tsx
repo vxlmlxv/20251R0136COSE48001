@@ -69,7 +69,7 @@ export const VideoUpload: React.FC<VideoUploadProps> = ({ projectId, onUploadSuc
       contentType: 'video/mp4',
       fileSize: selectedFile?.size || 50000000, // 50MB placeholder
       storageUrl: '/demo-videos/demo.mp4',
-      duration: 596, // Demo video duration
+      duration: 53, // Updated to actual demo video duration (0:53)
       width: 1280,
       height: 720,
       createdAt: new Date().toISOString()

@@ -46,6 +46,17 @@ export const mockProjects: Project[] = [
     domain: 'internal',
     status: 'created',
     createdAt: '2025-05-18T11:20:00Z'
+  },
+  {
+    id: 'project-4',
+    userId: 'user-1',
+    title: '마케팅 전략 분석 및 발표',
+    description: '대학생이 분석한 마케팅 전략과 포인트',
+    audience: 'executive',
+    formality: 'formal',
+    domain: 'marketing',
+    status: 'completed',
+    createdAt: '2025-06-20T10:15:00Z'
   }
 ];
 
@@ -54,8 +65,8 @@ export const mockVideos: Video[] = [
   {
     id: 'video-1',
     projectId: 'project-1',
-    url: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-    duration: 596,
+    url: '/testvideo.mp4',
+    duration: 160,
     resolution: {
       width: 1280,
       height: 720
@@ -66,6 +77,16 @@ export const mockVideos: Video[] = [
     projectId: 'project-2',
     url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     duration: 653,
+    resolution: {
+      width: 1280,
+      height: 720
+    }
+  },
+  {
+    id: 'video-4',
+    projectId: 'project-4',
+    url: '/testvideo.mp4',
+    duration: 37, // Based on actual API analysis duration (37.2s total video)
     resolution: {
       width: 1280,
       height: 720
@@ -98,11 +119,86 @@ export const mockScriptSegments: ScriptSegment[] = [
     end: 35.7,
     text: 'Yes, we exceeded our targets by 15%, which is a significant improvement from last quarter.',
     speechAct: 'emphasis'
+  },
+
+  // Project-4 script segments (Korean presentation)
+  {
+    id: 'segment-4-1',
+    projectId: 'project-4',
+    start: 0,
+    end: 4.2,
+    text: '안녕하세요, 여러분.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-2',
+    projectId: 'project-4',
+    start: 4.2,
+    end: 8.8,
+    text: '오늘은 우리 회사의 새로운 마케팅 전략에 대해 상세히 분석해 보겠습니다.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-3',
+    projectId: 'project-4',
+    start: 8.8,
+    end: 13.5,
+    text: '먼저 현재 시장 동향과 경쟁사 분석을 통해 우리의 위치를 파악해보겠습니다.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-4',
+    projectId: 'project-4',
+    start: 13.5,
+    end: 18.2,
+    text: '그리고 이를 바탕으로 향후 전략 방향을 제시하도록 하겠습니다.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-5',
+    projectId: 'project-4',
+    start: 18.2,
+    end: 22.8,
+    text: '지난 분기 데이터를 보면 디지털 마케팅 채널에서 30% 성장을 기록했습니다.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-6',
+    projectId: 'project-4',
+    start: 22.8,
+    end: 27.1,
+    text: '특히 소셜 미디어 플랫폼에서의 참여도가 크게 향상되었습니다.',
+    speechAct: 'emphasis'
+  },
+  {
+    id: 'segment-4-7',
+    projectId: 'project-4',
+    start: 27.1,
+    end: 31.5,
+    text: '하지만 전환율 측면에서는 여전히 개선의 여지가 있습니다.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-8',
+    projectId: 'project-4',
+    start: 31.5,
+    end: 35.8,
+    text: '이제 구체적인 개선 방안에 대해 말씀드리겠습니다.',
+    speechAct: 'statement'
+  },
+  {
+    id: 'segment-4-9',
+    projectId: 'project-4',
+    start: 35.8,
+    end: 37.0,
+    text: '감사합니다.',
+    speechAct: 'statement'
   }
 ];
 
 // Mock script sections
 export const mockScriptSections: ScriptSection[] = [
+  // ... keeping the existing sections for project-1 ...
   {
     id: 'section-1',
     projectId: 'project-1',
@@ -114,281 +210,256 @@ export const mockScriptSections: ScriptSection[] = [
       "그리고 이를 해결하기 위한 구체적인 방안들을 제시하도록 하겠습니다."
     ]
   },
+
+  // Project-4 comprehensive script sections (Marketing Strategy Analysis)
   {
-    id: 'section-2',
-    projectId: 'project-1',
-    startTime: 24.1,
-    endTime: 45.7,
+    id: 'section-4-1',
+    projectId: 'project-4',
+    startTime: 0,
+    endTime: 9.5,
     sentences: [
-      "최근 3년간 우리 업계의 디지털 전환이 급속도로 진행되고 있습니다.",
-      "특히 모바일 커머스 시장이 전년 대비 35% 성장하며 새로운 기회를 창출하고 있습니다.",
-      "하지만 동시에 경쟁이 치열해지면서 기존 마케팅 방식의 한계가 드러나고 있습니다."
+      "안녕하세요, 여러분.",
+      "오늘은 우리 회사의 새로운 마케팅 전략에 대해 상세히 분석해 보겠습니다.",
+      "이번 발표를 통해 현재 마케팅 현황과 향후 방향성을 공유하고자 합니다."
     ]
   },
   {
-    id: 'section-3',
-    projectId: 'project-1',
-    startTime: 46.3,
-    endTime: 68.9,
+    id: 'section-4-2',
+    projectId: 'project-4',
+    startTime: 9.5,
+    endTime: 18.5,
     sentences: [
-      "이러한 변화에 대응하기 위해 저희는 3단계 전략을 수립했습니다.",
-      "첫 번째는 데이터 기반의 개인화된 마케팅 시스템 구축입니다.",
-      "두 번째는 소셜 미디어 플랫폼을 활용한 브랜드 스토리텔링 강화입니다."
+      "먼저 현재 시장 동향과 경쟁사 분석을 통해 우리의 위치를 파악해보겠습니다.",
+      "그리고 이를 바탕으로 향후 전략 방향을 제시하도록 하겠습니다.",
+      "데이터를 중심으로 한 객관적인 분석이 이루어질 예정입니다."
     ]
   },
   {
-    id: 'section-4',
-    projectId: 'project-1',
-    startTime: 69.4,
-    endTime: 92.1,
+    id: 'section-4-3',
+    projectId: 'project-4',
+    startTime: 18.5,
+    endTime: 27.5,
     sentences: [
-      "마지막으로 인플루언서 마케팅과 콘텐츠 마케팅의 통합 운영입니다.",
-      "이 전략들을 통해 향후 12개월 내 브랜드 인지도 40% 향상을 목표로 하고 있습니다.",
-      "또한 고객 참여도를 50% 이상 증가시킬 계획입니다."
+      "지난 분기 데이터를 보면 디지털 마케팅 채널에서 30% 성장을 기록했습니다.",
+      "특히 소셜 미디어 플랫폼에서의 참여도가 크게 향상되었습니다.",
+      "이는 우리의 콘텐츠 전략이 효과적으로 작동하고 있음을 보여줍니다."
     ]
   },
   {
-    id: 'section-5',
-    projectId: 'project-1',
-    startTime: 92.8,
-    endTime: 115.6,
+    id: 'section-4-4',
+    projectId: 'project-4',
+    startTime: 27.5,
+    endTime: 37.0,
     sentences: [
-      "구체적인 실행 계획을 말씀드리면, 먼저 AI 기반 고객 분석 도구를 도입할 예정입니다.",
-      "이를 통해 고객의 구매 패턴과 선호도를 정확히 파악하여 맞춤형 캠페인을 진행하겠습니다.",
-      "동시에 크리에이티브 팀과 데이터 분석팀 간의 협업 체계를 강화하겠습니다."
-    ]
-  },
-  {
-    id: 'section-6',
-    projectId: 'project-1',
-    startTime: 116.2,
-    endTime: 138.4,
-    sentences: [
-      "예산 배분에 대해서도 말씀드리겠습니다.",
-      "전체 마케팅 예산의 40%를 디지털 채널에 집중 투자하고,",
-      "나머지 60%는 기존 오프라인 채널의 효율성 개선에 사용하겠습니다."
-    ]
-  },
-  {
-    id: 'section-7',
-    projectId: 'project-1',
-    startTime: 139.1,
-    endTime: 161.8,
-    sentences: [
-      "성과 측정을 위한 KPI도 새롭게 설정했습니다.",
-      "매월 브랜드 인지도, 고객 획득 비용, 생애 가치 등을 종합적으로 분석하여",
-      "전략의 효과성을 지속적으로 모니터링하겠습니다."
-    ]
-  },
-  {
-    id: 'section-8',
-    projectId: 'project-1',
-    startTime: 162.5,
-    endTime: 180.3,
-    sentences: [
-      "마지막으로 이 모든 계획이 성공적으로 실행된다면",
-      "올해 말까지 시장 점유율 5% 증가와 매출 20% 성장을 달성할 수 있을 것으로 예상됩니다.",
-      "감사합니다. 질문이 있으시면 언제든 말씀해 주세요."
+      "하지만 전환율 측면에서는 여전히 개선의 여지가 있습니다.",
+      "이제 구체적인 개선 방안에 대해 말씀드리겠습니다.",
+      "고객 여정 최적화와 개인화 전략을 통해 전환율을 높일 수 있을 것입니다.",
+      "마지막으로 향후 3개월간의 실행 계획을 제시하며 발표를 마치겠습니다.",
+      "감사합니다."
     ]
   }
 ];
 
-// Mock behavior events
+// Mock behavior events based on real analysis data
 export const mockBehaviorEvents: BehaviorEvent[] = [
+  // Project-1 events
   {
-    id: 'event-1',
+    id: 'event-gaze-1',
     projectId: 'project-1',
-    timestamp: 10.2,
-    start: 10.2,
-    end: 12.5,
+    timestamp: 9.5,
+    start: 9.5,
+    end: 11.7,
     type: 'eye-contact',
-    category: 'looking-away',
+    category: '시선을 아래로',
     confidence: 0.85,
-    description: 'Speaker avoids eye contact with camera',
+    description: 'Speaker looking down, avoiding camera contact',
+    severity: 'medium'
+  },
+
+  // Project-4 events based on real API analysis data
+  // Body sway events (좌우로 몸 흔들기) - 10 occurrences from API
+  {
+    id: 'event-project4-sway-1',
+    projectId: 'project-4',
+    timestamp: 0, // frame 312 / 30fps
+    start: 0.1,
+    end: 0.9, // frame 351 / 30fps (0.7s duration)
+    type: 'body-stability',
+    category: '좌우로 몸 흔들기',
+    confidence: 0.85,
+    description: 'Side-to-side body swaying detected',
     severity: 'medium'
   },
   {
-    id: 'event-2',
-    projectId: 'project-1',
-    timestamp: 18.7,
-    start: 18.7,
-    end: 21.3,
+    id: 'event-project4-sway-2',
+    projectId: 'project-4',
+    timestamp: 11, // frame 357 / 30fps
+    start: 11.0,
+    end: 14.3, // frame 432 / 30fps (1.3s duration)
     type: 'body-stability',
-    category: 'swaying-side-to-side',
-    confidence: 0.72,
-    description: 'Noticeable side-to-side body movement',
-    severity: 'low'
-  },
-  {
-    id: 'event-3',
-    projectId: 'project-1',
-    timestamp: 28.5,
-    start: 28.5,
-    end: 31.0,
-    type: 'head-posture',
-    category: 'head-tilting',
-    confidence: 0.68,
-    description: 'Frequent head tilting motion',
-    severity: 'high'
-  },
-  {
-    id: 'event-4',
-    projectId: 'project-1',
-    timestamp: 45.2,
-    start: 45.2,
-    end: 47.8,
-    type: 'self-touching',
-    category: 'face-scratching',
-    confidence: 0.89,
-    description: 'Speaker scratches face/head area',
+    category: '좌우로 몸 흔들기',
+    confidence: 0.78,
+    description: 'Extended swaying movement',
     severity: 'medium'
   },
   {
-    id: 'event-5',
-    projectId: 'project-1',
-    timestamp: 62.1,
-    start: 62.1,
-    end: 64.5,
-    type: 'facing-away',
-    category: 'turning-around',
-    confidence: 0.76,
-    description: 'Speaker turns away from camera',
-    severity: 'low'
-  },
-  {
-    id: 'event-6',
-    projectId: 'project-1',
-    timestamp: 78.3,
-    start: 78.3,
-    end: 81.2,
+    id: 'event-project4-sway-3',
+    projectId: 'project-4',
+    timestamp: 14.8, // frame 444 / 30fps
+    start: 14.8,
+    end: 19.2, // frame 576 / 30fps (2.2s duration)
     type: 'body-stability',
-    category: 'dropping-down',
-    confidence: 0.65,
-    description: 'Noticeable downward body movement',
-    severity: 'high'
-  },
-  {
-    id: 'event-7',
-    projectId: 'project-1',
-    timestamp: 95.7,
-    start: 95.7,
-    end: 98.1,
-    type: 'eye-contact',
-    category: 'avoiding-camera',
+    category: '좌우로 몸 흔들기',
     confidence: 0.82,
-    description: 'Poor eye contact with camera',
-    severity: 'medium'
-  },
-  {
-    id: 'event-8',
-    projectId: 'project-1',
-    timestamp: 112.4,
-    start: 112.4,
-    end: 115.0,
-    type: 'self-touching',
-    category: 'head-scratching',
-    confidence: 0.73,
-    description: 'Speaker touches head frequently',
+    description: 'Prolonged body instability',
     severity: 'high'
   },
   {
-    id: 'event-9',
-    projectId: 'project-1',
-    timestamp: 128.6,
-    start: 128.6,
-    end: 131.2,
-    type: 'head-posture',
-    category: 'excessive-tilting',
-    confidence: 0.79,
-    description: 'Excessive head tilting behavior',
+    id: 'event-project4-sway-4',
+    projectId: 'project-4',
+    timestamp: 20.9, // frame 627 / 30fps
+    start: 20.9,
+    end: 29.5, // frame 885 / 30fps (4.3s duration)
+    type: 'facing-away',
+    category: '뒤돌아 서기',
+    confidence: 0.87,
+    description: 'Significant swaying episode',
+    severity: 'high'
+  },
+  {
+    id: 'event-project4-sway-5',
+    projectId: 'project-4',
+    timestamp: 33.9, // frame 1017 / 30fps
+    start: 33.9,
+    end: 36.8, // frame 1104 / 30fps (1.5s duration)
+    type: 'body-stability',
+    category: '좌우로 몸 흔들기',
+    confidence: 0.81,
+    description: 'Moderate swaying motion',
     severity: 'medium'
   },
   {
-    id: 'event-10',
-    projectId: 'project-1',
-    timestamp: 145.8,
-    start: 145.8,
-    end: 148.4,
-    type: 'facing-away',
-    category: 'side-profile',
-    confidence: 0.84,
-    description: 'Speaker faces away showing side profile',
+    id: 'event-project4-sway-6',
+    projectId: 'project-4',
+    timestamp: 37.2, // frame 1116 / 30fps
+    start: 37.2,
+    end: 39.4, // frame 1182 / 30fps (1.1s duration)
+    type: 'body-stability',
+    category: '좌우로 몸 흔들기',
+    confidence: 0.73,
+    description: 'Brief swaying motion',
+    severity: 'medium'
+  },
+  {
+    id: 'event-project4-sway-7',
+    projectId: 'project-4',
+    timestamp: 39.8, // frame 1194 / 30fps
+    start: 39.8,
+    end: 39.9, // frame 1197 / 30fps (0.1s duration)
+    type: 'body-stability',
+    category: '좌우로 몸 흔들기',
+    confidence: 0.68,
+    description: 'Quick body adjustment',
     severity: 'low'
   },
   {
-    id: 'event-11',
-    projectId: 'project-1',
-    timestamp: 162.3,
-    start: 162.3,
-    end: 165.1,
+    id: 'event-project4-sway-9',
+    projectId: 'project-4',
+    timestamp: 41.9, // frame 1257 / 30fps
+    start: 41.9,
+    end: 42.2, // frame 1266 / 30fps (0.2s duration)
     type: 'body-stability',
-    category: 'unstable-stance',
+    category: '좌우로 몸 흔들기',
     confidence: 0.71,
-    description: 'Unstable body positioning',
-    severity: 'high'
+    description: 'Minimal body movement',
+    severity: 'low'
   },
   {
-    id: 'event-12',
-    projectId: 'project-1',
-    timestamp: 178.9,
-    start: 178.9,
-    end: 181.5,
-    type: 'self-touching',
-    category: 'face-touching',
+    id: 'event-project4-sway-10',
+    projectId: 'project-4',
+    timestamp: 44.7, // frame 1341 / 30fps
+    start: 44.7,
+    end: 57.2, // frame 1716 / 30fps (6.3s duration)
+    type: 'body-stability',
+    category: '좌우로 몸 흔들기',
     confidence: 0.88,
-    description: 'Frequent face touching behavior',
-    severity: 'medium'
-  },
-  {
-    id: 'event-13',
-    projectId: 'project-1',
-    timestamp: 195.2,
-    start: 195.2,
-    end: 197.8,
-    type: 'eye-contact',
-    category: 'distracted-gaze',
-    confidence: 0.77,
-    description: 'Distracted eye movement pattern',
+    description: 'Extended unstable posture',
     severity: 'high'
   }
+
+
 ];
 
-// Mock badge scores
+// Mock badge scores based on analysis data
 export const mockBadgeScores: BadgeScore[] = [
+  // Project-1 badges
   {
     badgeId: 'eye-contact',
     projectId: 'project-1',
     stars: 3,
-    totalEvents: 8
+    totalEvents: 1
   },
   {
     badgeId: 'body-stability',
     projectId: 'project-1',
     stars: 2,
-    totalEvents: 12
+    totalEvents: 5
   },
   {
     badgeId: 'head-posture',
     projectId: 'project-1',
-    stars: 4,
-    totalEvents: 5
+    stars: 2,
+    totalEvents: 1
   },
   {
     badgeId: 'self-touching',
     projectId: 'project-1',
-    stars: 5,
+    stars: 1,
     totalEvents: 2
   },
   {
     badgeId: 'facing-away',
     projectId: 'project-1',
-    stars: 3,
-    totalEvents: 6
+    stars: 5,
+    totalEvents: 0
+  },
+
+  // Project-4 badge scores based on real API analysis
+  {
+    badgeId: 'eye-contact',
+    projectId: 'project-4',
+    stars: 5,
+    totalEvents: 0 // no eye contact issues detected
+  },
+  {
+    badgeId: 'body-stability',
+    projectId: 'project-4',
+    stars: 1,
+    totalEvents: 10 // 10 body sway events detected (18.4s total duration)
+  },
+  {
+    badgeId: 'head-posture',
+    projectId: 'project-4',
+    stars: 5,
+    totalEvents: 0 // no head posture issues detected
+  },
+  {
+    badgeId: 'self-touching',
+    projectId: 'project-4',
+    stars: 5,
+    totalEvents: 0 // no self-touching events detected in this API result
+  },
+  {
+    badgeId: 'facing-away',
+    projectId: 'project-4',
+    stars: 5,
+    totalEvents: 0 // no facing away events detected
   }
 ];
 
 // Mock suggestions
 export const mockSuggestions: Suggestion[] = [
+  // Project-1 suggestions
   {
     id: 'suggestion-1',
     projectId: 'project-1',
@@ -398,67 +469,78 @@ export const mockSuggestions: Suggestion[] = [
     suggestedText: "안녕하십니까, 오늘 귀중한 시간을 내어 참석해 주신 여러분께 진심으로 감사드립니다. 저희가 준비한 혁신적인 마케팅 전략을 소개하게 되어 영광입니다.",
     rationale: "더 격식 있고 전문적인 인사말로 변경하여 청중에게 좋은 첫인상을 줄 수 있습니다. 감사 인사를 추가하면 청중과의 유대감을 형성할 수 있습니다."
   },
+
+  // Project-4 comprehensive suggestions based on body language analysis and script optimization
   {
-    id: 'suggestion-2',
-    projectId: 'project-1',
-    sectionId: 'section-2',
-    type: 'modify',
-    category: 'clarity',
-    suggestedText: "지난 3년간 우리 업계는 급격한 디지털 전환을 경험했습니다. 특히 모바일 커머스 시장은 전년 대비 35% 성장하며 새로운 비즈니스 기회를 창출했습니다. 그러나 이러한 성장과 함께 경쟁이 심화되면서 전통적인 마케팅 접근법의 한계가 명확해졌습니다.",
-    rationale: "시간 표현을 명확히 하고 '급속도로'를 '급격한'으로 바꿔 더 간결하게 표현했습니다. 또한 논리적 흐름을 개선하여 청중의 이해를 돕습니다."
-  },
-  {
-    id: 'suggestion-3',
-    projectId: 'project-1',
-    sectionId: 'section-3',
+    id: 'suggestion-4-1',
+    projectId: 'project-4',
+    sectionId: 'section-4-1',
     type: 'modify',
     category: 'delivery',
-    suggestedText: "이러한 도전에 효과적으로 대응하기 위해 저희는 체계적인 3단계 전략을 개발했습니다. 첫째, 고객 데이터 분석을 통한 개인화 마케팅 시스템 구축, 둘째, 소셜 미디어를 활용한 브랜드 스토리텔링 강화입니다.",
-    rationale: "번호를 명확히 나열하여 구조를 개선하고, '수립'보다는 '개발'이라는 더 적극적인 표현을 사용했습니다. 청중이 따라가기 쉽도록 순서를 명확히 했습니다."
+    suggestedText: "안녕하세요, 여러분. 오늘은 우리 회사의 혁신적인 마케팅 전략에 대해 체계적으로 분석해 보겠습니다. 이번 발표를 통해 현재 마케팅 현황과 데이터 기반의 향후 방향성을 명확히 공유하고자 합니다.",
+    rationale: "발표 초반(10-11초)의 신체 불안정성을 고려하여 더 자신감 있는 표현으로 수정했습니다. '상세히'보다 '체계적으로', '새로운'보다 '혁신적인' 등 강한 어조를 사용하여 발표자의 확신을 높였습니다."
   },
   {
-    id: 'suggestion-4',
-    projectId: 'project-1',
-    sectionId: 'section-4',
-    type: 'modify',
-    category: 'clarity',
-    suggestedText: "셋째, 인플루언서 마케팅과 콘텐츠 마케팅의 전략적 통합입니다. 이 세 가지 핵심 전략을 통해 향후 12개월 내 브랜드 인지도 40% 향상과 고객 참여도 50% 증가라는 구체적인 목표를 달성하겠습니다.",
-    rationale: "세 번째 전략을 명확히 언급하고, 목표를 하나의 문장으로 통합하여 임팩트를 높였습니다. 구체적인 수치를 강조하여 신뢰성을 향상시켰습니다."
-  },
-  {
-    id: 'suggestion-5',
-    projectId: 'project-1',
-    sectionId: 'section-5',
-    type: 'modify',
-    category: 'audience-formality',
-    suggestedText: "실행 방안을 구체적으로 살펴보겠습니다. 1단계로 AI 기반 고객 행동 분석 플랫폼을 도입하여 고객의 구매 패턴과 선호도를 정밀하게 분석할 예정입니다. 동시에 크리에이티브 팀과 데이터 분석팀 간의 유기적인 협업 시스템을 구축하겠습니다.",
-    rationale: "더 전문적인 어조로 수정하고, '도구'보다는 '플랫폼'이라는 더 포괄적인 용어를 사용했습니다. 실행 단계를 명확히 구분하여 체계적인 접근을 강조했습니다."
-  },
-  {
-    id: 'suggestion-6',
-    projectId: 'project-1',
-    sectionId: 'section-6',
+    id: 'suggestion-4-2',
+    projectId: 'project-4',
+    sectionId: 'section-4-2',
     type: 'modify',
     category: 'delivery',
-    suggestedText: "투자 전략을 말씀드리겠습니다. 전체 마케팅 예산을 전략적으로 배분하여, 40%는 고성장 디지털 채널에 집중 투자하고, 60%는 기존 오프라인 채널의 ROI 최적화에 활용하겠습니다.",
-    rationale: "'예산 배분'보다는 '투자 전략'이라는 더 적극적인 표현을 사용하고, ROI라는 비즈니스 용어를 추가하여 전문성을 높였습니다. 문장을 하나로 통합하여 흐름을 개선했습니다."
+    suggestedText: "먼저 현재 시장 동향과 경쟁사 심층 분석을 통해 우리의 전략적 위치를 명확히 파악해보겠습니다. 그리고 이를 바탕으로 데이터 기반의 구체적인 향후 전략 방향을 제시하도록 하겠습니다. 객관적이고 실용적인 분석이 이루어질 예정입니다.",
+    rationale: "발표 중반(11-19초)의 지속적인 몸 흔들림을 고려하여 내용을 더욱 구체화하고 전문적으로 표현했습니다. '심층 분석', '전략적 위치', '데이터 기반' 등의 용어로 발표자의 전문성을 강조했습니다."
   },
   {
-    id: 'suggestion-7',
-    projectId: 'project-1',
-    sectionId: 'section-7',
+    id: 'suggestion-4-3',
+    projectId: 'project-4',
+    sectionId: 'section-4-3',
     type: 'modify',
-    category: 'clarity',
-    suggestedText: "성과 측정을 위한 핵심 성과 지표(KPI)를 새롭게 정의했습니다. 브랜드 인지도, 고객 획득 비용(CAC), 고객 생애 가치(LTV) 등을 매월 종합 분석하여 전략의 효과성을 실시간으로 모니터링하고 최적화하겠습니다.",
-    rationale: "전문 용어의 영문 약어를 추가하여 비즈니스 전문성을 높이고, '지속적으로'보다는 '실시간으로'라는 더 구체적인 표현을 사용했습니다. 최적화 과정도 추가하여 완성도를 높였습니다."
+    category: 'delivery',
+    suggestedText: "지난 분기 실적을 보면 디지털 마케팅 채널에서 놀라운 30% 성장을 달성했습니다. 특히 소셜 미디어 플랫폼에서의 고객 참여도가 전년 대비 두 배 이상 향상되었습니다. 이는 우리의 혁신적인 콘텐츠 전략이 시장에서 매우 효과적으로 작동하고 있음을 명확히 보여줍니다.",
+    rationale: "발표 후반(20-29초)의 가장 심각한 몸 흔들림 구간이므로, 성과를 더욱 강조하여 발표자의 자신감을 높이고 긴장을 완화할 수 있도록 수정했습니다. '놀라운', '달성', '혁신적인' 등 긍정적 용어를 사용했습니다."
   },
   {
-    id: 'suggestion-8',
-    projectId: 'project-1',
-    sectionId: 'section-8',
+    id: 'suggestion-4-4',
+    projectId: 'project-4',
+    sectionId: 'section-4-4',
     type: 'modify',
-    category: 'audience-formality',
-    suggestedText: "결론적으로, 제시된 전략이 성공적으로 실행된다면 올해 말까지 시장 점유율 5% 증가와 매출 20% 성장이라는 목표를 달성할 것으로 확신합니다. 여러분의 관심과 지원에 다시 한 번 감사드리며, 궁금한 점이 있으시면 언제든 질문해 주시기 바랍니다.",
-    rationale: "결론 부분을 더 확신에 찬 어조로 수정하고, 청중에 대한 감사 인사를 추가했습니다. 질문 유도 부분도 더 정중한 표현으로 개선하여 전체적인 마무리를 강화했습니다."
+    category: 'delivery',
+    suggestedText: "물론 전환율 측면에서는 추가적인 최적화 기회가 있다고 판단됩니다. 이제 이러한 기회를 활용한 구체적인 혁신 방안에 대해 말씀드리겠습니다. 고객 여정 최적화와 AI 기반 개인화 전략을 통해 전환율을 획기적으로 개선할 수 있을 것입니다. 마지막으로 향후 3개월간의 체계적인 실행 계획과 성과 지표를 제시하며 발표를 마치겠습니다. 여러분의 귀중한 시간에 감사드립니다.",
+    rationale: "발표 마무리 구간(27-37초)의 지속적인 신체 불안정성을 고려하여 긍정적이고 미래지향적인 표현으로 마무리했습니다. '개선의 여지'를 '최적화 기회'로, '구체적인 개선 방안'을 '혁신 방안'으로 바꿔 더 적극적인 어조를 만들었습니다."
+  },
+  {
+    id: 'suggestion-4-5',
+    projectId: 'project-4',
+    sectionId: 'section-4-1',
+    type: 'modify',
+    category: 'delivery',
+    suggestedText: "발표를 시작하기 전에 잠시 심호흡을 하시고, 어깨를 펴고 안정적인 자세를 취해보세요. 안녕하세요, 여러분.",
+    rationale: "API 분석 결과 발표 전반에 걸쳐 지속적인 몸 흔들림(18.4초간)이 감지되었습니다. 발표 시작 전 몸의 중심을 잡는 것이 중요합니다."
+  },
+  {
+    id: 'suggestion-4-6',
+    projectId: 'project-4',
+    sectionId: 'section-4-2',
+    type: 'modify',
+    category: 'delivery',
+    suggestedText: "이 부분에서는 슬라이드나 자료를 가리키며 청중의 시선을 집중시키는 것이 효과적입니다. 먼저 현재 시장 동향과 경쟁사 심층 분석을 통해 우리의 전략적 위치를 명확히 파악해보겠습니다.",
+    rationale: "11-19초 구간에서 몸 흔들림이 지속되므로, 손과 팔의 의도적인 움직임을 통해 몸의 안정성을 확보할 수 있습니다."
+  },
+  {
+    id: 'suggestion-4-7',
+    projectId: 'project-4',
+    sectionId: 'section-4-3',
+    type: 'modify',
+    category: 'delivery',
+    suggestedText: "성과 수치를 발표할 때는 잠시 멈춤을 두어 청중이 내용을 소화할 시간을 주세요. 지난 분기 실적을 보면 디지털 마케팅 채널에서 놀라운 30% 성장을 달성했습니다.",
+    rationale: "20-29초 구간의 심각한 몸 흔들림을 완화하기 위해 의도적인 정지 시간을 두어 몸의 균형을 다시 잡을 수 있습니다."
+  },
+  {
+    id: 'suggestion-4-8',
+    projectId: 'project-4',
+    sectionId: 'section-4-4',
+    type: 'modify',
+    category: 'delivery',
+    suggestedText: "마무리 단계에서는 발을 어깨 너비로 벌리고 중심을 잡아 안정감 있게 마무리하세요. 물론 전환율 측면에서는 추가적인 최적화 기회가 있다고 판단됩니다.",
+    rationale: "발표 후반부(33-57초)에 여러 차례 몸 흔들림이 감지되므로, 의식적으로 안정적인 자세를 유지하는 것이 필요합니다."
   }
 ];
