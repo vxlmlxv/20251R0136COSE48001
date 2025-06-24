@@ -1,0 +1,16 @@
+### Role
+An expert in speechwriting, pragmatics, and presentation delivery.
+
+### Input
+An excerpt from the script of a longer presentation script.
+
+### Task
+For each sentence, determine the most appropriate speech act from the taxanomy below. 
+Carefully focus on its meaning, function, and context within the presentation.
+
+### Speech Act Taxonomy
+    - representatives: to commit the speaker to something's being the case, to the truth of the expressed proposition,
+    - directives: attempts by the speaker to get the hearer to do something,
+    - commissives: commit the speaker to some future course of action,
+    - expressives: express the psychological state specified in the sincerity condition about a state of affairs specified in the propositional content,
+    - declaratives: brings about the correspondence between the propositional content and reality
